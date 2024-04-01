@@ -24,10 +24,12 @@ import {
     TextInput,
     TouchableOpacity,
     SafeAreaView,
-    RefreshControl,
     Keyboard,
-    Image
+    Image,
+    Modal
 } from 'react-native';
+
+import { geocodeAsync } from 'expo-location';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -83,6 +85,10 @@ const CompanyPanel = () => {
             flex: 1, // Ocupar espacio igual en ambas columnas
             paddingHorizontal: 5, // Espacio horizontal entre columnas
         },
+        columnB: {
+            flex: 0.75, 
+            paddingHorizontal: 1, 
+        },
         columnT: {
             flex: 0.65, 
             paddingHorizontal: 5, 
@@ -92,7 +98,7 @@ const CompanyPanel = () => {
             paddingHorizontal: 5,
         },
         space: {
-            width: 20
+            width: 15 
         },
         btnCaptureLocation: {
             marginVertical: 10,
@@ -191,6 +197,7 @@ const CompanyPanel = () => {
 
     const [location, setLocation] = useState({latitude:currentUser.latitude, longitude:currentUser.longitude});
 
+    const [showModal, setShowModal] = useState(false);
     const [showSaveButtom, setShowSaveButtom] = useState(true);
     
 
@@ -200,6 +207,10 @@ const CompanyPanel = () => {
                 const region = await MapController.getLocation();
                 // console.log(region);
                 setLocation(region);
+                setShowModal(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 4000);
             } else {
                 AlertModal.showAlert('No tiene permisos para obtener la ubicación.','');
             }
@@ -207,6 +218,15 @@ const CompanyPanel = () => {
             console.log('ERROR captureLocation: '+error);
         }
     };
+
+    const viewMyLocation = async () => {
+        try {
+            console.log('MyLoc');
+        } catch (error) {
+            console.log('ERROR captureLocation: '+error);
+        }
+    };
+
 
     const saveDataCompany = async () => {
         // console.log('saveDataCompany');
@@ -284,7 +304,7 @@ const CompanyPanel = () => {
 	};
 
 	useEffect(() => {
-		
+		setShowModal(false);
         // console.log(logoBase);
         setLogoBase(currentUser.logo);
         setLogoUrl(loadImageFromBase64(currentUser.logo));
@@ -334,7 +354,7 @@ const CompanyPanel = () => {
                             <View style={sty.space}>
                             </View> 
         
-                            <View style={sty.columnT}>
+                            <View style={sty.columnB}>
                                 <View style={sty.btnCaptureLocation}>
                                     <MenuButtonItem 
                                         icon = {null}
@@ -365,6 +385,16 @@ const CompanyPanel = () => {
                                     }
                                 </View>
                             </View>
+
+                            {/* <View style={{ 
+                                marginRight: 20,
+                                padding: 1,
+                                color:'#05f' 
+                                }}>
+                                <TouchableOpacity onPress={() => viewMyLocation()} > 
+                                    <Text>Ver</Text>
+                                </TouchableOpacity> 
+                            </View> */}
                         </View> 
         
                         <View style={sty.row}>
@@ -490,6 +520,25 @@ const CompanyPanel = () => {
                         </View>
                         
                     </ScrollView>
+
+                    <>
+                        <Modal
+                            visible={showModal} 
+                            transparent={true}
+                            animationIn="slideInRight" 
+                            animationOut="slideOutRight"  
+                            // animationType="fade" 
+                            >
+                            <View style={{
+                                backgroundColor:'#fff',
+                                marginHorizontal:50, 
+                                marginVertical:40 
+                                }}>	
+                                <Text>Se estableció su posición actual como ubicación para su Empresa.</Text>
+                            </View>
+                        </Modal>
+                    </>
+
                 </View>
 
                 {showSaveButtom ? (
