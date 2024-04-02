@@ -56,13 +56,18 @@ class UsersController {
 				reject('Por favor ingrese el RUT de su Empresa.');
 			} 
 		
+
+			if (data.password.length < 8) {
+				reject('La contraseña debe tener al menos 8 caracteres como minínimo.');
+			}
+
 			var dataConvert = {};
 			
 			if (data.userType === 'company') {
 				dataConvert = {
 					rutDocumento: data.document,
 					razonSocial: "",
-					nombrePropietario: data.firstName + ' ' + data.lastName,
+					nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
 					rubro: "",
 					direccion: "",
 					ciudad: "",
@@ -70,25 +75,25 @@ class UsersController {
 					latitude: 0.00,
 					longitude: 0.00,
 
-					nombre: data.firstName,
-					apellido: data.lastName,
-					nombreUsuario: data.username,
-					contrasenia: data.password,
-					celular: data.movil,
-					correo: data.email,
+					nombre: data.firstName.trim(),
+					apellido: data.lastName.trim(),
+					nombreUsuario: data.username.trim(),
+					contrasenia: data.password.trim(),
+					celular: data.movil.trim(),
+					correo: data.email.trim(),
 					tipoUsuario: data.userType,
 					logo: '',
 				}
 			} else {
 				dataConvert = {
-					documento: data.document,
+					documento: data.document.trim(),
 
-					nombre: data.firstName,
-					apellido: data.lastName,
-					nombreUsuario: data.username,
-					contrasenia: data.password,
-					celular: data.movil,
-					correo: data.email,
+					nombre: data.firstName.trim(),
+					apellido: data.lastName.trim(),
+					nombreUsuario: data.username.trim(),
+					contrasenia: data.password.trim(),
+					celular: data.movil.trim(),
+					correo: data.email.trim(),
 					tipoUsuario: data.userType,
 
 					// tieneNotificaciones: data.recibe
