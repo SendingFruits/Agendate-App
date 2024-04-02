@@ -61,6 +61,9 @@ class UsersController {
 				reject('La contraseña debe tener al menos 8 caracteres como minínimo.');
 			}
 
+			if (data.password2 != data.password)
+				reject('Las contraseñas deben coincidir.');
+
 			var dataConvert = {};
 			
 			if (data.userType === 'company') {

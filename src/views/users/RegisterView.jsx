@@ -24,6 +24,7 @@ const RegisterView = () => {
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [password2, setPassword2] = useState('');
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 
@@ -64,6 +65,9 @@ const RegisterView = () => {
 				break;
 			case 'password':
 				setPassword(text);
+				break
+			case 'password2':
+				setPassword2(text);
 				break;
 			case 'firstName':
 				setFirstName(text);
@@ -95,6 +99,7 @@ const RegisterView = () => {
 		const formData = {
 			username,
 			password,
+			password2,
 			firstName,
 			lastName,
 			movil,
@@ -114,6 +119,7 @@ const RegisterView = () => {
 
 				setUsername('');
 				setPassword('');
+				setPassword2('');
 				setFirstName('');
 				setLastName('');
 				setMovil('');
@@ -138,6 +144,7 @@ const RegisterView = () => {
 	useEffect(() => {
         setUsername('');
         setPassword('');
+		setPassword2('');
 		setFirstName('');
 		setLastName('');
 		setMovil('');
@@ -171,11 +178,23 @@ const RegisterView = () => {
 					<TextInput
 						// keyboardType="text"
 						style={styles.input}
-						placeholder="Password"
+						placeholder="Contraseña"
 						secureTextEntry
 						value={password}
 						// onChangeText={setPassword}
 						onChangeText={(text) => handleFieldChange(text, 'password')}
+					/>
+				</View>
+
+				<View style={styles.inputContainer}>
+					<TextInput
+						// keyboardType="text"
+						style={styles.input}
+						placeholder="Confirmar Contraseña"
+						secureTextEntry
+						value={password2}
+						// onChangeText={setPassword}
+						onChangeText={(text) => handleFieldChange(text, 'password2')}
 					/>
 				</View>
 			</View>
