@@ -259,6 +259,7 @@ class UserServices {
                 }
             })
             .catch(error => {
+                console.log(error.response.data);
                 reject(error.response.data);
             });
         });

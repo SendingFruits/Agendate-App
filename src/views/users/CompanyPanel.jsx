@@ -11,7 +11,7 @@ import MapController from '../../controllers/MapController';
 import UsersController from '../../controllers/UsersController';
 import AlertModal from '../utils/AlertModal';
 
-import { 
+import React, { 
     useContext, useState, useEffect
 } from 'react';
 
@@ -26,10 +26,11 @@ import {
     SafeAreaView,
     Keyboard,
     Image,
+    RefreshControl,
     Modal
 } from 'react-native';
 
-import { geocodeAsync } from 'expo-location';
+// import { geocodeAsync } from 'expo-location';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -37,7 +38,7 @@ const { width, height } = Dimensions.get('window');
 
 const CompanyPanel = () => {
 
-    const { currentUser, setCurrentUser } = useContext(AuthContext);
+    const { currentUser, setCurrentUser, navigation } = useContext(AuthContext);
     // console.log(currentUser);
     var guid = currentUser.guid;
 
@@ -182,7 +183,6 @@ const CompanyPanel = () => {
         },
     });
 
-
     const [rut, setRut] = useState(currentUser.rut);
     const [owner, setOwner] = useState(currentUser.owner);
     const [businessName, setBusinessName] = useState(currentUser.businessName);
@@ -200,6 +200,22 @@ const CompanyPanel = () => {
     const [showModal, setShowModal] = useState(false);
     const [showSaveButtom, setShowSaveButtom] = useState(true);
     
+    const [refreshing, setRefreshing] = useState(false);
+
+	const onRefresh = React.useCallback(() => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+
+            setCurrentUser(currentUser);
+            setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+            
+            setShowModal(false);
+            setShowSaveButtom(true);
+
+            navigation.navigate('Inicio');
+		}, 2000);
+	}, []);
 
     const captureLocation = async () => {
         try {
@@ -248,15 +264,10 @@ const CompanyPanel = () => {
 		.then(dataReturn => {
 			// console.log('dataReturn: ', dataReturn);
 			if (dataReturn) {
-				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');
-                // setRut('');
-                // setOwner('');
-                // setBusinessName('');
-                // setCategory('');
-                // setAddress('');
-                // setCity('');
-                // setDescription('');
+				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');       
+                console.log(dataReturn);
                 setLogoUrl(loadImageFromBase64(dataReturn.logo));
+                onRefresh();
 			}
 		})
 		.catch(error => {
@@ -304,11 +315,23 @@ const CompanyPanel = () => {
 	};
 
 	useEffect(() => {
-		setShowModal(false);
-        // console.log(logoBase);
+
+        setRut(currentUser.rut);
+        setOwner(currentUser.owner);
+        setBusinessName(currentUser.businessName);
+        setCategory(currentUser.category);
+        setAddress(currentUser.address);
+        setCity(currentUser.city);
+        setDescription(currentUser.description);
+        
         setLogoBase(currentUser.logo);
         setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
+        
+        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+        
+        setShowModal(false);
+        setShowSaveButtom(true);
 
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow', () => {
@@ -347,7 +370,7 @@ const CompanyPanel = () => {
                 </View>
 
                 <View style={sty.body}>
-                    <ScrollView>
+                    <ScrollView refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
         
                         <View style={sty.row}>
                             

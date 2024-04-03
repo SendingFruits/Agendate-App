@@ -103,7 +103,7 @@ class FavoriteServices {
             
             axios.post(urlCompleta, json, { headers })
             .then(function (response) {
-                console.log(response.data);
+                console.log('response', response.data);
                 if (response.status == 200) {
                     resolve(JSON.stringify(response.data));
                 } else {
@@ -170,6 +170,7 @@ class FavoriteServices {
 
             axios.delete(urlCompleta, { headers })
             .then(function (response) {
+                console.log('response', response.data);
                 if (response.status == 200) {
                     resolve(JSON.stringify(response.data));
                 } else {

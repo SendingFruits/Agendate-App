@@ -83,7 +83,7 @@ const LoginView = ( params ) => {
 
 				navigation.navigate('Inicio');
 				// alert('Bienvenido '+ (userReturn.firstname !== undefined ? userReturn.firstname : user.nombre ));
-				var text = 'Bienvenido '+ (userReturn.firstname !== undefined ? userReturn.firstname : user.nombre );
+				var text = 'Bienvenid@ '+ (userReturn.firstname !== undefined ? userReturn.firstname : user.nombre );
 				AlertModal.showAlert(text,'');
 			}
 		})

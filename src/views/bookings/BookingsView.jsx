@@ -117,7 +117,7 @@ const BookingsView = ( params ) => {
     // console.log('list: ', list);
 
     return (
-        <View style={styles.container}>        
+        <View style={styles.container}>
             {showPanel && type === 'company' ? (
                 <>
                     <FilterPanel 

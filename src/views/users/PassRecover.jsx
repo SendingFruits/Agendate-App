@@ -40,7 +40,7 @@ const PassRecover = () => {
             'email': email,
             'movil' : movil,
         }
-        // console.log(valuesChange);
+        console.log(valuesChange);
         UsersController.handleRecoveryPass(JSON.stringify(valuesChange))
 		.then(msgReturn => {
             console.log('msgReturn: ', msgReturn);
@@ -100,6 +100,7 @@ const PassRecover = () => {
                     <MenuButtonItem 
 						icon = {null}
 						text = "Enviar"
+                        type = "login"
 						onPress = { () => recoveryPassword() }
 					/>
                 </View>
