@@ -7,7 +7,8 @@ class BookingController {
 		return new Promise((resolve, reject) => {
 			// console.log('guid', guid);
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe existir un Cliente.');
+				reject('Debe existir un Cliente.');
+				return;
 			}
 
 			BookingServices.getBookings(guid, null, 'Clientes')
@@ -28,10 +29,8 @@ class BookingController {
     getBookingsForCompany = async (guid, date) => {
 		console.log('getBookingsForCompany',guid);
 		return new Promise((resolve, reject) => {
-
 			// console.log('guid', guid);
 			// console.log('date', date);
-
 			if ((date !== null) && (guid !== '')) {	
 				BookingServices.getBookings(guid, date, 'Empresas')
 				.then(serviceReturn => {
@@ -46,29 +45,24 @@ class BookingController {
 					reject(error.mensaje);
 				});
 			}
-
 		});
     };
 
 	handleCreateBooking(data) {
 		console.log('handleCreateBooking',data);
 		return new Promise((resolve, reject) => {
-			
-			console.log('data: ', data);
+			// console.log('data: ', data);
 			// if (data.username == '') {
-			// 	throw new Error('Por favor ingrese el username.');
+			// 	reject('Por favor ingrese el username.');
 			// }
-		
 			var dataConvert = {};
 			// var fechaHoraTurno = data.fechaHoraTurno.replace('T',' ');
-
 			dataConvert = {
 				idCliente: data.idCliente,
 				idServicio: data.idServicio,
 				fechaHoraTurno: data.fechaHoraTurno+'.000Z',
 				estado: data.estado,
 			}
-
 			// console.log('dataConvert: ', dataConvert);
 
 			BookingServices.postBooking(dataConvert)
@@ -83,8 +77,7 @@ class BookingController {
 
 	handleCancelBooking(guid) {
 		console.log('handleCancelBooking',guid);
-		return new Promise((resolve, reject) => {
-			
+		return new Promise((resolve, reject) => {	
 			BookingServices.putBookingStatus(guid, 'cancel')
 			.then(bookReturn => {
 				resolve(bookReturn);
@@ -98,7 +91,6 @@ class BookingController {
 	handleDoneBooking(guid) {
 		console.log('handleDoneBooking',guid);
 		return new Promise((resolve, reject) => {
-			
 			BookingServices.putBookingStatus(guid, 'done')
 			.then(bookReturn => {
 				resolve(bookReturn);

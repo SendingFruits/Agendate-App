@@ -34,31 +34,39 @@ class UsersController {
 
 			if (data.username == '') {
 				reject('Por favor ingrese el username.');
+				return;
 			}
 			if (data.password == '') {
 				reject('Por favor ingrese la contraseña.');
+				return;
 			}
 			if (data.nombre == '') {
 				reject('Por favor ingrese el nombre.');
+				return;
 			}
 			if (data.apellido == '') {
 				reject('Por favor ingrese el apellido.');
+				return;
 			}
 			if (data.email == '') {
 				reject('Por favor ingrese el correo electrónico.');
+				return;
 			}
 
 			if (data.userType === 'customer' && data.document == '') {
 				reject('Por favor ingrese su documento de identidad.');
+				return;
 			} 
 			
 			if (data.userType === 'company' && data.document == '') {
 				reject('Por favor ingrese el RUT de su Empresa.');
+				return;
 			} 
 		
 
 			if (data.password.length < 8) {
 				reject('La contraseña debe tener al menos 8 caracteres como minínimo.');
+				return;
 			}
 
 			var dataConvert = {};
@@ -117,21 +125,27 @@ class UsersController {
 			if (data.type === 'customer' 
 			 && data.docu == '') {
 				reject('Falta el Documento.');
+				return;
 			}
 			if (data.pass == '') {
 				reject('Falta la contraseña.');
+				return;
 			}
 			if (data.firstName == '') {
 				reject('Falta el nombre.');
+				return;
 			}
 			if (data.lastName == '') {
 				reject('Falta el apellido.');
+				return;
 			}
 			if (data.email == '') {
 				reject('Falta el correo electrónico.');
+				return;
 			}
 			if (data.movil == '') {
 				reject('Falta el celular.');
+				return;
 			}
 
 			console.log(type);
@@ -149,7 +163,7 @@ class UsersController {
 					tieneNotificaciones: data.recibe,
 				}
 
-				console.log(dataConvert);
+				// console.log(dataConvert);
 
 				UserServices.putUserDataCustomer(dataConvert)
 				.then(userReturn => {
@@ -185,13 +199,16 @@ class UsersController {
 
 			if (data.old === '') {
 				reject('Debe ingresar la Contraseña Actual.');
+				return;
 			}
 			if (data.new === '') {
 				reject('Debe ingresar la Contraseña Nueva.');
+				return;
 			}
 
 			if (data.new.length < 8) {
 				reject('La contraseña nueva debe tener al menos 8 caracteres como minínimo.');
+				return;
 			}
 
 
@@ -212,6 +229,7 @@ class UsersController {
 				});
 			} else {
 				reject('La contraseña sigue siendo igual, debe ser diferente');
+				return;
 			}
 
 		});
@@ -227,12 +245,15 @@ class UsersController {
 
 			if (data.user === '') {
 				reject('Debe ingresar su nombre de usuario.');
+				return;
 			}
 			if (data.email === '') {
 				reject('Debe ingresar su correo electronico.');
+				return;
 			}
 			if (data.movil === '') {
 				reject('Debe ingresar su número de teléfono.');
+				return;
 			}
 
 			var json = {
@@ -258,6 +279,7 @@ class UsersController {
 			// console.log('getServicesForCompany', guid);
 			if ((guid == '') || (guid == undefined)) {
 				reject('Se requiere ID de Empresa.');
+				return;
 			}
 
 			CompanyServices.getDataCompany(guid)
@@ -281,6 +303,7 @@ class UsersController {
 		
 			if (data.rut == '') {
 				reject('Falta el RUT.');
+				return;
 			}
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
@@ -302,7 +325,7 @@ class UsersController {
 				longitude: data.location.longitude,
 				logo: data.logoBase
 			}
-			console.log('dataConvert: ',dataConvert);
+			// console.log('dataConvert: ',dataConvert);
 			
 
 			CompanyServices.putCompanyData(dataConvert)

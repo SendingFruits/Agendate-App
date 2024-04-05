@@ -55,6 +55,8 @@ const CalendarSelector = ( params ) => {
 		today: 'Hoja',
 	};
 
+	LocaleConfig.defaultLocale = 'es';
+
 	const [minDate, setMinDate] = useState('');
 	const [colorSelected, setColorSelected] = useState('#000');
 	const [paramsSchedules, setParamsSchedules] = useState('');
@@ -78,7 +80,6 @@ const CalendarSelector = ( params ) => {
 	return ( 
         <View>
             <Calendar
-				locale={'es'}
                 style={styles.calendar}
                 theme={{
                     backgroundColor: '#ffffff',
@@ -95,7 +96,7 @@ const CalendarSelector = ( params ) => {
                     monthTextColor: 'black',
                     indicatorColor: 'black',
                 }}
-                // disableTouchEvent={false}
+                hideExtraDays={true}
                 markedDates = {markedDates}
                 onDayPress={(day) => handleDateSelect(day)}
                 markingType="multi-dot"

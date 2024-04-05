@@ -40,17 +40,14 @@ const PassRecover = () => {
             'email': email,
             'movil' : movil,
         }
-        console.log(valuesChange);
+        // console.log(valuesChange);
         UsersController.handleRecoveryPass(JSON.stringify(valuesChange))
 		.then(msgReturn => {
             console.log('msgReturn: ', msgReturn);
-			// if (msgReturn != null) {
-			// 	// navigation.navigate('Perfil de Usuario');
-			// 	// AlertModal.showAlert('Envio Exitoso', msgReturn);
-			// }
+			AlertModal.showAlert('Envio Exitoso', msgReturn.mensaje);
 		})
 		.catch(error => {
-			AlertModal.showAlert('Error: ', error);
+			AlertModal.showAlert('Error: ', JSON.stringify(error));
 		});
 	};
 

@@ -5,7 +5,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 import AlertModal from '../utils/AlertModal';
-import DaysSelector from '../utils/DaysSelector';
+import DaysSelector from './DaysSelector';
 import MenuButtonItem from '../home/MenuButtonItem';
 import ServicesController from '../../controllers/ServicesController';
 
@@ -39,7 +39,7 @@ const ServiceCreate = ( params ) => {
     const { currentUser } = useContext(AuthContext);
     const navigation = useNavigation();
 
-    var jsonString = '{"Lunes": {"horaInicio": 0,"horaFin": 0},\n"Martes": {"horaInicio": null,"horaFin": null},\n"Miercoles": {"horaInicio": null,"horaFin": null},\n"Jueves": {"horaInicio": null,"horaFin": null},\n"Viernes": {"horaInicio": null,"horaFin": null},\n"Sabado": {"horaInicio": null,"horaFin": null},\n"Domingo": {"horaInicio": null,"horaFin": null}}';
+    var jsonString = '{"Lunes": {"horaInicio": null,"horaFin": null},\n"Martes": {"horaInicio": null,"horaFin": null},\n"Miercoles": {"horaInicio": null,"horaFin": null},\n"Jueves": {"horaInicio": null,"horaFin": null},\n"Viernes": {"horaInicio": null,"horaFin": null},\n"Sabado": {"horaInicio": null,"horaFin": null},\n"Domingo": {"horaInicio": null,"horaFin": null}}';
     var edit = false;
 
     const [bodyHeight, setBodyHeight] = useState(480); 
@@ -131,7 +131,7 @@ const ServiceCreate = ( params ) => {
                                 <View style={styles.columnV}>
                                     <TextInput 
                                         style={styles.dataEdit} 
-                                        value={nombre}
+                                        value={nombre.toString()}
                                         onChangeText={setNombre}
                                         />
                                 </View>
@@ -143,7 +143,7 @@ const ServiceCreate = ( params ) => {
                                 <View style={styles.columnV}>
                                     <TextInput 
                                         style={styles.dataEdit} 
-                                        value={tipo}
+                                        value={tipo.toString()}
                                         onChangeText={setTipo}
                                         />
                                 </View>
@@ -157,7 +157,7 @@ const ServiceCreate = ( params ) => {
                                     keyboardType="numeric"
                                     style={styles.dataEdit} 
                                     value={costo.toString()}
-                                    onChangeText={setCosto}
+                                    onChangeText={setCosto()}
                                     />
                                 </View>
                             </View>
@@ -170,7 +170,7 @@ const ServiceCreate = ( params ) => {
                                     <TextInput 
                                         multiline
                                         style={styles.dataEdit} 
-                                        value={descripcion}
+                                        value={descripcion.toString()}
                                         onChangeText={setDescription}
                                         />
                                 </View>

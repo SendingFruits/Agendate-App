@@ -45,6 +45,7 @@ class MapController {
 			// console.log('getServicesForCompany', guid);
 			if ((name == '') || (name == undefined)) {
 				reject('Ingrese la Razon Social de la empresa.');
+                return;
 			}
 
 			MapServices.getSearch(name)

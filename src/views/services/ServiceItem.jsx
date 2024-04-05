@@ -5,7 +5,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 
 import AlertModal from '../utils/AlertModal';
-import DaysSelector from '../utils/DaysSelector';
+import DaysSelector from './DaysSelector';
 import ServicesController from '../../controllers/ServicesController';
 
 import { 

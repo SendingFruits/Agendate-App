@@ -1,7 +1,6 @@
-import { formatDate, formatDate2 } from '../utils/Functions'
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 const CalendarPicker = ( params ) => {
 
@@ -28,7 +27,8 @@ const CalendarPicker = ( params ) => {
         diciembre: 'Diciembre',
     };
 
-    
+    LocaleConfig.defaultLocale = 'es';
+
     useEffect(() => {
         // ..
     }, []);
@@ -37,7 +37,6 @@ const CalendarPicker = ( params ) => {
 	return ( 
         <View>
             <Calendar
-                locale={'es'}
                 theme={{
                     backgroundColor: 'transparent',
                     calendarBackground: 'transparent',
@@ -53,7 +52,7 @@ const CalendarPicker = ( params ) => {
                     monthTextColor: 'black',
                     indicatorColor: 'black',
                 }}
-                // disableTouchEvent={false}
+                hideExtraDays={true}
                 markedDates = {markedDates}
                 onDayPress={(day) => handleDateSelect(day)}
                 markingType="multi-dot"

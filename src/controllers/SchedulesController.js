@@ -10,10 +10,12 @@ class SchedulesController {
 			// console.log('date', date);
 
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe existir un servicio.');
+				reject('Debe existir un servicio.');
+				return;
 			}
 			if ((date == '') || (date == undefined)) {
-				throw new Error('Debe existir una fecha.');
+				reject('Debe existir una fecha.');
+				return;
 			}
 
 			BookingServices.getSchedulesOfServices(guid, date)

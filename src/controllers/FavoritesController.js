@@ -7,7 +7,8 @@ class FavoriteController {
 		return new Promise((resolve, reject) => {
 		
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe pertenecer a un Servicio.');
+				reject('Debe pertenecer a un Servicio.');
+				return;
 			}
 
 			FavoriteServices.getFavoritesList(guid)
@@ -30,10 +31,12 @@ class FavoriteController {
 		return new Promise((resolve, reject) => {
 		
 			if ((idServicio == '') || (idServicio == undefined)) {
-				throw new Error('Debe pertenecer a un Servicio.');
+				reject('Debe pertenecer a un Servicio.');
+				return;
 			}
 			if ((idCliente == '') || (idCliente == undefined)) {
-				throw new Error('Debe pertenecer a un Cliente.');
+				reject('Debe pertenecer a un Cliente.');
+				return;
 			}
 
 			FavoriteServices.getFavorite(idCliente,idServicio)
@@ -70,10 +73,12 @@ class FavoriteController {
 		return new Promise((resolve, reject) => {
 			
 			if (data.idcliente == '') {
-				throw new Error('Falta el Cliente.');
+				reject('Falta el Cliente.');
+				return;
 			}
 			if (data.idServicio == '') {
-				throw new Error('Falta el Servicio.');
+				reject('Falta el Servicio.');
+				return;
 			}
 
 			FavoriteServices.postFavorite(data)

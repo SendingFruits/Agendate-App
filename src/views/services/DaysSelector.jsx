@@ -1,6 +1,6 @@
 import { 
     formatDate, convertHour, createDateTimeFromDecimalHour
-} from '../../views/utils/Functions'; 
+} from '../utils/Functions'; 
 
 import React, { 
     useState, useEffect
@@ -15,8 +15,8 @@ import {
 } from 'react-native';
 
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import CheckBox from './CheckBox';
-import AlertModal from './AlertModal';
+import CheckBox from '../utils/CheckBox';
+import AlertModal from '../utils/AlertModal';
 
 import { 
 	faClock,
@@ -29,7 +29,7 @@ import {
 
 const DaysSelector = ( params ) => {
 
-    // console.log(params);
+    console.log(params);
 
     var {
         dias,
@@ -113,11 +113,11 @@ const DaysSelector = ( params ) => {
             {dias !== null ? (
                 <View style={{ flex:1 }}>
                     {Object.keys(dias).map((day, index) => (
-                        <>
+                        <View key={index}>
                             {[isChecked, setIsChecked] = // por defecto debe ser true
                                 useState((dias[day].horaInicio !== null || dias[day].horaFin !== null))}
                             
-                            <View key={index} style={styles.row}>
+                            <View style={styles.row}>
                                 {/* {console.log(isChecked)} */}
                                 <Text style={{ fontSize: 13, width:'31%' }}>{day}: </Text>
                             
@@ -182,8 +182,7 @@ const DaysSelector = ( params ) => {
                                 </View>
                                 
                             </View>
-                        </>
-
+                        </View>
                     ))}
                 </View>
             ) : (
@@ -198,7 +197,7 @@ const DaysSelector = ( params ) => {
                 minuteInterval={30}
 
                 isVisible={isStartTimePickerVisible}
-                onConfirm={handleStartTimeConfirm}
+                onConfirm={handleStartTimeConfirm()}
                 onCancel={() => setStartTimePickerVisible(false)}
                 />
             <DateTimePickerModal
@@ -209,7 +208,7 @@ const DaysSelector = ( params ) => {
                 minuteInterval={30}
                 
                 isVisible={isEndTimePickerVisible}
-                onConfirm={handleEndTimeConfirm}
+                onConfirm={handleEndTimeConfirm()}
                 onCancel={() => setEndTimePickerVisible(false)}
                 />
         </View>

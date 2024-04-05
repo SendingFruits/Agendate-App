@@ -107,13 +107,13 @@ const HomeView = ( params ) => {
 				
 				MapController.companyLocations(region, ratio)
 				.then(companiesReturn => {
-					// console.log('hay datos: ', companiesReturn);
+					// console.log('companiesReturn', companiesReturn);
 					setCompanies(companiesReturn);
 					setIsConnected(true);
 					countMap++;
 				})
 				.catch(error => {
-					// console.log(error);
+					console.log(error);
 					AlertModal.showAlert('API','Problemas de Conexión...');
 					// alert('Problemas de Conexión...'); 
 					setCompanies([]);

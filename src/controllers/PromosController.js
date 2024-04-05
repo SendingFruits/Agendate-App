@@ -8,6 +8,7 @@ class PromosController {
 			// console.log('getPromosForCompany', guid);
 			if ((guid == '') || (guid == undefined)) {
 				reject('Debe pertenecer a una empresa.');
+				return;
 			}
 
 			PromosServices.getPromosList(guid)
@@ -31,9 +32,11 @@ class PromosController {
 		
 			if (data.asunto == '') {
 				reject('Falta el Asunto.');
+				return;
 			}
 			if (data.mensaje == '') {
 				reject('Falta el Mensaje.');
+				return;
 			}
 
 			console.log('data: ', data);
@@ -75,9 +78,11 @@ class PromosController {
 			
 			if (data.asunto == '') {
 				reject('Falta el Asunto.');
+				return;
 			}
 			if (data.mensaje == '') {
 				reject('Falta el Mensaje.');
+				return;
 			}
 
 			var dataConvert = {	
@@ -104,6 +109,7 @@ class PromosController {
 			
 			if (id == '') {
 				reject('No hay promoción.');
+				return;
 			}
 			
 			PromosServices.postSendPromo(id)

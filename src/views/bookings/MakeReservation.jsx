@@ -144,7 +144,10 @@ const MakeReservation = ( params ) => {
 				if (serviceReturn !== null) {
 					setService(serviceReturn);
 					setDays(JSON.parse(serviceReturn.jsonDiasHorariosDisponibilidadServicio));
-					// isFavorite(serviceReturn.id);
+					
+					setTimeout(() => {
+						isFavorite(serviceReturn.id);
+					}, 200);
 				} else {
 					setService(null);
 				}
@@ -160,7 +163,6 @@ const MakeReservation = ( params ) => {
 
 	useEffect(() => {
 		fetchData();
-		isFavorite(service.id);
 	}, [idFavorite, idSelect, user]);
 
 	return (

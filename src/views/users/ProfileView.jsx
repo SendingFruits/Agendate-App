@@ -46,7 +46,7 @@ const ProfileView = () => {
 
     const { currentUser, setCurrentUser } = useContext(AuthContext);
 
-    console.log('ProfileView currentUser: ', currentUser);
+    // console.log('ProfileView currentUser: ', currentUser);
     const [widthMax, setWidthMax] = useState(width);
     const [heightMax, setHeightMax] = useState(height);
 
@@ -69,7 +69,9 @@ const ProfileView = () => {
     
 	const [isValidEmail, setIsValidEmail] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [isChecked, setChecked] = useState((user.noti === 'True' ? true : false));
+    // console.log(currentUser.noti);
+    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
+    // console.log(isChecked);
 
     const [oldpass, setOldPass] = useState('');
     const [newpass, setNewPass] = useState('');
@@ -116,7 +118,7 @@ const ProfileView = () => {
     let openImageSavedAsync = async () => {
         try {
             const storedImageUri = await AsyncStorage.getItem(username);
-            console.log('storedImageUri: ', storedImageUri);
+            // console.log('storedImageUri: ', storedImageUri);
             if (storedImageUri) {
                 setSelectedPicture(storedImageUri);
                 setLogoUrl(storedImageUri);
@@ -157,7 +159,7 @@ const ProfileView = () => {
         .then(userReturn => {
 			// console.log('ProfileView userReturn: ', userReturn);
 			if (userReturn) {
-				alert('Los datos del usuario se han actualizado.');
+                AlertModal.showAlert('', 'Los datos del usuario se han actualizado.');
                 setCurrentUser({
                     guid: formData.guid,
                     docu: formData.docu,
@@ -176,7 +178,7 @@ const ProfileView = () => {
 			}
 		})
 		.catch(error => {
-			alert(error);
+			AlertModal.showAlert('ERROR', error);
 		});
 	};
 
@@ -284,7 +286,7 @@ const ProfileView = () => {
                             // style={{ backgroundColor:'#e12' }}
                             onPress={ () => handleImagePicker(0) } > 	                      
                             {console.log(logoUrl)}
-                            { (logoUrl === 'data:image/png;base64,none') ? (
+                            { ((logoUrl === 'data:image/png;base64,none') || (logoUrl === 'data:image/png;base64,undefined')) ? (
                                 <FontAwesomeIcon 
                                     style={styles.image} icon={faCircleUser} color={'#0a7a75'}/>
                             ) : 

@@ -207,7 +207,7 @@ const CompanyPanel = () => {
 		setTimeout(() => {
 			setRefreshing(false);
 
-            setCurrentUser(currentUser);
+            // setCurrentUser(currentUser);
             setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
             
             setShowModal(false);
