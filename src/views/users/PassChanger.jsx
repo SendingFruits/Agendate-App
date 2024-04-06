@@ -62,6 +62,11 @@ const PassChanger = (params) => {
         // console.log('Updating new password:', text);
         setNewPass(text);
     };
+  
+    const handleEmailChange = (text) => {
+		setEmail(text);
+		setIsValidEmail(validateEmail(text));
+	};
 
     const changePassword = () => {
 
@@ -83,7 +88,6 @@ const PassChanger = (params) => {
 			alert(error);
 		});
 	};
-
 
     useEffect(() => {
         handleOldPassChange('');
