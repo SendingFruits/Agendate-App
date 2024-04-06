@@ -1,9 +1,7 @@
-import { formatDate, getFormattedDate } from '../../views/utils/Functions'; 
-import CalendarPicker from '../bookings/CalendarPicker'
+import { formatDate } from '../../views/utils/Functions'; 
+import React, { useEffect } from 'react';
 
-import { 
-	useState
-} from 'react';
+import CalendarPicker from '../bookings/CalendarPicker'
 
 import { 
     Modal,
@@ -11,29 +9,32 @@ import {
     TextInput, 
     StyleSheet, 
     View,
-    TouchableOpacity
+    TouchableOpacity,
+    showDatePicker
 } from 'react-native';
-
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
 const FilterPanel = ( params ) => {
 
-    // console.log(params);
     var {
         onRefresh,
         dateSelected,
-        setDateSelected,
+        handleDateSelect,
         showModal,
-        setShowModal
+        setShowModal,
+        showDatePicker
 	} = params;
 
     const showCalendar = () => {
-        setShowModal(true);      
-        console.log(showModal)
+        setShowModal(true);
+        // showDatePicker(false,true);
     }
  
+    // useEffect(() => {
+    //     setShowModal(false);
+    // }, []);
+
     return (
         <>
             <LinearGradient 
@@ -61,15 +62,11 @@ const FilterPanel = ( params ) => {
 
                     <TouchableOpacity
                         style={styles.closeModal}
-                        onPress={() => setShowModal(false)} >
+                        onPress={() => setShowModal(false)} 
+                        >
                         <Text style={styles.cross}>X</Text>
                     </TouchableOpacity>
-                    <CalendarPicker 
-                        onRefresh={onRefresh}
-                        setShowModal={setShowModal}
-                        selectedDate={dateSelected}
-                        setSelectedDate={setDateSelected}
-                        />
+                    <CalendarPicker handleDateSelect={handleDateSelect} />
                 </View>
             </Modal>
         </>
@@ -101,48 +98,29 @@ const styles = StyleSheet.create({
         backgroundColor:'#fff'
     },
     modal: {
-		width: 200,
-		height: 220,
 		alignSelf: 'center',
 		marginHorizontal: 40,
 		marginVertical: 220,
-		paddingHorizontal: 10,
-		paddingVertical: 20,
+		paddingHorizontal: 20,
+		paddingVertical: 50,
 		borderRadius: 20,
-		// borderColor: 'green',
-		// borderWidth: 1,
 		backgroundColor: 'white',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	closeModal: {
-		position: 'absolute',
-		top: -65,
-		right: -25,
-        // bottom: 0,
-		borderRadius: 15,
-		// width: 30,
-		// height: 30,
-		justifyContent: 'center',
+        width:'97%',
+        marginTop: 8,
+        flexDirection:'row',
+		justifyContent: 'flex-end',
 		alignItems: 'center',
 
 	},
 	cross: {
-		color: 'green',
+		color: 'gray',
+        fontSize: 20,
+        fontWeight:'bold'
 	},
 });
-
-/**
- *  <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        display="spinner"
-        is24Hour={true}
-        date = {new Date()}
-        minuteInterval={30}
-        onConfirm={(date) => setDateSelected(date)}
-        onCancel={() => setDatePickerVisibility(false)}
-        />
- */
 
 export default FilterPanel;

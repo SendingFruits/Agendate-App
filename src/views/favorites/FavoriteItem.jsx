@@ -1,15 +1,3 @@
-import AlertModal from '../utils/AlertModal';
-import MultiPicker from '../utils/MultiPicker';
-import MenuButtonItem from '../home/MenuButtonItem';
-import ServicesController from '../../controllers/ServicesController';
-
-import { 
-    formatDate, convertHour, createDateTimeFromDecimalHour
-} from '../utils/Functions'; 
-
-import { Picker } from '@react-native-picker/picker';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
 import { 
     useState, useEffect 
 } from 'react';
@@ -18,14 +6,13 @@ import {
     Dimensions,
     StyleSheet, 
     Text,
-    TextInput,
     View,
     ScrollView,
     TouchableOpacity,
 } from 'react-native';
 
-import { 
-	faMapLocation,
+import {
+    faMapMarker,
     faStar
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -35,71 +22,33 @@ import {
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-
 const { width, height } = Dimensions.get('window');
 
 const FavoriteItem = (params) => {
     
-    // console.log('FavoriteItem: ', params);
-
     var {
         item,
         edit,
-        guid,
-        onRefresh
+        navigation,
     } = params;
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [bodyHeight, setBodyHeight] = useState(280); 
     const [editMode, setEditMode] = useState(edit);
 
-    const [nombre, setNombre] = useState(item.nombre);
-    const [tipo, setTipo] = useState(item.tipoServicio);
-    const [costo, setCosto] = useState(item.costo);
-    const [comienzo, setComienzo] = useState(item.horaInicio);
-    const [termino, setTermino] = useState(item.horaFin);
-    const [turno, setTurno] = useState(item.duracionTurno);
-
-
-    const [comienzoHora,setComienzoHora]= useState(convertHour(item.horaInicio,'toHours'));
-    const [terminoHora, setTerminoHora] = useState(convertHour(item.horaFin, 'toHours'));
-
-    const [descripcion, setDescription] = useState(item.descripcion);
-
-
-    var [selectedDias, setSelectedDias] = useState(item.diasDefinidosSemana);
-    var [diasListArray, setDiasListArray] = useState([]);
-    
-
-
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
     };
   
-    
-    const goToMap = (location) => {
-        console.log(location);
+    const goToMap = (coordinates, item) => {
+        // console.log(coordinates);
+        navigation.navigate('Inicio', {coordinates, item});
     }
    
-
-    const switchItem = () => {
-        console.log('quitar Favorito');
-        var id = params.item.id;
-        
-        onRefresh();
-    };
-
-
 	useEffect(() => {
         setBodyHeight(130);
-		// setIsCollapsed(true);
-
-        // console.log('selectedDias: ',selectedDias);
-        if ((selectedDias !== undefined) && (selectedDias.length > 0)) {
-            var listAux = selectedDias.split(';');
-            setDiasListArray(listAux);
-        }
+		
 	}, [edit]);
     
     return (
@@ -112,16 +61,20 @@ const FavoriteItem = (params) => {
                             colors={['#135054', '#e9e9f8', '#efffff']} 
                             start={{ x: 0.2, y: 1.2 }}
                             end={{ x: 1.5, y: 0.5 }} 
-                            >                                
+                            >
+
                             <View style={{ 
                                 flexDirection:'row',
                                 alignItems:'center',
-                                marginHorizontal: 20,
+                                marginHorizontal: 10,
                                 }}>
-                                <TouchableOpacity onPress={() => switchItem()} >
-                                    <FontAwesomeIcon icon={faStar} />
+                                <TouchableOpacity 
+                                    style={{ flexDirection:'row', alignItems:'center', }} 
+                                    onPress={() => goToMap({latitude:item.latitude, longitude:item.longitude}, item)} >
+                                    <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} />
+                                    <FontAwesomeIcon style={{ color:'#0af', marginLeft:6 }} icon={faMapMarker} />
                                 </TouchableOpacity>
-                                <Text style={{ marginLeft:6 }}>Quitar Favorito</Text>
+                                    <Text style={{ marginLeft:6 }}>{item.razonSocial}</Text>
                             </View>
 
                             <View style={{ 
@@ -129,11 +82,13 @@ const FavoriteItem = (params) => {
                                 alignItems:'center',
                                 marginHorizontal: 20,
                                 }}>
-                                <TouchableOpacity onPress={() => goToMap({latitude:item.latitude, longitude:item.longitude})} >
-                                    <FontAwesomeIcon icon={faMapLocation} />
-                                </TouchableOpacity>
-                                <Text style={{ marginLeft:6 }}>Ver en mapa</Text>
+                                {/* <TouchableOpacity 
+                                    style={{ flexDirection:'row', alignItems:'center', }} 
+                                    onPress={() => switchItem()} >
+                                    <FontAwesomeIcon icon={faClose} />
+                                </TouchableOpacity> */}
                             </View>
+
     
                         </LinearGradient>
                     </TouchableOpacity>
@@ -148,14 +103,14 @@ const FavoriteItem = (params) => {
                                 <View>
                                     <ScrollView style={{ ...styles.body, height: bodyHeight }} >
                                     
-                                        <View style={styles.row}>
+                                        {/* <View style={styles.row}>
                                             <View style={styles.columnT}>
                                                 <Text style={styles.label}>Empresa:</Text>    
                                             </View>
                                             <View style={styles.columnV}>
                                                 <Text> {item.razonSocial}</Text>
                                             </View>
-                                        </View>
+                                        </View> */}
                                         <View style={styles.row}>
                                             <View style={styles.columnT}>
                                                 <Text style={styles.label}>Direccion:</Text>
@@ -210,7 +165,6 @@ const FavoriteItem = (params) => {
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {

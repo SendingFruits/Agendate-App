@@ -1,3 +1,7 @@
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
 import { useNavigation } from '@react-navigation/native';
 import { formatDate, getFormattedDate } from '../../views/utils/Functions'; 
 
@@ -5,123 +9,129 @@ import BookingItem from './BookingItem';
 import FilterPanel from './FilterPanel';
 import BookingController from '../../controllers/BookingController';
 import ServicesController from '../../controllers/ServicesController';
+import AlertModal from '../utils/AlertModal';
 
 import React, { 
-    useState, useEffect
+    useContext, useState, useEffect
 } from 'react';
 
 import { 
-    Text, 
-    StyleSheet, 
+    StyleSheet,
+    Dimensions,
     View, 
     ScrollView,
-    RefreshControl,
+    Text,
+    RefreshControl
 } from 'react-native';
 
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+const { width, height } = Dimensions.get('window');
 
 const BookingsView = ( params ) => {
 
     const navigation = useNavigation();
+    const { currentUser } = useContext(AuthContext);
 
-    var guid = params.route.params.guid;
-    var type = params.route.params.type;
+    var guid = currentUser.guid;
+    var type = currentUser.type;
 
     const [list, setList] = useState([]);
-    const [counter, setCounter] = useState([]);
+    const [counter, setCounter] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
 
     const [showModal, setShowModal] = useState(false);
+    const [showPanel, setShowPanel] = useState(true);
     const [dateSelected, setDateSelected] = useState(null);
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
             loadBookings(guid, type);
-
-            if (type === 'company') {
-                navigation.navigate('Agenda');
-            } else {
-                navigation.navigate('Reservas');
-            }
+            navigation.navigate('Reservas');
 		}, 2000);
 	}, []);
 
-    const loadBookings = (guid, type) => {
-        if (type === 'customer') {
-            BookingController.getBookingsForCustomer(guid)
-            .then(bookingsReturn => {
-                // console.log('bookingsReturn: ', bookingsReturn);
-                setList(bookingsReturn);
-                // console.log('bookings: ', bookings);
-                // ecualList = (bookings === list) ? true : false;
-                // console.log('ecualList: ', ecualList);
-            })
-            .catch(error => {
-                alert('ERROR al intentar cargar las Reservas del Cliente '+error);
-            });
-        } else {
+    const handleDateSelect = (day) => {
+        var date = day.dateString;
+        // console.log('date: ', date);
+        setDateSelected(date);
+        // console.log('dateSelected: ', dateSelected);
+        setShowPanel(true);
+        setShowModal(false);
+    };
 
-            ServicesController.getServicesForCompany(guid)
-            .then(serviceReturn => {
-                console.log('serviceReturn: ', serviceReturn);
-               
-                if (serviceReturn !== null) {        
-                    BookingController.getBookingsForCompany(serviceReturn.id,dateSelected)
-                    .then(bookingsReturn => {
-                        // console.log('bookings: ', bookingsReturn);
-                        // console.log('length: ', bookingsReturn.length);
-                        if (bookingsReturn.length > 0) {
-                            setCounter(bookingsReturn.length);
-                            setList(bookingsReturn);
-                        } else {
-                            setCounter(0);
-                            setList([]);
+    const loadBookings = () => {
+        if (type !== 'none' && guid !== 'none') {
+            if (type === 'customer') {
+                BookingController.getBookingsForCustomer(guid)
+                .then(bookingsReturn => {
+                    setList(bookingsReturn);
+                })
+                .catch(error => {
+                    AlertModal.showAlert('ERROR', 'No se pudo cargar las Reservas del Cliente '+error);
+                });
+            } else {
+                if (dateSelected !== null) {
+                    ServicesController.getServicesForCompany(guid)
+                    .then(serviceReturn => {
+                        // console.log('serviceReturn.id: ', serviceReturn.id);
+                        // console.log('dateSelected: ', dateSelected);
+                        if (serviceReturn !== null) {
+                            BookingController.getBookingsForCompany(serviceReturn.id,dateSelected)
+                            .then(bookingsReturn => {
+                                if (bookingsReturn.length > 0) {
+                                    setCounter(bookingsReturn.length);
+                                    setList(bookingsReturn);
+                                } else {
+                                    setCounter(0);
+                                    setList([]);
+                                }
+                            })
+                            .catch(error => {
+                                AlertModal.showAlert('Mensaje', error);
+                            });
                         }
                     })
                     .catch(error => {
-                        alert('ERROR al intentar cargar las Reservas de la Empresa '+error);
+                        AlertModal.showAlert('ERROR', 'No se pudo cargar las Reservas de la Empresa '+error);
                     });
                 }
-                
-            })
-            .catch(error => {
-                
-            });
-
-
+            }
         }
     }
 
-    const showDatePicker= () => {
-        setDatePickerVisibility(true);      
+    const showDatePicker= (panel,modal) => {
+        setShowPanel(panel);
+        setShowModal(modal);
     }
 
     useEffect(() => {
-        if (dateSelected === null) 
+        // console.log(navigation.getState());
+        const currentScreen = navigation.getState().key;
+        // console.log(currentScreen);
+
+        setShowPanel(true);
+        if (dateSelected === null) {
             setDateSelected(getFormattedDate());
-        loadBookings(guid, type);
+        }
+        loadBookings();
     }, [guid, type, dateSelected]);
 
     // console.log('list: ', list);
 
     return (
         <View style={styles.container}>
-           
-            {type === 'company' ? (
+            {showPanel && type === 'company' ? (
                 <>
-                    <FilterPanel
-                        onRefresh={onRefresh}
-                        dateSelected={dateSelected}
-                        setDateSelected={setDateSelected}
+                    <FilterPanel 
+                        onRefresh={onRefresh} 
+                        dateSelected={dateSelected} 
+                        handleDateSelect={handleDateSelect} 
                         showModal={showModal}
                         setShowModal={setShowModal}
+                        showDatePicker={showDatePicker}
                         />
-                    <View 
-                        style={{ paddingVertical:25 }}
-                        />
+                    <View style={{ paddingVertical:25 }} />
                 </>
             ) : null }
 
@@ -129,10 +139,7 @@ const BookingsView = ( params ) => {
             {(list.length !== 0) ? (
                 <ScrollView 
                     contentContainerStyle={styles.scrollContainer}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }>
-                        
+                    refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
                     {list.map((item, index) => (
                         <View key={index}>
                             <BookingItem 
@@ -146,7 +153,9 @@ const BookingsView = ( params ) => {
                 </ScrollView>
             ) : (
                 <View>
-                    <Text>No hay Reservas para el {formatDate(dateSelected)}</Text>
+                    {type === 'company' ? 
+                       <Text>No hay Reservas para el {formatDate(dateSelected)}</Text> 
+                    : <Text>No realizó Reservas aún</Text> }
                 </View>
             )}
           
@@ -163,6 +172,8 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flex: 1,
+        height: height,
+		minHeight: height,
         width: '100%',
     },
     btnCreate: {
@@ -192,61 +203,6 @@ const styles = StyleSheet.create({
     textVersion2: {
         paddingHorizontal:3,
         paddingBottom: 5,
-    },
-});
-
-const DatePicker = ( params ) => {
-    return (
-        <View style={stylesPicker.row}>
-        <View style={stylesPicker.columnT}>
-            <Text style={stylesPicker.label}>Termina:</Text>
-        </View>
-            <View style={stylesPicker.columnV}>
-                <TouchableOpacity onPress={(param) => showDatePicker('termino')}>
-                    <TextInput 
-                        editable={false}
-                        style={stylesPicker.dataEdit} 
-                        value={terminoHora.toString()}
-                        />
-                </TouchableOpacity>
-                <DateTimePickerModal
-                    isVisible={isDatePickerVisible2}
-                    mode="time"
-                    display="spinner"
-                    is24Hour={true}
-                    date = {selectedDatePicker2}
-                    minuteInterval={30}
-                    onConfirm={(date) => handleDateConfirm(date,'termino')}
-                    onCancel={() => setDatePickerVisibility2(false)}
-                    />
-            </View>
-        </View>
-    );
-}
-
-const stylesPicker = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        marginBottom: 10,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#000',
-
-    },
-    columnT: {
-        width:'30%',
-        paddingLeft:5,
-        // backgroundColor:'red',
-    },
-    columnV: {
-        width:'70%',
-        paddingRight:1,
-        alignItems:'stretch',
-        // backgroundColor:'green',
-    },
-
-    label: {
-        fontWeight:'bold',
     },
 });
 

@@ -1,0 +1,31 @@
+{
+    "config": { 
+        "adapter": ["xhr", "http"], 
+        "baseURL": "https://0666-2800-a4-c1da-3600-bddd-9c89-311a-f6c3.ngrok-free.app/api/", 
+        "data": undefined, 
+        "env": { 
+            "Blob": [Function Blob], 
+            "FormData": [Function FormData] 
+        }, 
+        "headers": [Object], 
+        "maxBodyLength": -1, 
+        "maxContentLength": -1, 
+        "method": "get", 
+        "timeout": 0, 
+        "transformRequest": [[Function transformRequest]], 
+        "transformResponse": [[Function transformResponse]], 
+        "transitional": { 
+            "clarifyTimeoutError": false, 
+            "forcedJSONParsing": true, 
+            "silentJSONParsing": true 
+        }, 
+        "url": "Empresas/ObtenerEmpresasMapa?radioCircunferencia=1&latitudeCliente=-34.8791417&longitudeCliente=-56.179705", 
+        "validateStatus": [Function validateStatus], 
+        "xsrfCookieName": "XSRF-TOKEN", 
+        "xsrfHeaderName": "X-XSRF-TOKEN" 
+    }, 
+    "data": [{
+        "ciudad": "Montevideo", "descripcion": "Peluqueria donde encontraras...", "direccion": "Av Gral Flores 3175", "id": 40, "latitude": -34.876877, "logo": "", "longitude":
+            -56.18045, "razonSocial": "Peluqueria El Tato.", "rubro": "Estetica"
+    }, { "ciudad": "Montevideo", "descripcion": "Local de tatuajes, pedi tu reserva para venir a realizarte los mejores tatuajes...", "direccion": "Rivadavia 1234", "id": 41, "latitude": -34.88076, "logo": "/9j/", "longitude": -56.179543, "razonSocial": "ABM Tatú.", "rubro": "Estetica" }], "headers": { "content-type": "application/json; charset=utf-8", "date": "Sat, 02 Mar 2024 19:15:44 GMT", "ngrok-trace-id": "e1bc38f4b365c2454c672385bf599375", "server": "Kestrel" }, "request": { "DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": { "accept": "application/json, text/plain, */*" }, "_incrementalEvents": false, "_lowerCaseResponseHeaders": { "content-type": "application/json; charset=utf-8", "date": "Sat, 02 Mar 2024 19:15:44 GMT", "ngrok-trace-id": "e1bc38f4b365c2454c672385bf599375", "server": "Kestrel" }, "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://0666-2800-a4-c1da-3600-bddd-9c89-311a-f6c3.ngrok-free.app/api/Empresas/ObtenerEmpresasMapa?radioCircunferencia=1&latitudeCliente=-34.8791417&longitudeCliente=-56.179705", "_performanceLogger": { "_closed": false, "_extras": [Object], "_isLoggingForWebPerformance": false, "_pointExtras": [Object], "_points": [Object], "_timespans": [Object] }, "_requestId": null, "_response": "[{\"id\":40,\"razonSocial\":\"Peluqueria El Tato.\",\"rubro\":\"Estetica\",\"direccion\":\"Av Gral Flores 3175\",\"ciudad\":\"Montevideo\",\"longitude\":-56.18045,\"latitude\":-34.876877,\"logo\":\"\",\"descripcion\":\"Peluqueria donde encontraras...\"},{\"id\":41,\"razonSocial\":\"ABM Tatú.\",\"rubro\":\"Estetica\",\"direccion\":\"Rivadavia 1234\",\"ciudad\":\"Montevideo\",\"longitude\":-56.179543,\"latitude\":-34.88076,\"logo\":\"/9j/", \"descripcion\":\"Local de tatuajes, pedi tu reserva para venir a realizarte los mejores tatuajes...\"}]", "_responseType": "", "_sent": true, "_subscriptions": [], "_timedOut": false, "_trackingName": "unknown", "_url": "https://0666-2800-a4-c1da-3600-bddd-9c89-311a-f6c3.ngrok-free.app/api/Empresas/ObtenerEmpresasMapa?radioCircunferencia=1&latitudeCliente=-34.8791417&longitudeCliente=-56.179705", "readyState": 4, "responseHeaders": { "content-type": "application/json; charset=utf-8", "date": "Sat, 02 Mar 2024 19:15:44 GMT", "ngrok-trace-id": "e1bc38f4b365c2454c672385bf599375", "server": "Kestrel" }, "responseURL": "https://0666-2800-a4-c1da-3600-bddd-9c89-311a-f6c3.ngrok-free.app/api/Empresas/ObtenerEmpresasMapa?radioCircunferencia=1&latitudeCliente=-34.8791417&longitudeCliente=-56.179705", "status": 200, "timeout": 0, "upload": { }, "withCredentials": true }, "status": 200, "statusText": undefined
+}

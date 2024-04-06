@@ -1,15 +1,10 @@
 import UserServices from '../services/UserServices';
 import CompanyServices from '../services/CompanyServices';
 
-
 class UsersController {
 
-	constructor(navigation) {
-		this.navigation = navigation;
-	}
-
-
 	handleLogin(username, password) {
+		console.log('handleLogin',username);
 		return new Promise((resolve, reject) => {
 
 			if (username == '') {
@@ -32,41 +27,66 @@ class UsersController {
 	}
 
 	handleRegister(data) {
+		console.log('handleRegister',data);
 		return new Promise((resolve, reject) => {
 			
 			// console.log(data);
 
 			if (data.username == '') {
 				reject('Por favor ingrese el username.');
+				return;
 			}
 			if (data.password == '') {
 				reject('Por favor ingrese la contraseña.');
+				return;
 			}
 			if (data.nombre == '') {
 				reject('Por favor ingrese el nombre.');
+				return;
 			}
 			if (data.apellido == '') {
 				reject('Por favor ingrese el apellido.');
+				return;
 			}
+
+			if (data.movil == '') {
+				reject('Por favor ingrese el teléfono.');
+				return;
+			}
+			if (data.movil.length < 8) {
+				reject('El número ingresado no es correcto.');
+				return;
+			}
+
 			if (data.email == '') {
 				reject('Por favor ingrese el correo electrónico.');
+				return;
 			}
 
 			if (data.userType === 'customer' && data.document == '') {
 				reject('Por favor ingrese su documento de identidad.');
+				return;
 			} 
 			
 			if (data.userType === 'company' && data.document == '') {
 				reject('Por favor ingrese el RUT de su Empresa.');
+				return;
 			} 
 		
+
+			if (data.password.length < 8) {
+				reject('La contraseña debe tener al menos 8 caracteres como minínimo.');
+				return;
+			}
+
 			var dataConvert = {};
-			
+			var ctica = '+598';
+
 			if (data.userType === 'company') {
 				dataConvert = {
 					rutDocumento: data.document,
 					razonSocial: "",
-					nombrePropietario: data.firstName + ' ' + data.lastName,
+					nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
 					rubro: "",
 					direccion: "",
 					ciudad: "",
@@ -74,26 +94,30 @@ class UsersController {
 					latitude: 0.00,
 					longitude: 0.00,
 
-					nombre: data.firstName,
-					apellido: data.lastName,
-					nombreUsuario: data.username,
-					contrasenia: data.password,
-					celular: data.movil,
-					correo: data.email,
+					nombre: data.firstName.trim(),
+					apellido: data.lastName.trim(),
+					nombreUsuario: data.username.trim(),
+					contrasenia: data.password.trim(),
+
+					celular: ctica+data.movil.trim(),
+					
+					correo: data.email.trim(),
 					tipoUsuario: data.userType,
 					logo: '',
 				}
 			} else {
 				dataConvert = {
-					documento: data.document,
+					documento: data.document.trim(),
 
-					nombre: data.firstName,
-					apellido: data.lastName,
-					nombreUsuario: data.username,
-					contrasenia: data.password,
-					celular: data.movil,
-					correo: data.email,
-					tipoUsuario: data.userType
+					nombre: data.firstName.trim(),
+					apellido: data.lastName.trim(),
+					nombreUsuario: data.username.trim(),
+					contrasenia: data.password.trim(),
+					celular: ctica+data.movil.trim(),
+					correo: data.email.trim(),
+					tipoUsuario: data.userType,
+
+					// tieneNotificaciones: data.recibe
 				}
 			}
 
@@ -107,52 +131,100 @@ class UsersController {
 		});
 	}
 
-	handleUpdate(data) {
+	handleUpdate(data, type) {
+		console.log('handleUpdate', ' -'+data+' -'+type);
 		return new Promise((resolve, reject) => {
 		
+			if (data.type === 'customer' 
+			 && data.docu == '') {
+				reject('Falta el Documento.');
+				return;
+			}
 			if (data.pass == '') {
 				reject('Falta la contraseña.');
+				return;
 			}
 			if (data.firstName == '') {
 				reject('Falta el nombre.');
+				return;
 			}
 			if (data.lastName == '') {
 				reject('Falta el apellido.');
+				return;
 			}
 			if (data.email == '') {
 				reject('Falta el correo electrónico.');
+				return;
 			}
 			if (data.movil == '') {
 				reject('Falta el celular.');
+				return;
 			}
 
-			const dataConvert = {
-				id: data.guid,
-				nombre: data.firstname,
-				apellido: data.lastname,
-				celular: data.movil,
-				correo: data.email,
-			}
+			console.log(type);
 
-			UserServices.putUserData(dataConvert)
-			.then(userReturn => {
-				resolve(userReturn);
-			})
-			.catch(error => {
-				reject(error);
-			});
+			if (type === 'customer') {
+
+				const dataConvert = {
+					id: data.guid,
+					documento: data.docu,
+					nombre: data.firstname,
+					apellido: data.lastname,
+					celular: data.movil,
+					correo: data.email,
+					foto: data.foto,
+					tieneNotificaciones: data.recibe,
+				}
+
+				// console.log(dataConvert);
+
+				UserServices.putUserDataCustomer(dataConvert)
+				.then(userReturn => {
+					resolve(userReturn);
+				})
+				.catch(error => {
+					reject(error);
+				});
+			} else {
+
+				const dataConvert = {
+					id: data.guid,
+					nombre: data.firstname,
+					apellido: data.lastname,
+					celular: data.movil,
+					correo: data.email,
+				}
+
+				UserServices.putUserDataCompany(dataConvert)
+				.then(userReturn => {
+					resolve(userReturn);
+				})
+				.catch(error => {
+					reject(error);
+				});
+			}
 		});
 	}
 
 	handleUpdatePass(data) {
+		console.log('handleUpdatePass',data);
 		return new Promise((resolve, reject) => {
 
 			if (data.old === '') {
 				reject('Debe ingresar la Contraseña Actual.');
+				return;
 			}
 			if (data.new === '') {
 				reject('Debe ingresar la Contraseña Nueva.');
+				return;
 			}
+
+			if (data.new.length < 8) {
+				reject('La contraseña nueva debe tener al menos 8 caracteres como minínimo.');
+				return;
+			}
+
+
 
 			var json = {
                 'Id':data.idu,
@@ -170,17 +242,57 @@ class UsersController {
 				});
 			} else {
 				reject('La contraseña sigue siendo igual, debe ser diferente');
+				return;
 			}
 
 		});
 	}
 
+	handleRecoveryPass(dataJSON) {
+		console.log('handleRecoveryPass',dataJSON);
+		return new Promise((resolve, reject) => {
+
+			console.log('dataJSON: ', dataJSON);
+			var data = JSON.parse(dataJSON);
+			console.log('data: ', data);
+
+			if (data.user === '') {
+				reject('Debe ingresar su nombre de usuario.');
+				return;
+			}
+			if (data.email === '') {
+				reject('Debe ingresar su correo electronico.');
+				return;
+			}
+			if (data.movil === '') {
+				reject('Debe ingresar su número de teléfono.');
+				return;
+			}
+
+			var json = {
+                'user':data.user,
+                'email':data.email,
+                'movil':data.movil,
+            }
+			
+			UserServices.recoveryPass(json)
+			.then(msgReturn => {
+				resolve(msgReturn);
+			})
+			.catch(error => {
+				reject(error);
+			});
+	
+		});
+	}
 
 	getCompanyData(guid) {
+		console.log('getCompanyData',guid);
 		return new Promise((resolve, reject) => {
 			// console.log('getServicesForCompany', guid);
 			if ((guid == '') || (guid == undefined)) {
 				reject('Se requiere ID de Empresa.');
+				return;
 			}
 
 			CompanyServices.getDataCompany(guid)
@@ -199,26 +311,13 @@ class UsersController {
 	}
 
 	handleCompanyUpdate(data) {
+		console.log('handleCompanyUpdate',data);
 		return new Promise((resolve, reject) => {
 		
 			if (data.rut == '') {
 				reject('Falta el RUT.');
+				return;
 			}
-			// if (data.owner == '') {
-			// 	reject('Falta el Nombre del Propietario.');
-			// }
-			// if (data.businessName == '') {
-			// 	reject('Falta el Razon Social.');
-			// }
-			// if (data.category == '') {
-			// 	reject('Falta el Rubro.');
-			// }
-			// if (data.address == '') {
-			// 	reject('Falta la Dirección.');
-			// }
-			// if (data.description == '') {
-			// 	reject('Falta la Ddescripción.');
-			// }
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
 			if (data.location.longitude === undefined) data.location.longitude = 0.0; 
@@ -239,7 +338,7 @@ class UsersController {
 				longitude: data.location.longitude,
 				logo: data.logoBase
 			}
-			console.log('dataConvert: ',dataConvert);
+			// console.log('dataConvert: ',dataConvert);
 			
 
 			CompanyServices.putCompanyData(dataConvert)
@@ -253,6 +352,7 @@ class UsersController {
 	}
 
 	handleDelete(id) {
+		console.log('handleDelete',id);
 		return new Promise((resolve, reject) => {
 			UserServices.putDelete(id)
 			.then(userReturn => {
@@ -263,7 +363,6 @@ class UsersController {
 			});
 		});
 	}
-
 }
 
 export default new UsersController();

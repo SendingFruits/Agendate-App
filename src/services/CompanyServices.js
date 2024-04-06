@@ -45,6 +45,49 @@ class CompanyServices {
         });
     };
 
+    getServicesOfCompany = async (guid) => {
+        return new Promise((resolve, reject) => {
+        
+            var method = 'Servicios/ObtenerServiciosDeLaEmpresa';
+            const urlCompleta = `${ApiConfig.API_BASE_URL}${method}?id=${guid}`;
+    
+            const options = {
+                method: 'GET',
+                headers: {
+                    'accept': 'text/json',
+                    // 'verify': false
+                },
+            };
+             
+            // console.log(urlCompleta);
+
+            axios.get(urlCompleta, options)
+            .then(function (response) {
+                console.log('response.data: ', response.data);
+                if (response.status == 200) {
+                    resolve(response.data);
+                } else {
+                    resolve(null);
+                }
+            })
+            .catch(function (error) {
+                if (error.message == 'Network Error') {
+                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
+                } else {
+                    if (error.response.status >= 500) {
+                        reject(-1);                
+                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
+                        reject(error.response.data); 
+                    } else {
+                        reject('Error Desconocido.');    
+                    }
+                }
+            });
+            
+        });
+    };
+
+
     getDataCompany = async (guid) => {
         return new Promise((resolve, reject) => {
   
@@ -125,8 +168,8 @@ class CompanyServices {
                 // Agrega aquí las cabeceras requeridas por la API
             };
             
-            console.log('json: ', json);
-            console.log('urlCompleta: ', urlCompleta);
+            // console.log('json: ', json);
+            // console.log('urlCompleta: ', urlCompleta);
 
             axios.post(urlCompleta, json, { headers })
             .then(function (response) {

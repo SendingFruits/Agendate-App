@@ -1,3 +1,7 @@
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
 import { useNavigation } from '@react-navigation/native';
 import { getOrientation } from '../utils/Functions'; 
 
@@ -5,27 +9,24 @@ import FavoriteItem from './FavoriteItem';
 import FavoriteController from '../../controllers/FavoritesController';
 
 import React, { 
-    useState, useEffect
+    useContext, useState, useEffect
 } from 'react';
 
 import { 
+    StyleSheet,
     Dimensions,
-    StyleSheet, 
-    Text, 
     View, 
     ScrollView,
     RefreshControl,
-    TouchableOpacity,
-    Keyboard
 } from 'react-native';
 
-import { LinearGradient } from 'expo-linear-gradient';
-
+const { width, height } = Dimensions.get('window');
 
 const FavoriteView = ( params ) => {
 
     const navigation = useNavigation();
-    var guid = params.route.params.guid; 
+    const { currentUser } = useContext(AuthContext);
+    var guid = currentUser.guid; 
 
     const [list, setList] = useState(null);
     const [editing, setEditing] = useState(false);
@@ -54,7 +55,7 @@ const FavoriteView = ( params ) => {
             getFavorites();
 			// navigation.navigate('Servicios');
 		}, 2000);
-	}, []);
+	}, [list]);
 
     const handleOrientationChange = () => {
 		const newOrientation = getOrientation();
@@ -62,18 +63,20 @@ const FavoriteView = ( params ) => {
 	};
 
     const getFavorites = async () => {
-        FavoriteController.getFavoritesForService(guid)
-        .then(favoritesReturn => {
-            console.log('favoritesReturn: ', favoritesReturn);
-            if (favoritesReturn !== null) {
-                setList(favoritesReturn);
-            } else {
-                setList([]);
-            }
-        })
-        .catch(error => {
-            alert('ERROR al intentar cargar los Servicios, ' + error);
-        });
+        if (guid !== 'none') {
+            FavoriteController.getFavoritesForService(guid)
+            .then(favoritesReturn => {
+                // console.log('favoritesReturn: ', favoritesReturn);
+                if (favoritesReturn !== null) {
+                    setList(favoritesReturn);
+                } else {
+                    setList([]);
+                }
+            })
+            .catch(error => {
+                alert('ERROR al intentar cargar los Favoritos, ' + error);
+            });
+        }
     }
 
     const listFavorites = () => {
@@ -87,7 +90,8 @@ const FavoriteView = ( params ) => {
                         item={item} 
                         edit={false}
                         onRefresh={onRefresh}
-                        onPress={() => handleEditItem(item)} 
+                        onPress={() => handleEditItem(item)}
+                        navigation={navigation}
                     />
 				)
 			});
@@ -98,7 +102,7 @@ const FavoriteView = ( params ) => {
 
     useEffect(() => {
         getFavorites();
-        console.log(list);
+        // console.log(list);
     }, [guid]);
 
 
@@ -131,8 +135,10 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flex: 1,
-        alignItems:'center',
+        height: height,
+		minHeight: height,
         width: '100%',
+        alignItems:'center',
     },
     btnCreate: {
 		paddingVertical: 10,

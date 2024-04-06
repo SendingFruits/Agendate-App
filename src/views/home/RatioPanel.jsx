@@ -1,5 +1,5 @@
 import { 
-	useState
+	useState, useEffect
 } from 'react';
 
 import { 
@@ -17,29 +17,50 @@ const RatioPanel = ({ onRatioChange, mapRef }) => {
     const [ratio, setRatio] = useState(1);
     
     const handleRatioChange = (value) => {
+        if (value === 0) value = 1;
         setRatio(value);
         // Llama a la función de devolución de llamada con el nuevo valor
         onRatioChange(value);
     };
   
+    const allowedValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    
+    useEffect(() => {
+		setRatio(1);
+	}, []); // isConnected
+
     return (
-        <View style={{ backgroundColor: '#fff', borderWidth: 0.4, borderColor: '#389338'}}>
+        <View style={{ 
+            backgroundColor: '#fff', 
+            borderWidth: 0.4, 
+            borderColor: '#389338',
+            borderRadius: 10
+        }}>
             <Slider
-                style={{ width: 200, height: 40 }}
-                minimumValue={1}
-                maximumValue={20}
+                style={{ width: 190, height: 40 }}
+                minimumValue={0}
+                maximumValue={10}
                 // minimumTrackTintColor="#FFFFFF"
                 // maximumTrackTintColor="#000000"
                 thumbTintColor="#389338" 
                 step={1}
                 onSlidingComplete={handleRatioChange}
             />
+
             <View style={styles.labels}>
-                <Text style={styles.km}> 1 Km</Text>
-                <Text style={styles.km}> 5 Km</Text>
-                <Text style={styles.km}>10 Km</Text>
-                <Text style={styles.km}>15 Km</Text>
-                <Text style={styles.km}>20 Km</Text>
+                {allowedValues.map((item, index) => (
+                    <View key={index}>
+                        {index === 0 && (
+                            <Text style={styles.km}>1 km</Text>
+                        )}
+                        {index === 5 && (
+                            <Text style={styles.km}>5 km</Text>
+                        )}
+                        {index === 10 && (
+                            <Text style={styles.km}>10 km</Text>
+                        )}
+                    </View>
+                ))}
             </View>
         </View>
     );
@@ -50,8 +71,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 9,
-        
         borderColor: '#355B54',
         borderWidth: 1,
     },
@@ -68,11 +87,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: 180,
-        marginLeft: 5,
-        marginBottom: 6
+        marginLeft: 8,
+        // marginBottom: 6
     },
     km: {
-        fontSize: 8
+        fontSize: 11,
+        // marginHorizontal: 2
     }
 });
 

@@ -1,7 +1,7 @@
-import { UserContext } from '../../services/context/context'; 
-import { useNavigation } from '@react-navigation/native';
-import { getOrientation } from '../../views/utils/Functions'; 
- 
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
 import SearchPanel from './SearchPanel';
 import RatioPanel from './RatioPanel';
 import CompanyPanel from '../users/CompanyPanel';
@@ -10,30 +10,27 @@ import MapController from '../../controllers/MapController';
 import AlertModal from '../utils/AlertModal';
 
 import React, { 
-	useRef, useState, useEffect, useContext
+	useContext, useRef, useState, useEffect
 } from 'react';
 
 import { 
 	Dimensions,
 	StyleSheet,
-	RefreshControl,
 	Text, 
 	View,
-	ScrollView,
-	TouchableOpacity,
 	Keyboard,
 	Image,
-	Modal
+	Modal,
+	TouchableOpacity
 } from 'react-native';
-import 
-	MapView, { 
-		Marker, 
-		Callout,
-	} 
-from 'react-native-maps';
+
+import MapView, { Marker, Callout } from 'react-native-maps';
+
+import { useNavigation } from '@react-navigation/native';
+import { getOrientation } from '../../views/utils/Functions'; 
+
 import {
-	faStar,
-	faBuilding
+	faBuilding, faLocationCrosshairs
 } from '@fortawesome/free-solid-svg-icons';
  
 import { 
@@ -42,53 +39,64 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-
 const { width, height } = Dimensions.get('window');
 
 const HomeView = ( params ) => {
 	
-	// console.log('params home: ', params);
-	var { 
-		setOptions,
+	const { currentUser } = useContext(AuthContext);
+
+	var {
+		coordinates,
+		item,
 		isConnected,
-		setIsConnected
-	} = params.route.params;
+		setIsConnected,
+	} = params.route.params || {};
+
+	console.log('isConnected: ', isConnected);
+	// console.log('setIsConnected: ', setIsConnected);
 
 	var countMap = 0;
 
 	const mapRef = useRef(null);
-	const { userPreferences, setUserPreferences } = useContext(UserContext);
-	var userLogin = userPreferences.current_user;
-	
+	var userLogin = currentUser;
+	const navigation = useNavigation();
+
 	const [location, setLocation] = useState(null);
 	const [companies, setCompanies] = useState([]);
 	const [selectedMarker, setSelectedMarker] = useState(null);
-
-	
-	const navigation = useNavigation();
-
-	var otherLocation = {
-		latitude: -34.90477156839922,
-		latitudeDelta: 0.20354241619580193,
-		longitude: -56.180862206965685,
-		longitudeDelta: 0.13483230024576187
-	};
-
 	const [orientation, setOrientation] = useState(getOrientation());
-	const [refreshing, setRefreshing] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const [ratio, setRatio] = useState(1);
-	
+	const [fav, setFav] = useState(null);
+	const [favoriteCallout, setFavoriteCallout] = useState(false);
+	const [showRatioPanel, setShowRatioPanel] = useState(true);
 
-	const onRefresh = React.useCallback(() => {
-		setRefreshing(true);
-		setTimeout(() => {
-			setRefreshing(false);
-			fetchData();
-			navigation.navigate('Inicio');
-		}, 2000);
-	}, []);
+
+	const errorPermission = async () => {
+		// return (
+		// 	<Modal
+		// 		animationType="slide"
+		// 		visible={true}
+		// 		transparent={true}
+		// 		>
+		// 		<View style={styles.modal}>
+					
+		// 			<Text>
+		// 				Debe tener Aceptar los permisos de Ubicación para el correcto funcionamiento de la aplicación
+		// 			</Text>
+
+		// 			<Button
+		// 				title="Confirmar"
+		// 				onPress={() => {
+		// 					confirmReservation(selectedHour);
+		// 					setShowModal(false);
+		// 				}} />
+		// 		</View>
+		// 	</Modal>
+		// );
+		// console.log('error permisos');
+		AlertModal.showAlert('Mapa','No tiene permisos para obtener la ubicación.');
+	}
 
 	const fetchData = async () => {
 		try {
@@ -99,13 +107,13 @@ const HomeView = ( params ) => {
 				
 				MapController.companyLocations(region, ratio)
 				.then(companiesReturn => {
-					// console.log('hay datos: ', companiesReturn);
+					// console.log('companiesReturn', companiesReturn);
 					setCompanies(companiesReturn);
 					setIsConnected(true);
 					countMap++;
 				})
 				.catch(error => {
-					// console.log(error);
+					console.log(error);
 					AlertModal.showAlert('API','Problemas de Conexión...');
 					// alert('Problemas de Conexión...'); 
 					setCompanies([]);
@@ -114,26 +122,43 @@ const HomeView = ( params ) => {
 				});
 
 			} else {
+				console.log('No tiene permisos para obtener la ubicación.');
 				alert('No tiene permisos para obtener la ubicación.');
 			}
 		} catch (error) {
-			console.log('ERROR fetchData: '+error);
-			if (error == -1) {
-				setCompanies([]);
+			// console.log(error.message);
+
+			if (error.message == 'Permiso de acceso a la ubicación denegado.') {
+				errorPermission();
+			} else {
 				setIsConnected(false);
 			}
+			setCompanies([]);
 		}
 	};
 
-	const handleOrientationChange = () => {
-		const newOrientation = getOrientation();
-		setOrientation(newOrientation);
-	};
- 
 	const handleRatioChange = (value) => {
 		// console.log(value);
-        setRatio(value);
-		// fetchData();
+		var rango = 0.0200;
+		if (location !== null) {
+			setRatio(value);
+			
+			if (value >= 0 && value < 2)
+				rango = 0.0200;
+			if (value >= 2 && value < 10)
+				rango = 0.1100; 
+			if (value == 10)
+				rango = 0.2200; 
+				
+			var myLoc = {
+				latitude: location.latitude,
+				latitudeDelta: rango,
+				longitude: location.longitude,
+				longitudeDelta: rango
+			};
+			mapRef.current.animateToRegion(myLoc); 
+		}
+
     };
 
 	const onRegionChange = (region, gesture) => {
@@ -146,42 +171,60 @@ const HomeView = ( params ) => {
 			return companies.map((item, index) => {
 				var imgLogo = (item.logo !== '') ? 'data:image/png;base64, '+item.logo : null;
 				var empresa = item;
-				// console.log(Marker);
+				// console.log(imgLogo);
 				return (
 					<Marker
 						key={index}
-						pinColor='#00ffff'
+						pinColor='#0af'
 						coordinate={item.location}
 						onPress={() => setSelectedMarker(item)}
-						// icon={{uri:imgLogo}}
+						anchor={{ x: 0.5, y: 0.5 }} 
 						>
 
-						{/* <Image uri={imgLogo} style={{height: 35, width:35 }} /> */}
-
-						{
-							userLogin.type === 'customer' ? (
-								<Callout 
-									style={styles.openCallout}
-									onPress={() => handleReservation(userLogin, empresa)} 
-									>
-									<View style={{ flexDirection:'row', alignContent:'space-between', alignItems:'center' }}>
-										<Text style={styles.title}>{item.title}</Text>
-										{/* <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} /> */}
-									</View>
-									<Text style={styles.description}>{item.description}</Text>
-								</Callout>
-							) : (
-								<Callout style={styles.openCallout} 
-									onPress={() => handleReservation(null, null)} 
-									>
-									<Text style={styles.title}>{item.title}</Text>  
-									<Text style={styles.description}>{item.description}</Text>
-									{/* <Text style={{ color:'#f00', fontSize:16, alignSelf:'center' }}>
-										Debe ingresar como Cliente
-									</Text> */}
-								</Callout>
-							)
-						}
+						{imgLogo ? (
+							<View>
+								<Image source={{ uri: imgLogo }} 
+									style={{ 
+										width: 35, 
+										height: 35, 
+										borderWidth: 2, 
+										borderRadius: 10, 
+										borderColor:'#0af',
+										zIndex: 10
+									}} />
+							</View>
+						) : (
+							<View>
+								<FontAwesomeIcon icon={faBuilding} size={35} 
+									style={{ 
+										color:'#0af',
+										zIndex: 10
+									}} />
+							</View>
+						)}
+						
+						{userLogin.type === 'customer' ? (
+							<Callout 
+								style={styles.openCallout}
+								onPress={() => handleReservation(userLogin, empresa)} 
+								>
+								<View style={{ flexDirection:'row', alignContent:'space-between', alignItems:'center' }}>
+									<Text style={styles.title}>{item.title}</Text>
+									{/* <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} /> */}
+								</View>
+								<Text style={styles.description}>{item.description}</Text>
+							</Callout>
+						) : (
+							<Callout style={styles.openCallout} 
+								onPress={() => handleReservation(null, null)} 
+								>
+								<Text style={styles.title}>{item.title}</Text>  
+								<Text style={styles.description}>{item.description}</Text>
+								{/* <Text style={{ color:'#f00', fontSize:16, alignSelf:'center' }}>
+									Debe ingresar como Cliente
+								</Text> */}
+							</Callout>
+						)}
 
 					</Marker>
 				)
@@ -189,32 +232,79 @@ const HomeView = ( params ) => {
 		}	
 	};
 
-	const handleSearch = (query) => {
-		
-		const regex = new RegExp(`\\b${query.toLowerCase()}\\b`); 
-		// const foundCompanyBasic = companies.find(company => regex.test(company.title.toLowerCase()));
-		const foundCompany = companies.find(company => company.title.toLowerCase().includes(query.toLowerCase()));
+	const removeAccents = (str) => {
+		const vocals = {
+			'á': 'a', 
+			'é': 'e', 
+			'í': 'i', 
+			'ó': 'o', 
+			'ú': 'u',
+			'Á': 'A', 
+			'É': 'E', 
+			'Í': 'I', 
+			'Ó': 'O', 
+			'Ú': 'U'
+		};
 	
-		// console.log('query: ', query);
-		// MapController.searchCompany(query)
-		// .then(foundCompany => {
-		// 	console.log('foundCompany: ', foundCompany);
-			// if (foundCompany === foundCompanyBasic) {
-				const newRegion = {
-					latitude: foundCompany.location.latitude,
-					longitude: foundCompany.location.longitude,
-					latitudeDelta: 0.00006,
-					longitudeDelta: 0.00006,
+		var normalizedStr = '';
+	
+		for (var i = 0; i < str.length; i++) {
+			const char = str[i];
+			const normalizedChar = vocals[char] || char; // Si no es una vocal con tilde, se deja igual
+			normalizedStr += normalizedChar;
+		}
+	
+		return normalizedStr;
+	};
+
+	const handleSearch = (query) => {
+		try {
+			if (query !== '') {
+
+				const vocals = {
+					'á': 'a', 
+					'é': 'e', 
+					'í': 'i', 
+					'ó': 'o', 
+					'ú': 'u',
+					'Á': 'A', 
+					'É': 'E', 
+					'Í': 'I', 
+					'Ó': 'O', 
+					'Ú': 'U'
 				};
-				// Centra el mapa en la ubicación de la empresa encontrada
-				mapRef.current.animateToRegion(newRegion); 
-				Keyboard.dismiss();
-		// 	}
-		// })
-		// .catch(error => {
-		// 	alert(error);
-		// });
+				
+				var normalizedQuery = removeAccents(query);
 		
+				const companiesWithoutAccents = companies.map(company => ({
+					...company,
+					title: removeAccents(company.title)
+				}));
+
+				// console.log(companies);
+				// console.log(normalizedQuery);
+				
+				// const regex = new RegExp(`\\b${query.toLowerCase()}\\b`); 
+				// const foundCompanyBasic = companies.find(company => regex.test(company.title.toLowerCase()));
+
+				const foundCompany = companiesWithoutAccents.find(company => 
+					company.title.toLowerCase().includes(normalizedQuery.toLowerCase()));
+				// console.log(foundCompany);
+				if (foundCompany !== null && foundCompany !== undefined) {		
+					const newRegion = {
+						latitude: foundCompany.location.latitude,
+						longitude: foundCompany.location.longitude,
+						latitudeDelta: 0.0010,
+						longitudeDelta: 0.0010,
+					};
+					// Centra el mapa en la ubicación de la empresa encontrada
+					mapRef.current.animateToRegion(newRegion); 
+					Keyboard.dismiss();
+				}
+			}
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	const handleReservation = (userLogin, item) => {
@@ -224,10 +314,22 @@ const HomeView = ( params ) => {
 			setShowModal(true);
 			setTimeout(() => {
 				setShowModal(false);
-			}, 5000);
+			}, 6000);
 		} else {
-			saveCompanyID(item.id);
-			navigation.navigate('Realizar Reserva', { userLogin, item })
+			
+			var idSelect;
+
+			if (item.idCliente !== undefined && item.idCliente !== '') {
+				// console.log('vengo de favorito');
+				idSelect = item.idEmpresa;
+			} else {
+				// console.log('vengo de mapa');
+				idSelect = item.id;
+			}
+
+			saveCompanyID(idSelect);
+
+			navigation.navigate('Realizar Reserva', idSelect);
 		}
 
 	}; 
@@ -237,7 +339,7 @@ const HomeView = ( params ) => {
 			await clearAsyncStorageItem('selectedCompanyID');
 			await AsyncStorage.setItem('selectedCompanyID', id.toString());
 			var selected = await AsyncStorage.getItem('selectedCompanyID');
-			console.log('id seleccionado: ', selected);
+			// console.log('id seleccionado: ', selected);
 		} catch (error) {
 			alert('ERROR al intentar cargar la Empresa, ' + error);
 		}
@@ -247,186 +349,225 @@ const HomeView = ( params ) => {
 		return new Promise((resolve, reject) => {
 			try {
 				AsyncStorage.removeItem(key);
-				console.log(`Elemento con clave "${key}" eliminado.`);
+				// console.log(`Elemento con clave "${key}" eliminado.`);
 				resolve(true);
 			} catch (error) {
-				console.error(`Error al eliminar el elemento con clave "${key}" `, error);
+				// console.error(`Error al eliminar el elemento con clave "${key}" `, error);
 				reject(error);
 			}
 		});
 	};
 
-	const clearAsyncStorage = async () => {
+	const favoriteTarget = (coordinates, item) => {
+		if (item !== null && item !== undefined) {
+			if (coordinates !== null) {
+				console.log('companies',companies);
+				console.log('coordinates',coordinates);
+				console.log('item',item);
+				var empresa = item;
+
+				var newCoord = {
+					latitude: coordinates.latitude,
+					longitude: coordinates.longitude,
+					latitudeDelta: 0.0200,
+					longitudeDelta: 0.0200,
+				};
+
+				mapRef.current.animateToRegion(newCoord); 
+				const idEmpresaExistente = companies.some(company => company.id === item.idEmpresa);
+
+				return (
+					<>
+						{!idEmpresaExistente ? (
+							<Marker
+								// key={index}
+								pinColor='#0af'
+								coordinate={newCoord}
+								onPress={() => {
+									setSelectedMarker(item)
+									setFavoriteCallout(true)
+								}}
+								anchor={{ x: 0.5, y: 0.5 }} 
+								>
+			
+								<View>
+									<FontAwesomeIcon style={{ 
+										color:'#fa0', borderColor:'#0af', borderWidth: 1, zIndex: 1
+										}} icon={faBuilding} size={35} />
+								</View>
+			
+								{favoriteCallout && (
+									<Callout 
+										style={styles.openCallout}
+										onPress={() => handleReservation(userLogin, empresa)} 
+										>
+										<View style={{ flexDirection:'row', alignContent:'space-between', alignItems:'center' }}>
+											<Text style={styles.title}>{item.razonSocial}</Text>
+											{/* <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} /> */}
+										</View>
+										<Text style={styles.description}>{item.descripcionEmpresa}</Text>
+									</Callout>
+								)}
+								
+							</Marker>
+						) : null }
+					</>
+				);
+			}
+		}
+	}
+	
+	const myLocation = async () => {
 		try {
-			await AsyncStorage.clear();
-			console.log('AsyncStorage limpiada correctamente.');
+			const newRegion = {
+				latitude: location.latitude,
+				longitude: location.longitude,
+				latitudeDelta: 0.0200,
+				longitudeDelta: 0.0200,
+			};
+			// Centra el mapa en la ubicación de la empresa encontrada
+			mapRef.current.animateToRegion(newRegion); 
+			Keyboard.dismiss();
 		} catch (error) {
-		  	console.error('Error al limpiar AsyncStorage: ', error);
+		  	console.error('Error to set Location Device:', error);
 		}
 	};
 
-	const addFavorite = (userLogin, item) => {
-		
-	};
-
-	
 	useEffect(() => {
+
+		// navigation.dispatch(CommonActions.reset({
+		// 	index: 0,
+		// 	routes: [{ name: 'Inicio' }] 
+		// }));
+  
 		fetchData();
 		setShowModal(false);
-		Dimensions.addEventListener('change', handleOrientationChange);
-	}, [isConnected, ratio, countMap]); 
+		setFavoriteCallout(false)
+
+		if ((coordinates !== null) && (coordinates !== undefined)) {
+			setFav(coordinates);
+		} 
+		else {
+			setFav(null);
+		}
+		
+		console.log('favorites Coordinates',fav);
+		// console.log('selectedMarker',selectedMarker);
+
+		const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow', () => {
+                // console.log('Teclado abierto');
+				setShowRatioPanel(false);
+            }
+        );     
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                // console.log('Teclado cerrado');
+				setShowRatioPanel(true);
+            }
+        );
+		
+	}, [ratio, countMap ]); // isConnected, ubicacion
 	// location - pasarle location para actualizar siempre que se geolocalice
 	// companies - pasarle companies para actualizar siempre las empresas - bug
 
 	return (
-		<ScrollView contentContainerStyle={styles.container} 
-			// refreshControl={
-			// 	<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-			// }
-			>
+		<View style={styles.container}>
 			{userLogin.type === 'company' ? (
-				<View style={styles.conrolPanel}>
-					<CompanyPanel 
-						dataCompany={userLogin} 
-						// dataCompany={userLogin.data.company}
-						// windowWidth={windowWidth} 
-						// windowHeight={windowHeight}
-						/>
-				</View>
+				<>
+					<CompanyPanel dataCompany={userLogin} />
+				</>
 			) : (
-				<View>
-					{orientation === 'portrait' ? (
-						<View style={styles.search}>
-							<SearchPanel 
-								onSearch={handleSearch} 
-								mapRef={mapRef} 
-								width={width}
-								height={height}
-								/>
+				<>
+					<View style={styles.search}>
+						<SearchPanel 
+							onSearch={handleSearch} 
+							mapRef={mapRef} 
+							width={width}
+							height={height}
+							/>
+					</View>
+			
+					<View style={{
+							position:'absolute',
+							top: -43,
+							right: 14,
+							zIndex: 90,
+							// padding: 5
+						}}>
+						<TouchableOpacity style={{ flex:1,padding:6.2,borderRadius:15, backgroundColor:'#fff' }} 
+							onPress={() => myLocation()}>
+							<FontAwesomeIcon icon={faLocationCrosshairs} color={'#442'} size={24} />
+						</TouchableOpacity>
+					</View>
 
-							<Modal
-								visible={showModal} 
-								transparent={true}
-								animationIn="slideInRight" 
-								animationOut="slideOutRight"  
-								// animationType="fade" 
-								>
-								<View style={{ 
-									paddingHorizontal:85,
-									paddingVertical:120,
-									}}>	
-									<Text style={styles.alertNoLogin}> 
-										Debe ingresar como Cliente para poder realizar reservas
-									</Text>
-								</View>
-							</Modal>
+					<Modal
+						visible={showModal} 
+						transparent={true}
+						animationIn="slideInRight" 
+						animationOut="slideOutRight"  
+						// animationType="fade" 
+						>
+						<View style={{ paddingHorizontal:85, paddingVertical:120 }}>	
+							<Text style={styles.alertNoLogin}> 
+								Debe ingresar como Cliente para poder realizar reservas
+							</Text>
 						</View>
-					) : null }
-
+					</Modal>
+				
 					<MapView
 						ref={mapRef}
 						style={ orientation === 'portrait' 
 							? styles.mapPortrait : styles.mapLandscape 
 						}
+						tintColor={'#150'}
 						onRegionChange={onRegionChange}
 						initialRegion={location}
 						zoomEnabled={true}
 						zoomControlEnabled={true}
+						mapType={"standard"}
 						showsUserLocation={true}
-						showsMyLocationButton={true} 
+						showsMyLocationButton={false}
+						// followsUserLocation={true}
+						// paddingAdjustmentBehavior="automatic"
+						// minZoomLevel={0.0100}
+						// maxZoomLevel={0.0300}
 						>
 						{showCompanyLocations()}
+						{ userLogin.type === 'customer' ? (
+							favoriteTarget(coordinates, item)
+						) : null }
 					</MapView>
 					
-					<View style={orientation === 'portrait' ? styles.ratioPanelPortrait : styles.ratioPanelLandscape}>
-						<RatioPanel onRatioChange={(newRatio) => handleRatioChange(newRatio)} />
-					</View>	
-				</View>
+					{showRatioPanel ? (
+						<View style={orientation === 'portrait' ? styles.ratioPanelPortrait : styles.ratioPanelLandscape}>
+							<RatioPanel onRatioChange={(newRatio) => handleRatioChange(newRatio)} />
+						</View>	
+					) : null }
+				</>
 			)}
-		</ScrollView>
+		</View>
 	);
 	
 };
 
-const CustomMarker = ( index, typeUser, item, imgLogo, imgSize ) => {
-	return (
-		<Marker
-			key={index}
-			pinColor='#00ffff'
-			coordinate={item.location}
-			image={{
-				uri: imgLogo,
-				scale: 0.01
-			}} 
-			>
-			{typeUser === 'customer' ? (
-				<Callout 
-					style={{}}
-					onPress={() => navigation.navigate('Realizar Reserva', { item })} 
-					>
-					<Text style={styles.title}>{item.title}</Text>
-					<Text style={styles.description}>{item.description}</Text>
-				</Callout>
-			) : (
-				<Callout 
-					style={{}}
-					>
-					<Text style={styles.title}>{item.title}</Text>
-					<Text style={styles.description}>{item.description}</Text>
-				</Callout>
-			)}
-		</Marker>
-	);
-};
-
 const styles = StyleSheet.create({
-	search: {
-		
-		// alignSelf:'center',
-		// marginHorizontal:50,
-		// marginVertical:15,
-		// width: width,
-
-		height: 1,
-		position:'absolute',
-        top: -20,
-        left: -50,
-        right: 0,
-        bottom: 0,
-        zIndex: 5,
-		backgroundColor:'#000'
-    },
 	container: {
-		flex: 1,
-		backgroundColor: '#fff',
+		flex: 0.92,
 		alignItems: 'center',
 		justifyContent: 'center',
-		margin: 8,
-		marginBottom: 16,
 	},
-	landscape: {
-		marginTop:25,
-	},
-	viewMap: {
+	search: {
+		position:'absolute',
+        zIndex: 90,
+        top: -77,
+		width:'80%',
+		// backgroundColor:'#000'
+    },
+	mapPortrait: {
 		width: width,
 		height: height,
-		alignItems: 'center',
-		justifyContent: 'center',
-		// backgroundColor:'#355B54',
-	},
-	map: {
-		flex: 1,
-		width: width-1,
-		height: height-1,
-		margin: 1,
-		padding: 1,
-	},
-	mapPortrait: {
-		flex: 1,
-		width: width-1,
-		height: height-1,
-		margin: 1,
-		padding: 1,
 	},
 	mapLandscape: {
 		flex: 2,
@@ -436,10 +577,19 @@ const styles = StyleSheet.create({
 		padding: 1,
 	},
 	modal: {
-		flex: 1,
-		width: 200,
-		height: 200,
-		backgroundColor: '#888',
+		width: 360,
+		height: 220,
+		alignSelf: 'center',
+		marginHorizontal: 40,
+		marginVertical: 220,
+		paddingHorizontal: 10,
+		paddingVertical: 20,
+		borderRadius: 20,
+		borderColor: 'green',
+		borderWidth: 1,
+		backgroundColor: '#fff',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 
 	openCallout: {
@@ -482,7 +632,7 @@ const styles = StyleSheet.create({
 	},
 	ratioPanelPortrait: {
 		position: 'absolute',
-		top: '88%',
+		top: '96%',
 		left: '24%',
 		zIndex: 2,
 	},	
@@ -505,7 +655,9 @@ const styles = StyleSheet.create({
 	alertNoLogin: { 
 		color:'#f20', 
 		fontSize:16, 
-		textAlign:'center'
+		textAlign:'center',
+		backgroundColor: '#fff',
+		padding: 9
 	}
 })
 

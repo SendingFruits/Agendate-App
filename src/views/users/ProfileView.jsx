@@ -1,18 +1,21 @@
-import { UserContext } from '../../services/context/context'; 
-import { useNavigation } from '@react-navigation/native';
-import { getOrientation } from '../utils/Functions';
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
+import { getBase64FromUri, loadImageFromBase64 } from '../utils/Functions'
+
+import UsersController from '../../controllers/UsersController';
+import AlertModal from '../utils/AlertModal';
+import MenuButtonItem from '../home/MenuButtonItem';
+import CheckBox from '../utils/CheckBox';
 
 import React, { 
     useState, useEffect, useContext 
 } from 'react';
 
-// import DeviceInfo from 'react-native-device-info-2';
+import { useNavigation } from '@react-navigation/native';
 
 import * as ImagePicker from "expo-image-picker";
-import UsersController from '../../controllers/UsersController';
-import AlertModal from '../utils/AlertModal';
-import MenuButtonItem from '../home/MenuButtonItem';
-import CheckBox from '../utils/CheckBox';
 
 import {
     Dimensions,
@@ -23,38 +26,57 @@ import {
     RefreshControl,
     TextInput,
     TouchableOpacity,
-    Image
+    Image,
+    Keyboard
 } from 'react-native';
 
+import { 
+	faCircleUser
+} from '@fortawesome/free-solid-svg-icons';
+
+import { 
+	FontAwesomeIcon 
+} from '@fortawesome/react-native-fontawesome';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-const ProfileView = ( params ) => {
+const ProfileView = () => {
 
+    const { currentUser, setCurrentUser } = useContext(AuthContext);
+
+    // console.log('ProfileView currentUser: ', currentUser);
     const [widthMax, setWidthMax] = useState(width);
     const [heightMax, setHeightMax] = useState(height);
 
-    var userLogin = params.route.params;
-    const { setUserPreferences } = useContext(UserContext);
     const navigation = useNavigation();
 
-    const [user, setUser] = useState(userLogin);
-    const [guid, setGuid] = useState(userLogin.guid);
+    const [user, setUser] = useState(currentUser);
+    const [guid, setGuid] = useState(currentUser.guid);
 
-    const [username, setUsername] = useState(user.user);
-    const [firstname, setFirstname] = useState(user.name);
-    const [lastname, setLastname] = useState(user.last);
-    const [movil, setMovil] = useState(user.celu);
-    const [email, setEmail] = useState(user.mail);
+    const [type, setType] = useState(currentUser.type);
+    const [docu, setDocu] = useState(currentUser.docu);
+    const [username, setUsername] = useState(currentUser.user);
+    const [firstname, setFirstname] = useState(currentUser.name);
+    const [lastname, setLastname] = useState(currentUser.last);
+    const [movil, setMovil] = useState(currentUser.celu);
+    const [email, setEmail] = useState(currentUser.mail);
 
-	const [isValidEmail, setIsValidEmail] = useState(true);
+    const [logoBase, setLogoBase] = useState(currentUser.logo);
+    const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(currentUser.logo));
     const [selectedPicture, setSelectedPicture] = useState(null);
+    
+	const [isValidEmail, setIsValidEmail] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [isChecked, setChecked] = useState(false);
+    // console.log(currentUser.noti);
+    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
+    // console.log(isChecked);
 
+    const [oldpass, setOldPass] = useState('');
+    const [newpass, setNewPass] = useState('');
+
+    const [showButtons, setShowButtons] = useState(true);
 
 	const validateEmail = (email) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,48 +89,54 @@ const ProfileView = ( params ) => {
 	};
 
 
-    let openImagePickerAsync = async () => {
+    let openLogoPickerAsync = async () => {
         try {
             let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
             // console.log(permissionResult.granted);
             if (permissionResult.granted === false) {
-                alert('Se requiere permisos de acceso a la camara.');
+                AlertModal.showAlert('Camara', 'Se requiere permisos de acceso a la camara.');
                 return;
             }
     
             const pickerResult = await ImagePicker.launchImageLibraryAsync()
             // eslint-disable-next-line
             if (!pickerResult.canceled) {
-                const newSelectedImage = pickerResult.assets[0].uri;
-                console.log(newSelectedImage);
-                setSelectedPicture(newSelectedImage);
-    
-                await AsyncStorage.setItem(username, newSelectedImage);
+                const uri = pickerResult.assets[0].uri;
+                const base64 = await getBase64FromUri(uri);
+                // console.log(base64);
+                setLogoBase(base64);
+                setLogoUrl(uri);
+                setSelectedPicture(uri);
+                // await AsyncStorage.setItem(username, newSelectedImage);
             }
             
         } catch (error) {
-           alert('Error al manejar la selección de imagen. ', error);
+            AlertModal.showAlert('Error al manejar la selección de imagen. ', error);
         }
 	}
 
     let openImageSavedAsync = async () => {
-        const storedImageUri = await AsyncStorage.getItem(username);
-        // console.log(storedImageUri);
-        if (storedImageUri) {
-            setSelectedPicture(storedImageUri);
+        try {
+            const storedImageUri = await AsyncStorage.getItem(username);
+            // console.log('storedImageUri: ', storedImageUri);
+            if (storedImageUri) {
+                setSelectedPicture(storedImageUri);
+                setLogoUrl(storedImageUri);
+            }
+        } catch (error) {
+            AlertModal.showAlert('Error al cargar imagen. ', error);
         }
     }
 
 
     const handleImagePicker = () => {
-		openImagePickerAsync();
+		openLogoPickerAsync();
 	};
 
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-            
 		}, 2000);
 	}, []);
 
@@ -117,42 +145,44 @@ const ProfileView = ( params ) => {
         
         const formData = {
             guid,
+            docu,
 			firstname,
 			lastname,
 			movil,
             email,
+            foto:logoBase,
+            recibe:isChecked,
 		};
 
         // console.log('formData: ', formData);
-        UsersController.handleUpdate(formData)
+        UsersController.handleUpdate(formData,currentUser.type)
         .then(userReturn => {
-			// console.log('userReturn: ', userReturn);
+			// console.log('ProfileView userReturn: ', userReturn);
 			if (userReturn) {
-				alert('Los datos del usuario se han actualizado.');
-                setUserPreferences({
-                    current_user: {
-                        guid: formData.guid,
-                        name: formData.firstname,
-                        last: formData.lastname,
-						pass: user.pass,
-						user: user.user,
-                        celu: formData.movil,
-						mail: formData.email,
-						type: 'customer',
-                    },   
+                AlertModal.showAlert('', 'Los datos del usuario se han actualizado.');
+                setCurrentUser({
+                    guid: formData.guid,
+                    docu: formData.docu,
+                    name: formData.firstname,
+                    last: formData.lastname,
+                    pass: user.pass,
+                    user: user.user,
+                    celu: formData.movil,
+                    mail: formData.email,
+                    logo: formData.foto,
+                    noti: formData.recibe,
+                    type: user.type,
                 });
-
                 // setUser(userReturn);
                 onRefresh();
 			}
 		})
 		.catch(error => {
-			alert(error);
+			AlertModal.showAlert('ERROR', error);
 		});
 	};
 
     const updatePass = () => {
-        // setModalPass(true);
         navigation.navigate('Password');
 	};
 
@@ -166,19 +196,18 @@ const ProfileView = ( params ) => {
                 .then(resDelete => {
                     // console.log('userReturn: ', userReturn);
                     if (resDelete) {
-                        setUserPreferences({
-                            current_user : {
-                                'guid':'none',
-                                'name':'none',
-                                'last':'none',
-                                'user':'none',
-                                'pass':'none',
-                                'type':'none',
-                                'mail':'none', 
-                                'docu':'none',
-                                'celu':'none',
-                                'logo':'none', 
-                            },   
+                        setCurrentUser({
+                            'guid':'none',
+                            'name':'none',
+                            'last':'none',
+                            'user':'none',
+                            'pass':'none',
+                            'type':'none',
+                            'mail':'none', 
+                            'docu':'none',
+                            'celu':'none',
+                            'logo':'none', 
+                            'noti':'none', 
                         });
                         onRefresh();
                         navigation.navigate('Inicio');
@@ -195,61 +224,53 @@ const ProfileView = ( params ) => {
 		});
 	};
 
-
-    const handleFieldChange = (text,field) => {
-		switch (field) {
-			case 'username':
-				setUsername(text);
-				break;
-            case 'firstName':
-                setFirstName(text);
-                break;
-            case 'lastName':
-                setLastName(text);
-                break;
-            case 'movil':
-                setMovil(text);
-                break;
-            case 'email':
-                setEmail(text);
-                setIsValidEmail(validateEmail(text));	
-                break; 
-
-			default:
-				break;
-		}
-	};
-
     const handleOrientationChange = () => {
         const { width, height } = Dimensions.get('window');
         setWidthMax(width);
         setHeightMax(height);
-
-        // if (getOrientation() === 'portrait') {
-        //     setContainer({
-        //         flex: 1,
-        //         width: widthMax,
-        //         height: heightMax
-        //     });
-        // } else {
-
-        // }
     };
     
 
 	useEffect(() => {
+
+        setType(currentUser.type);
+        setDocu(currentUser.docu);
+        setUsername(currentUser.user);
+        setFirstname(currentUser.name);
+        setLastname(currentUser.last);
+        setMovil(currentUser.celu);
+        setEmail(currentUser.mail);
+
+        setLogoBase(currentUser.logo);
+        setLogoUrl(loadImageFromBase64(currentUser.logo));
+        setSelectedPicture(logoUrl);
+
+        setUser(currentUser);
+        setGuid(currentUser.guid);
+
+        setOldPass('');
+        setNewPass('');
+
         Dimensions.addEventListener('change', handleOrientationChange);
+        // openImageSavedAsync();
 
-        // console.log(DeviceInfo); // no funciona ningun metodo...
-        // try {
-        //     const phoneNumber = DeviceInfo; 
-        //     console.log('Número de teléfono:', phoneNumber);
-        // } catch (error) {
-        //     console.error('Error al obtener el número de teléfono:', error);
-        // } 
-
-        openImageSavedAsync();
-	}, []);
+        /**
+         * esto sirve para controlar el teclado:
+         */
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow', () => {
+                // console.log('Teclado abierto');
+                setShowButtons(false);
+            }
+        );     
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                // console.log('Teclado cerrado');
+                setShowButtons(true);
+            }
+        );
+	}, [currentUser]);
 
     return (
         <View style={styles.container}>
@@ -260,21 +281,19 @@ const ProfileView = ( params ) => {
                 } >
 
                 { (user.type === 'customer') ? (
-                    <View style={styles.imageContainer}>
+                    <View style={styles.header}>
                         <TouchableOpacity 
-                            style={styles.imageButton}
-                            onPress={ () => handleImagePicker(0) } > 	
-                            {/* file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540ethelvan%252Fagendate-app/ImagePicker/a67ed7c4-a8b9-4e8f-9e89-ee6812f4a5dc.jpeg */}
-                            <View style={styles.buttonImageContent}>
-                                { (!selectedPicture) ? (
-                                    <Text style={styles.imageText}>Foto</Text>
-                                ) : 
-                                    <Image 
-                                        style={styles.image} 
-                                        source={{ uri: selectedPicture }} 
-                                        />
-                                }
-                            </View>
+                            // style={{ backgroundColor:'#e12' }}
+                            onPress={ () => handleImagePicker(0) } > 	                      
+                            {console.log(logoUrl)}
+                            { ((logoUrl === 'data:image/png;base64,none') || (logoUrl === 'data:image/png;base64,undefined')) ? (
+                                <FontAwesomeIcon 
+                                    style={styles.image} icon={faCircleUser} color={'#0a7a75'}/>
+                            ) : 
+                                <Image 
+                                    style={styles.image} source={{ uri: logoUrl }} />
+                            }
+                          
                         </TouchableOpacity>
                     </View>
                 ) : 
@@ -295,6 +314,18 @@ const ProfileView = ( params ) => {
                     />
                 </View>
  
+                { (user.type === 'customer') ? (
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={styles.input}
+                            value={docu}
+                            onChangeText={setDocu}
+                            // onChangeText={(text) => handleFieldChange(text, 'firstname')}
+                        />
+                    </View>
+                ) : null}
+                
+
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
@@ -322,17 +353,13 @@ const ProfileView = ( params ) => {
                     />
                 </View>
 
-                <View style={[styles.inputContainer,
-                    !isValidEmail && styles.invalidInput]}
-                >
+                <View style={[styles.inputContainer, !isValidEmail && styles.invalidInput]} >
                     <TextInput
                         keyboardType="email-address"
                         style={styles.input}
                         value={email}
                         autoCapitalize="none"
-                        onChangeText={setEmail}
-                        // onChangeText={(text) => handleFieldChange(text, 'email')}
-                    />
+                        onChangeText={(text) => handleEmailChange(text)} />
                     {
                         !isValidEmail &&
                         <Text style={styles.errorText}>
@@ -353,33 +380,39 @@ const ProfileView = ( params ) => {
                     </View>
                 ) : null }
                 
+                {/* <View>
+                    <Text>{oldpass}</Text>
+                    <Text>{newpass}</Text>
+                </View> */}
 
             </ScrollView>
 
-            <View style={styles.footer}>
+            {showButtons ? (
+                <View style={styles.footer}>
 
-                <View style={styles.buttons}>
-                    <MenuButtonItem 
-                        icon = {null}
-                        text = {'Cambiar Contraseña'}
-                        onPress={() => updatePass(user)}
-                    /> 
+                    <View style={styles.buttons}>
+                        <MenuButtonItem 
+                            icon = {null}
+                            text = {'Cambiar Contraseña'}
+                            onPress={() => updatePass()}
+                        /> 
 
-                    <MenuButtonItem
-                        style={{marginHorizontal:20}}
-                        icon = {null}
-                        text = {'Actualizar Datos'}
-                        onPress={() => updateData()}
-                    />
+                        <MenuButtonItem
+                            style={{marginHorizontal:20}}
+                            icon = {null}
+                            text = {'Actualizar Datos'}
+                            onPress={() => updateData()}
+                        />
 
-                    <MenuButtonItem
-                        style={{marginHorizontal:20}}
-                        icon = {null}
-                        text = {'Eliminar Cuenta'}
-                        onPress={() => deleteAccount()}
-                    />
+                        <MenuButtonItem
+                            style={{marginHorizontal:20}}
+                            icon = {null}
+                            text = {'Eliminar Cuenta'}
+                            onPress={() => deleteAccount()}
+                        />
+                    </View>
                 </View>
-            </View>
+            ) : null}
         </View>
     );
 }
@@ -420,14 +453,15 @@ const styles = StyleSheet.create({
 	},
 
     imageContainer: {
-		height: 120,
-		width: 120,
+		height: 106,
+		width: 106,
 		margin: 10,
 		alignSelf: 'center',
-		borderRadius: 20,
+		borderRadius: 60,
 		backgroundColor: '#fff',
 		alignItems: 'center', // Centrar horizontalmente
 		justifyContent: 'center', // Centrar verticalmente
+        // backgroundColor: '#aaa'
 	},
     imageButton: {
         alignItems:'center'
@@ -436,11 +470,11 @@ const styles = StyleSheet.create({
 		marginHorizontal:20,
 	},
 	image: {
-		flex: 1,
-		height: 120,
-		width: 120,
-		borderRadius: 20,
-        resizeMode: 'cover',
+		margin: 20,
+		padding: 50,
+		borderRadius: 50,
+        borderColor:'#fff',
+        borderWidth:2
 	},
     buttonImageContent: {
         flexDirection: 'row',
@@ -453,14 +487,20 @@ const styles = StyleSheet.create({
     },
 
     checkContainer: {
-		flexDirection: 'column',
-		// backgroundColor: '#fff',
-        
+		flex: 1,
+        flexDirection: 'column',
+        alignItems:'center',
 		marginHorizontal:20,
-		marginBottom: 5,
-		paddingHorizontal: 15,
-		paddingVertical: 3,
+		marginVertical:25,
 	},
+
+    header: {
+        flex:1,
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+        // backgroundColor:'#fff'
+    }
 })
 
 export default ProfileView;

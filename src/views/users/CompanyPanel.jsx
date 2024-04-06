@@ -1,14 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
-import { getBase64FromUri, loadImageFromBase64, getOrientation } from '../utils/Functions'
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
+import { getBase64FromUri, loadImageFromBase64 } from '../utils/Functions'
 
 import * as ImagePicker from "expo-image-picker";
 
 import MenuButtonItem from '../home/MenuButtonItem';
 import MapController from '../../controllers/MapController';
 import UsersController from '../../controllers/UsersController';
+import AlertModal from '../utils/AlertModal';
 
-import { 
-    useState, useEffect
+import React, { 
+    useContext, useState, useEffect
 } from 'react';
 
 import { 
@@ -20,41 +24,31 @@ import {
     TextInput,
     TouchableOpacity,
     SafeAreaView,
-    Image
+    Keyboard,
+    Image,
+    RefreshControl,
+    Modal
 } from 'react-native';
+
+// import { geocodeAsync } from 'expo-location';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-const CompanyPanel = (params) => {
+const CompanyPanel = () => {
 
-    const [widthMax, setWidthMax] = useState(width);
-    const [heightMax, setHeightMax] = useState(height);
-
-    var data = params.dataCompany;
-    const navigation = useNavigation();
-
-    var guid = data.guid;
-
-
-    var initialContainer = {
-        flex: 1,
-        width: widthMax,
-        height: heightMax
-    };
-
-    const [container, setContainer] = useState(initialContainer);
+    const { currentUser, setCurrentUser, navigation } = useContext(AuthContext);
+    // console.log(currentUser);
+    var guid = currentUser.guid;
 
     var sty = StyleSheet.create({});
-
     sty = StyleSheet.create({
         container: {
-            flex: 1,
-            width: widthMax, // o '100%'
-            height: heightMax, // o '100%'
-            // alignItems: 'center',
-            // borderRadius: 20,
+            top:-2,
+            width:width,
+            height:height,
+            flexDirection:'column',
         },
         header: {
             alignItems: 'center',
@@ -63,8 +57,8 @@ const CompanyPanel = (params) => {
             borderTopLeftRadius: 8,
             borderTopRightRadius: 8,
             borderTopWidth: 2,
-            borderLeftWidth: 1,
-            borderRightWidth: 1,
+            // borderLeftWidth: 1,
+            // borderRightWidth: 1,
             borderColor: '#fff',
         },
         textHeader: {
@@ -73,7 +67,7 @@ const CompanyPanel = (params) => {
             padding: 10,
         },
         body: {
-            height: height - 225,
+            height: height-50,
             // marginTop: 20,
             marginHorizontal: 15,
             // borderRadius: 12,
@@ -92,8 +86,20 @@ const CompanyPanel = (params) => {
             flex: 1, // Ocupar espacio igual en ambas columnas
             paddingHorizontal: 5, // Espacio horizontal entre columnas
         },
+        columnB: {
+            flex: 0.75, 
+            paddingHorizontal: 1, 
+        },
+        columnT: {
+            flex: 0.65, 
+            paddingHorizontal: 5, 
+        },
+        columnV: {
+            flex: 1, 
+            paddingHorizontal: 5,
+        },
         space: {
-            width: 20
+            width: 15 
         },
         btnCaptureLocation: {
             marginVertical: 10,
@@ -124,7 +130,7 @@ const CompanyPanel = (params) => {
             backgroundColor:'#fff',
         },
         dataEditDesc: {
-            width:297,
+            width:width-75.1,
             height:120,
             marginVertical:3,
             marginBottom:10,
@@ -163,7 +169,7 @@ const CompanyPanel = (params) => {
     
         footer: {
             position: 'absolute',
-            bottom: 0,
+            bottom: -15,
             left: -3,
             right: -3,
             
@@ -171,44 +177,72 @@ const CompanyPanel = (params) => {
             justifyContent: 'center', // Ajusta la alineación horizontal según tu diseño
             alignItems: 'center', // Ajusta la alineación vertical según tu diseño
             
-            marginTop: 10,
+            // marginTop: 10,
             borderWidth: 2,
             borderColor: '#fff',
         },
     });
 
-    
-
-
-    const [rut, setRut] = useState(data.rut);
-    const [owner, setOwner] = useState(data.owner);
-    const [businessName, setBusinessName] = useState(data.businessName);
-    const [category, setCategory] = useState(data.category);
-    const [address, setAddress] = useState(data.address);
-    const [city, setCity] = useState(data.city);
-    const [description, setDescription] = useState(data.description);
+    const [rut, setRut] = useState(currentUser.rut);
+    const [owner, setOwner] = useState(currentUser.owner);
+    const [businessName, setBusinessName] = useState(currentUser.businessName);
+    const [category, setCategory] = useState(currentUser.category);
+    const [address, setAddress] = useState(currentUser.address);
+    const [city, setCity] = useState(currentUser.city);
+    const [description, setDescription] = useState(currentUser.description);
     
     const [logoBase, setLogoBase] = useState('');
-    const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(data.logo));
+    const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(currentUser.logo));
     const [selectedPicture, setSelectedPicture] = useState(null);
 
-    const [location, setLocation] = useState({latitude:data.latitude, longitude:data.longitude});
+    const [location, setLocation] = useState({latitude:currentUser.latitude, longitude:currentUser.longitude});
 
+    const [showModal, setShowModal] = useState(false);
+    const [showSaveButtom, setShowSaveButtom] = useState(true);
+    
+    const [refreshing, setRefreshing] = useState(false);
 
+	const onRefresh = React.useCallback(() => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+
+            // setCurrentUser(currentUser);
+            setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+            
+            setShowModal(false);
+            setShowSaveButtom(true);
+
+            navigation.navigate('Inicio');
+		}, 2000);
+	}, []);
 
     const captureLocation = async () => {
         try {
             if (await MapController.requestLocationPermission() === 'granted') {
                 const region = await MapController.getLocation();
-                console.log(region);
+                // console.log(region);
                 setLocation(region);
+                setShowModal(true);
+                setTimeout(() => {
+                    setShowModal(false);
+                }, 4000);
             } else {
-                alert('No tiene permisos para obtener la ubicación.');
+                AlertModal.showAlert('No tiene permisos para obtener la ubicación.','');
             }
         } catch (error) {
             console.log('ERROR captureLocation: '+error);
         }
     };
+
+    const viewMyLocation = async () => {
+        try {
+            console.log('MyLoc');
+        } catch (error) {
+            console.log('ERROR captureLocation: '+error);
+        }
+    };
+
 
     const saveDataCompany = async () => {
         // console.log('saveDataCompany');
@@ -230,20 +264,14 @@ const CompanyPanel = (params) => {
 		.then(dataReturn => {
 			// console.log('dataReturn: ', dataReturn);
 			if (dataReturn) {
-				alert('Datos de la empresa Actualizados.');
-
-                // setRut('');
-                // setOwner('');
-                // setBusinessName('');
-                // setCategory('');
-                // setAddress('');
-                // setCity('');
-                // setDescription('');
+				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');       
+                console.log(dataReturn);
                 setLogoUrl(loadImageFromBase64(dataReturn.logo));
+                onRefresh();
 			}
 		})
 		.catch(error => {
-			alert(error);
+			AlertModal.showAlert('Ocurrió un Error', error);
 		});
     };
 
@@ -253,7 +281,7 @@ const CompanyPanel = (params) => {
 		let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 		// console.log(permissionResult.granted);
 		if (permissionResult.granted === false) {
-			alert('Se requiere permisos de acceso a la camara.');
+			AlertModal.showAlert('Se requiere permisos de acceso a la camara.', '');
 			return;
 		}
 
@@ -275,7 +303,7 @@ const CompanyPanel = (params) => {
 
     let openImageSavedAsync = async () => {
         const storedImageUri = await AsyncStorage.getItem(username);
-        console.log(storedImageUri);
+        // console.log(storedImageUri);
         if (storedImageUri) {
             setSelectedPicture(storedImageUri);
         }
@@ -286,47 +314,55 @@ const CompanyPanel = (params) => {
 		openLogoPickerAsync();
 	};
 
-    const handleOrientationChange = () => {
-        const { width, height } = Dimensions.get('window');
-        setWidthMax(width);
-        setHeightMax(height);
-
-        // if (getOrientation() === 'portrait') {
-        //     setContainer({
-        //         flex: 1,
-        //         width: widthMax,
-        //         height: heightMax
-        //     });
-        // } else {
-
-        // }
-    };
-
 	useEffect(() => {
-		// setRut(data.docu);
-        // console.log(logoUrl);
-        // setLogoUrl(loadImageFromBase64());
 
+        setRut(currentUser.rut);
+        setOwner(currentUser.owner);
+        setBusinessName(currentUser.businessName);
+        setCategory(currentUser.category);
+        setAddress(currentUser.address);
+        setCity(currentUser.city);
+        setDescription(currentUser.description);
+        
+        setLogoBase(currentUser.logo);
+        setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
+        
+        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+        
+        setShowModal(false);
+        setShowSaveButtom(true);
 
-        Dimensions.addEventListener('change', handleOrientationChange);
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow', () => {
+                // console.log('Teclado abierto');
+				setShowSaveButtom(false);
+            }
+        );     
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                // console.log('Teclado cerrado');
+				setShowSaveButtom(true);
+            }
+        );
+
+        // Dimensions.addEventListener('change', handleOrientationChange);
 
         setTimeout(() => {
             if ((location.latitude === '' || location.latitude === 0)
              && (location.longitude === '' || location.longitude === 0)
             ) {
-                alert('Tu empresa no se verá en el mapa hasta que captures tu ubicación y la guardes.');
+                AlertModal.showAlert('','Tu empresa no se verá en el mapa hasta que captures tu ubicación y la guardes.');
             }
         }, 3000);
 
-	}, [data.latitude, data.longitude]);
+	}, [currentUser.latitude, currentUser.longitude]);
 
     return (
         <View style={sty.container}>
-            <LinearGradient
-                style={{flex: 1, padding: 8}}
-                colors={['#dfe4ff', '#238162', '#2ECC71']} 
-                >
+            <LinearGradient colors={['#dfe4ff', '#238162', '#2ECC71']} >
+                
                 <View style={sty.header}>
                     <Text style={sty.textHeader}>
                         Panel de Gestión
@@ -334,54 +370,58 @@ const CompanyPanel = (params) => {
                 </View>
 
                 <View style={sty.body}>
-                    <ScrollView>
+                    <ScrollView refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
         
                         <View style={sty.row}>
                             
                             <View style={sty.space}>
                             </View> 
         
-                            <View style={sty.column}>
-        
+                            <View style={sty.columnB}>
                                 <View style={sty.btnCaptureLocation}>
                                     <MenuButtonItem 
                                         icon = {null}
+                                        type = {'capture'}
                                         text = {'Captar Ubicación'}
                                         onPress={() => captureLocation()}
                                     />
                                 </View>
-                                
-                                {/* <TouchableOpacity 
-                                    style={sty.btnCaptureLocation}
-                                    onPress={() => captureLocation()}
-                                    >
-                                    <Text style={sty.txtbtnCapture}>Captar Ubicación</Text>
-                                </TouchableOpacity> */}
-                                
                             </View> 
         
-                            <View style={sty.column}>
-                                <Text style={sty.txtCoord}>Coordenadas:</Text>
-        
-                                {(location !== null) ? (
-                                    <View>
-                                        <Text style={sty.txtLat}> Lat:{location.latitude}</Text>
-                                        <Text style={sty.txtLng}> Lng:{location.longitude}</Text>
-                                    </View>
-                                ) : 
-                                    <View>
-                                        <Text style={sty.txtLat}> Lat:</Text>
-                                        <Text style={sty.txtLng}> Lng:</Text>
-                                        {/* {alert('No tiene una ubicación definida,'
-                                            +'\npuede indicar una con el botón'
-                                            +'\n"Capatar Ubicación"')} */}
-                                    </View>
-                                }
+                            <View style={sty.columnV}>
+                                <View style={{
+                                    marginHorizontal:20,
+                                    marginBottom:10
+                                }}>    
+                                    <Text style={sty.txtCoord}>Coordenadas:</Text>
+            
+                                    {(location !== null) ? (
+                                        <View>
+                                            <Text style={sty.txtLat}> Lat:{location.latitude}</Text>
+                                            <Text style={sty.txtLng}> Lng:{location.longitude}</Text>
+                                        </View>
+                                    ) : 
+                                        <View>
+                                            <Text style={sty.txtLat}> Lat:</Text>
+                                            <Text style={sty.txtLng}> Lng:</Text>
+                                        </View>
+                                    }
+                                </View>
                             </View>
+
+                            {/* <View style={{ 
+                                marginRight: 20,
+                                padding: 1,
+                                color:'#05f' 
+                                }}>
+                                <TouchableOpacity onPress={() => viewMyLocation()} > 
+                                    <Text>Ver</Text>
+                                </TouchableOpacity> 
+                            </View> */}
                         </View> 
         
                         <View style={sty.row}>
-                            <View style={sty.column}>
+                            <View style={sty.columnT}>
                                 <Text style={sty.dataLabel}>RUT:</Text>
                                 <Text style={sty.dataLabel}>Propietario:</Text>
                                 <Text style={sty.dataLabel}>Razón Social:</Text>
@@ -389,7 +429,7 @@ const CompanyPanel = (params) => {
                                 <Text style={sty.dataLabel}>Ciudad:</Text>
                                 <Text style={sty.dataLabel}>Dirección:</Text>
                             </View> 
-                            <View style={sty.column}>
+                            <View style={sty.columnV}>
                                 <TextInput 
                                     editable={false}
                                     keyboardType="numeric"
@@ -424,6 +464,7 @@ const CompanyPanel = (params) => {
                                     />
                             </View>
                         </View> 
+                        
                         <View style={sty.row}>
                             <SafeAreaView>
                                 <Text style={{fontWeight:'bold',paddingHorizontal:22,marginVertical:3,paddingVertical:5,}}
@@ -438,16 +479,7 @@ const CompanyPanel = (params) => {
                         </View> 
         
                         <View style={sty.row}>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                        </View>
-        
-                        <View style={sty.row}>
-                            <View style={sty.column}>
+                            <View>
                                 <View style={sty.imageContainer}>
                                     <TouchableOpacity 
                                         style={sty.imageButton}
@@ -463,14 +495,17 @@ const CompanyPanel = (params) => {
                                             }
                                         </View>
                                     </TouchableOpacity>
-                                    
                                 </View>
                             </View>
                             <View style={sty.column}>
-                                <Text>Elija el logo de su Empresa </Text>
+                                {logoBase === '' ? (
+                                    <Text>Elija el logo de su Empresa </Text>
+                                ) : null}
                             </View>
                         </View>
         
+
+
                         <View style={sty.row}>
                             <View style={sty.column}>
                                 <Text>  </Text>
@@ -489,20 +524,60 @@ const CompanyPanel = (params) => {
                             </View>
                         </View>
         
+                        <View style={sty.row}>
+                            <View style={sty.column}>
+                                <Text>  </Text>
+                            </View>
+                            <View style={sty.column}>
+                                <Text>  </Text>
+                            </View>
+                        </View>
+
+                        <View style={sty.row}>
+                            <View style={sty.column}>
+                                <Text>  </Text>
+                            </View>
+                            <View style={sty.column}>
+                                <Text>  </Text>
+                            </View>
+                        </View>
+                        
                     </ScrollView>
+
+                    <>
+                        <Modal
+                            visible={showModal} 
+                            transparent={true}
+                            animationIn="slideInRight" 
+                            animationOut="slideOutRight"  
+                            // animationType="fade" 
+                            >
+                            <View style={{
+                                backgroundColor:'#fff',
+                                marginHorizontal:50, 
+                                marginVertical:40 
+                                }}>	
+                                <Text>Se estableció su posición actual como ubicación para su Empresa.</Text>
+                            </View>
+                        </Modal>
+                    </>
+
                 </View>
 
-                <LinearGradient
-                    style={sty.footer}
-                    colors={['#2ECC71', '#238162', '#dfe4ff']} >
-                    <View style={{ marginTop :10}}>
-                        <MenuButtonItem 
-                            icon = {null}
-                            text = {'Guardar'}
-                            onPress={() => saveDataCompany()} />
-                    </View>
-                </LinearGradient>
-    
+                {showSaveButtom ? (
+                    <LinearGradient
+                        style={sty.footer}
+                        colors={['#2ECC71', '#238162', '#dfe4ff']} >
+                        <View style={{ marginTop :10}}>
+                            <MenuButtonItem 
+                                icon = {null}
+                                type = {'panel'}
+                                text = {'Guardar'}
+                                onPress={() => saveDataCompany()} />
+                        </View>
+                    </LinearGradient>
+                ): null}
+        
             </LinearGradient>
         </View>
     );

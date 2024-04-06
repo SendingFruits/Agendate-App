@@ -2,34 +2,13 @@ import FavoriteServices from '../services/FavoriteServices';
 
 class FavoriteController {
 
-
-	getFavoriteForCompany(guid) {
-		return new Promise((resolve, reject) => {
-			// console.log('getFavoriteForCompany', guid);
-			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe pertenecer a una empresa.');
-			}
-
-			FavoriteServices.getFavoriteForCompany(guid)
-			.then(favoritesReturn => {
-				// console.log('favoritesReturn', favoritesReturn);
-				if (favoritesReturn !== null) {
-					resolve(favoritesReturn);
-				} else {
-					resolve(null);
-				}
-			})
-			.catch(error => {
-				reject('Error Controller getFavoriteForCompany', error);
-			});
-		});
-	}
-
 	getFavoritesForService(guid) {
+		console.log('getFavoritesForService',guid);
 		return new Promise((resolve, reject) => {
-			// console.log('getFavoriteForCompany', guid);
+		
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe pertenecer a un Servicio.');
+				reject('Debe pertenecer a un Servicio.');
+				return;
 			}
 
 			FavoriteServices.getFavoritesList(guid)
@@ -42,67 +21,46 @@ class FavoriteController {
 				}
 			})
 			.catch(error => {
-				reject('Error Controller getFavoriteForCompany', error);
+				reject('Error Controller getFavoritesForService', error);
 			});
 		});
 	}
 
-
-
-
-
-	handleServiceUpdate(data) {
+	getFavorite(idCliente,idServicio) {
+		console.log('getFavorite',' -'+idCliente+' -'+idServicio);
 		return new Promise((resolve, reject) => {
 		
-			if (data.nombre == '') {
-				throw new Error('Falta el Nombre.');
+			if ((idServicio == '') || (idServicio == undefined)) {
+				reject('Debe pertenecer a un Servicio.');
+				return;
 			}
-			if (data.tipo == '') {
-				throw new Error('Falta el Tipo.');
-			}
-			if (data.comienzo == '') {
-				throw new Error('Falta la hora de Comienzo.');
-			}
-			if (data.termino == '') {
-				throw new Error('Falta la hora de Termino.');
-			}
-			if (data.dias == '') {
-				throw new Error('Falta seleccionar los dias.');
+			if ((idCliente == '') || (idCliente == undefined)) {
+				reject('Debe pertenecer a un Cliente.');
+				return;
 			}
 
-			console.log('data: ', data);
-			// var dias = data.diasList.filter(Boolean).join(';');
+			FavoriteServices.getFavorite(idCliente,idServicio)
+			.then(favoritesReturn => {
+				// console.log('favoritesReturn', favoritesReturn);
+				if (favoritesReturn !== null) {
+					resolve(favoritesReturn);
+				} else {
+					resolve(null);
+				}
+			})
+			.catch(error => {
+				reject('Error Controller getFavorite', error);
+			});
+		});
+	}
 
-			var dataConvert = {	
-				id: data.id,
-				nombre: data.nombre,
-				tipoServicio: data.tipo,
-				costo: data.costo,
-				horaInicio: data.comienzo,
-				horaFin: data.termino,
-				duracionTurno: data.turno,
-				descripcion: data.descripcion,
-				diasDefinidosSemana: data.selectedDias,
-				idEmpresa: data.guid
-			}
-
-			// console.log('dataConvert: ', dataConvert);
-
-			// {
-			// 	"costo": "1300",
-			// 	"descripcion": "Descripcion del Servicio de prueba...",
-			// 	"diasDefinidosSemana": "Lunes;Martes;Miercoles;Jueves;",
-			// 	"duracionTurno": 60,
-			// 	"horaFin": 17.5,
-			// 	"horaInicio": 8.5,
-			// 	"idEmpresa": 2,
-			// 	"nombre": "Prueba de Servicio asd asasd",
-			// 	"tipoServicio": "Prueba 2"
-			// }
-
-			FavoriteServices.putServiceData(dataConvert)
-			.then(servReturn => {
-				resolve(servReturn);
+	handleFavoriteDelete(guid) {
+		console.log('handleFavoriteDelete',guid);
+		return new Promise((resolve, reject) => {
+		
+			FavoriteServices.deleteFavorite(guid)
+			.then(favoReturn => {
+				resolve(favoReturn);
 			})
 			.catch(error => {
 				reject(error);
@@ -110,60 +68,22 @@ class FavoriteController {
 		});
 	}
 
-	handleServiceDelete(guid) {
-		return new Promise((resolve, reject) => {
-		
-			FavoriteServices.deleteService(guid)
-			.then(servReturn => {
-				resolve(servReturn);
-			})
-			.catch(error => {
-				reject(error);
-			});
-		});
-	}
-
-	handleServiceCreate(data) {
+	handleFavoriteCreate(data) {
+		console.log('handleFavoriteCreate',data);
 		return new Promise((resolve, reject) => {
 			
-			if (data.nombre == '') {
-				throw new Error('Falta el Nombre.');
+			if (data.idcliente == '') {
+				reject('Falta el Cliente.');
+				return;
 			}
-			if (data.tipo == '') {
-				throw new Error('Falta el Tipo.');
-			}
-			if (data.comienzo == '') {
-				throw new Error('Falta la hora de Comienzo.');
-			}
-			if (data.termino == '') {
-				throw new Error('Falta la hora de Termino.');
-			}
-			if (data.dias == '') {
-				throw new Error('Falta seleccionar algun dia.');
+			if (data.idServicio == '') {
+				reject('Falta el Servicio.');
+				return;
 			}
 
-			// var dias = data.diasList.filter(Boolean).join(';');
-
-			descReplace = data.descripcion.replace(/\n/g, "\\n");
-
-			var dataConvert = {	
-				// id: data.id,
-				nombre: data.nombre,
-				tipoServicio: data.tipo,
-				costo: data.costo,
-				horaInicio: data.comienzo,
-				horaFin: data.termino,
-				duracionTurno: data.turno,
-				descripcion: descReplace,
-				diasDefinidosSemana: data.selectedDias,
-				idEmpresa: data.guid
-			}
-			
-			console.log('dataConvert: ', dataConvert);
-
-			FavoriteServices.postServiceData(dataConvert)
-			.then(srvReturn => {
-				resolve(srvReturn);
+			FavoriteServices.postFavorite(data)
+			.then(favoReturn => {
+				resolve(favoReturn);
 			})
 			.catch(error => {
 				reject(error);

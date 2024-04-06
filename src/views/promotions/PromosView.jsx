@@ -1,85 +1,156 @@
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
 import { useNavigation } from '@react-navigation/native';
+import { getOrientation } from '../utils/Functions'; 
 
 import PromoItem from './PromoItem';
-import ServicesController from '../../controllers/ServicesController';
+import PromosController from '../../controllers/PromosController';
 
 import React, { 
-    useState,
-    useEffect
+    useContext, useState, useEffect
 } from 'react';
 
 import { 
-    Text, 
     StyleSheet, 
+    Text, 
     View, 
-    ScrollView ,
-    TouchableOpacity
+    ScrollView,
+    RefreshControl,
+    TouchableOpacity,
 } from 'react-native';
 
+import { LinearGradient } from 'expo-linear-gradient';
 
-const PromosView = ( {route} ) => {
 
+const PromosView = ( params ) => {
+
+    const { currentUser } = useContext(AuthContext);
+    
     const navigation = useNavigation();
-    const [listServices, setListServices] = useState([]);
+    var guid = currentUser.guid; 
 
-    const { userLogin } = route.params;
-    var idCompany = userLogin.guid;
+    const [list, setList] = useState(null);
+    const [editMode, setEditMode] = useState({});
+    const [isCreate, setIsCreate] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [orientation, setOrientation] = useState(getOrientation());
+
+    const handleEditItem = (item) => {
+        console.log('handleEditItem', item);
+    };
+ 
+    const createItem = (guid) => {
+        // console.log('create', guid);
+        navigation.navigate('Crear Promo', {isCreate, setIsCreate, onRefresh });
+    };
+
+    const onRefresh = React.useCallback(() => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+            getPromos();
+			// navigation.navigate('Servicios');
+		}, 2000);
+	}, [editMode,list]);
+
+    const getPromos = async () => {
+        if (guid !== 'none') {     
+            PromosController.getPromosForCompany(guid)
+            .then(favoritesReturn => {
+                // console.log('favoritesReturn: ', favoritesReturn);
+                if (favoritesReturn !== null) {
+                    setList(favoritesReturn);
+                } else {
+                    setList([]);
+                }
+            })
+            .catch(error => {
+                alert('ERROR al intentar cargar Promociones, ' + error);
+            });
+        }
+    }
+
+    const listPromos = () => {
+		if (list) {
+			return list.map((item, index) => {
+				return item && (
+					<PromoItem 
+                        guid={guid}
+                        key={index}
+                        index={index}
+                        item={item} 
+                        editMode={editMode}
+                        // setEditMode={setEditMode}
+                        setEditMode={() => toggleEditMode(index)}
+                        onRefresh={onRefresh}
+                        onPress={() => handleEditItem(item)}
+                        navigation={navigation}
+                    />
+				)
+			});
+		}
+	};
+    
+    const toggleEditMode = (index) => {
+        setEditMode((prevEditMode) => ({
+            ...prevEditMode,
+            [index]: !prevEditMode[index],
+        }));
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-			try {
-                const serviceReturn = await ServicesController.getServicesForCompany(idCompany);
-				console.log(serviceReturn);
-                setListServices(serviceReturn);
-                // traer servicios
-                // ServicesController.getServicesForCompany(idCompany)
-                // .then(serviceReturn => {
-                //     // var services = JSON.parse(serviceReturn);
-                //     console.log('services: ', serviceReturn);
-                //     // setListServices(serviceReturn);
-                // })
-                // .catch(error => {
-                //     alert('ERROR al intentar cargar los Servicios');
-                // });
-			} catch (error) {
-				console.log('ERROR fetchData: '+error);
-			}
-		};
-        fetchData();
+        getPromos();
+        
+        if (list) {
+            const initialEditMode = list.reduce((acc, _, index) => {
+                return { ...acc, [index]: false };
+            }, {});
+            setEditMode(initialEditMode);
+        }
+    }, [guid]);
 
-    }, []);
-
-    
-    const handleEditService = (service) => {
-        // Navegar a la vista de edición con los datos del servicio
-        navigation.navigate('ServiceEdit', { service });
-    };
 
     return (
         <View style={styles.container}>
-
-            {/* { (listServices.length > 0) ? (
-                <ScrollView style={styles.scrollContainer}>
-                    {listServices.map((service, index) => (
-                        <PromoItem 
-                            service={service} 
-                            onPress={handleEditService} 
-                            />
-                    ))}
+            {(list !== null && Array.isArray(list) && list.length > 0) ? (
+                <ScrollView 
+                contentContainerStyle={styles.scrollContainer}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }>
+                    {listPromos()}
                 </ScrollView>
-            ) :
-                <View>
+            ) : (
+                <View style={{
+                    flexDirection:'column',
+                    justifyContent:'center',
+                    alignItems:'center'
+                }}>
                     <Text>No tiene una promoción creada aún</Text>
-                    <View>        
-                        <TouchableOpacity style={styles.btnCreate} > 
-                            <Text style={styles.textCreate} >Crear</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
                 </View>
-            } */}
-
-            
+            )}
+        
+            <View style={{ 
+                width: '100%',
+                // backgroundColor:'#555', 
+                justifyContent: 'flex-end', 
+                alignItems: 'center',
+            }}>
+                <LinearGradient
+                    colors={['#135054', '#a8ffff', '#fff']}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1.5 }}
+                    style={styles.btnCreate}
+                    >
+                    <TouchableOpacity 
+                        styles={{ alignContent:'center' }}
+                        onPress={() => createItem(guid)} >
+                        <Text> Crear Promoción </Text>
+                    </TouchableOpacity>
+                </LinearGradient>
+            </View>
         </View>
     );
 };
@@ -87,25 +158,44 @@ const PromosView = ( {route} ) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#e9e9f8',
         alignItems: 'center',
         justifyContent: 'center',
     },
     scrollContainer: {
         flex: 1,
+        alignItems:'center',
         width: '100%',
     },
     btnCreate: {
-        width: 50,
-        position: 'relative',
-        top: 60,
-        left: 197,
-        padding: 8,
-        backgroundColor: '#AAA54E', // Color de fondo del botón
-        borderRadius: 10,
+		paddingVertical: 10,
+		paddingHorizontal: 6,
+        marginTop: 15,
+		marginBottom: 15,
+		borderRadius: 10,
     },
     textCreate: {
         color:'#ffffff'
+    },
+    footer: {   
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,     
+        textAlignVertical:'bottom',
+        alignItems:'center',
+        textAlign:'center',
+        borderTopColor:'#011',
+        borderTopWidth:0.6,
+    },
+    textVersion1: {
+        fontWeight:'bold',
+        paddingHorizontal:6,
+        paddingVertical:10,
+    },
+    textVersion2: {
+        paddingHorizontal:3,
+        paddingBottom: 20,
     },
 });
 

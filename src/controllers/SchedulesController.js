@@ -3,13 +3,19 @@ import BookingServices from '../services/BookingServices';
 class SchedulesController {
 
 	getSchedulesForService(guid, date) {
+		console.log('getSchedulesForService',' -'+guid+' -'+date);
 		return new Promise((resolve, reject) => {
-			// console.log('getSchedulesForService', guid);
+
+			// console.log('service', guid);
+			// console.log('date', date);
+
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe existir un servicio.');
+				reject('Debe existir un servicio.');
+				return;
 			}
 			if ((date == '') || (date == undefined)) {
-				throw new Error('Debe existir una fecha.');
+				reject('Debe existir una fecha.');
+				return;
 			}
 
 			BookingServices.getSchedulesOfServices(guid, date)

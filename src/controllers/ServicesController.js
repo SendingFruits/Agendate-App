@@ -1,14 +1,14 @@
 import CompanyServices from '../services/CompanyServices';
 
-
 class ServicesController {
 
-
 	getServicesForCompany(guid) {
+		console.log('getServicesForCompany',guid);
 		return new Promise((resolve, reject) => {
 			// console.log('getServicesForCompany', guid);
 			if ((guid == '') || (guid == undefined)) {
-				throw new Error('Debe pertenecer a una empresa.');
+				reject('Debe pertenecer a una empresa.');
+				return;
 			}
 
 			CompanyServices.getServicesForCompany(guid)
@@ -27,27 +27,57 @@ class ServicesController {
 		});
 	}
 
+	getServicesOfCompany(guid) {
+		console.log('getServicesOfCompany',guid);
+		return new Promise((resolve, reject) => {
+			console.log('getServicesForCompany', guid);
+			if ((guid == '') || (guid == undefined)) {
+				reject('Debe pertenecer a una empresa.');
+				return;
+			}
+
+			CompanyServices.getServicesOfCompany(guid)
+			.then(serviceReturn => {
+				// console.log('serviceReturn', serviceReturn);
+				if (serviceReturn !== null) {
+					resolve(serviceReturn);
+				} else {
+					resolve(null);
+				}
+			})
+			.catch(error => {
+				reject('Error Controller getServicesForCompany', error);
+			});
+
+		});
+	}
 
 	handleServiceUpdate(data) {
+		console.log('handleServiceUpdate',data);
 		return new Promise((resolve, reject) => {
 		
 			if (data.nombre == '') {
-				throw new Error('Falta el Nombre.');
+				reject('Falta el Nombre.');
+				return;
 			}
 			if (data.tipo == '') {
-				throw new Error('Falta el Tipo.');
+				reject('Falta el Tipo.');
+				return;
 			}
 			if (data.comienzo == '') {
-				throw new Error('Falta la hora de Comienzo.');
+				reject('Falta la hora de Comienzo.');
+				return;
 			}
 			if (data.termino == '') {
-				throw new Error('Falta la hora de Termino.');
+				reject('Falta la hora de Termino.');
+				return;
 			}
 			if (data.dias == '') {
-				throw new Error('Falta seleccionar los dias.');
+				reject('Falta seleccionar los dias.');
+				return;
 			}
 
-			console.log('data: ', data);
+			// console.log('data: ', data);
 			// var dias = data.diasList.filter(Boolean).join(';');
 
 			var dataConvert = {	
@@ -55,27 +85,13 @@ class ServicesController {
 				nombre: data.nombre,
 				tipoServicio: data.tipo,
 				costo: data.costo,
-				horaInicio: data.comienzo,
-				horaFin: data.termino,
+				// horaInicio: data.comienzo,
+				// horaFin: data.termino,
 				duracionTurno: data.turno,
 				descripcion: data.descripcion,
-				diasDefinidosSemana: data.selectedDias,
+				jsonDiasHorariosDisponibilidadServicio: JSON.stringify(data.dias),
 				idEmpresa: data.guid
 			}
-
-			// console.log('dataConvert: ', dataConvert);
-
-			// {
-			// 	"costo": "1300",
-			// 	"descripcion": "Descripcion del Servicio de prueba...",
-			// 	"diasDefinidosSemana": "Lunes;Martes;Miercoles;Jueves;",
-			// 	"duracionTurno": 60,
-			// 	"horaFin": 17.5,
-			// 	"horaInicio": 8.5,
-			// 	"idEmpresa": 2,
-			// 	"nombre": "Prueba de Servicio asd asasd",
-			// 	"tipoServicio": "Prueba 2"
-			// }
 
 			CompanyServices.putServiceData(dataConvert)
 			.then(servReturn => {
@@ -88,6 +104,7 @@ class ServicesController {
 	}
 
 	handleServiceDelete(guid) {
+		console.log('handleServiceDelete',guid);
 		return new Promise((resolve, reject) => {
 		
 			CompanyServices.deleteService(guid)
@@ -101,22 +118,20 @@ class ServicesController {
 	}
 
 	handleServiceCreate(data) {
+		console.log('handleServiceCreate',data);
 		return new Promise((resolve, reject) => {
 			
 			if (data.nombre == '') {
-				throw new Error('Falta el Nombre.');
+				reject('Falta el Nombre.');
+				return;
 			}
 			if (data.tipo == '') {
-				throw new Error('Falta el Tipo.');
-			}
-			if (data.comienzo == '') {
-				throw new Error('Falta la hora de Comienzo.');
-			}
-			if (data.termino == '') {
-				throw new Error('Falta la hora de Termino.');
+				reject('Falta el Tipo.');
+				return;
 			}
 			if (data.dias == '') {
-				throw new Error('Falta seleccionar algun dia.');
+				reject('Falta seleccionar algun dia.');
+				return;
 			}
 
 			// var dias = data.diasList.filter(Boolean).join(';');
@@ -128,11 +143,9 @@ class ServicesController {
 				nombre: data.nombre,
 				tipoServicio: data.tipo,
 				costo: data.costo,
-				horaInicio: data.comienzo,
-				horaFin: data.termino,
 				duracionTurno: data.turno,
 				descripcion: descReplace,
-				diasDefinidosSemana: data.selectedDias,
+				jsonDiasHorariosDisponibilidadServicio: JSON.stringify(data.dias),
 				idEmpresa: data.guid
 			}
 			
@@ -148,6 +161,5 @@ class ServicesController {
 		});
 	}
 }
-
 
 export default new ServicesController();

@@ -1,3 +1,7 @@
+import { 
+    AuthContext 
+} from '../../context/AuthContext';
+
 import { useNavigation } from '@react-navigation/native';
 import { getOrientation } from '../utils/Functions'; 
 
@@ -5,7 +9,7 @@ import ServiceItem from './ServiceItem';
 import ServicesController from '../../controllers/ServicesController';
 
 import React, { 
-    useState, useEffect
+    useContext, useState, useEffect
 } from 'react';
 
 import { 
@@ -23,18 +27,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const ServicesView = ( params ) => {
 
-    const { data } = params.route.params || {};
+    const { currentUser } = useContext(AuthContext);
 
     const navigation = useNavigation();
-    var guid = params.route.params.guid;
+    var guid = currentUser.guid;
 
     const [list, setList] = useState(null);
-    const [editing, setEditing] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [isCreate, setIsCreate] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [orientation, setOrientation] = useState(getOrientation());
-
+    const [bodyHeight, setBodyHeight] = useState(370); 
     
     const handleEditItem = (item) => {
         console.log('handleEditItem', item);
@@ -42,22 +45,18 @@ const ServicesView = ( params ) => {
  
     const createItem = (guid) => {
         // console.log('create', guid);
-        navigation.navigate('Crear Servicio', {isCreate, setIsCreate});
-    };
-
-    const premiumUpdate = () => {
-        console.log('premiumUpdate');
+        navigation.navigate('Crear Servicio', {isCreate, setIsCreate, onRefresh});
     };
 
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-            setEditing(false);
+            setEditMode(false);
             getServices();
 			// navigation.navigate('Servicios');
 		}, 2000);
-	}, [list]);
+	}, [editMode,list]);
 
     const handleOrientationChange = () => {
 		const newOrientation = getOrientation();
@@ -67,7 +66,7 @@ const ServicesView = ( params ) => {
     const getServices = async () => {
         ServicesController.getServicesForCompany(guid)
         .then(serviceReturn => {
-            // console.log('serviceReturn: ', serviceReturn);
+            console.log('serviceReturn: ', serviceReturn);
             if (serviceReturn !== null) {
                 setList([serviceReturn]);
             } else {
@@ -79,27 +78,15 @@ const ServicesView = ( params ) => {
         });
     }
 
-    const listServices = () => {
-        console.log('list: ', list); 
-		if (list.length > 0) {
-			return list.map((item, index) => {
-				return item && (
-					<ServiceItem 
-                        guid={guid}
-                        key={index}
-                        item={item} 
-                        onRefresh={onRefresh()}
-                        onPress={() => handleEditItem(item)} 
-                    />
-				)
-			});
-		}
-		
-	};
-    
-
     useEffect(() => {
-        setEditing(false);
+    
+        if (editMode) {
+            setBodyHeight(480);
+        } else {
+            setBodyHeight(370);
+        }
+
+        setEditMode(false);
         setIsCreate(false);
         getServices();
 
@@ -122,12 +109,11 @@ const ServicesView = ( params ) => {
         //     }
         // );
 
-    }, [guid,isCreate]);
+    }, [params]);
 
 
     return (
         <View style={styles.container}>
-
             {(list !== null && Array.isArray(list) && list.length > 0) ? (
                 <ScrollView 
                     contentContainerStyle={styles.scrollContainer}
@@ -143,6 +129,8 @@ const ServicesView = ( params ) => {
                                 item={item}
                                 editMode={editMode}
                                 setEditMode={setEditMode}
+                                bodyHeight={bodyHeight}
+                                setBodyHeight={setBodyHeight}
                                 navigation={navigation}
                                 onRefresh={onRefresh}
                                 onPress={() => handleEditItem(item)}
@@ -153,7 +141,11 @@ const ServicesView = ( params ) => {
 
                 </ScrollView>
             ) : (
-                <View style={{}}>
+                <View style={{
+                    flexDirection:'column',
+                    justifyContent:'center',
+                    alignItems:'center'
+                }}>
                     <Text>No tiene un servicio creado aún</Text>
 
                     <LinearGradient
@@ -171,7 +163,7 @@ const ServicesView = ( params ) => {
                 </View>
             )}
 
-            {!editing ? (
+            {!editMode ? (
                 <>
                     {orientation === 'portrait' ? (		
                         <>
@@ -216,9 +208,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 6,
         marginTop: 15,
 		marginBottom: 15,
-        marginHorizontal: 45,
 		borderRadius: 10,
-        textAlign:'center'
     },
     textCreate: {
         color:'#ffffff'

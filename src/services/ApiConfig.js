@@ -1,47 +1,39 @@
 class ApiConfig {
 
     constructor() {
-        this.API_URL_TOKEN = 'f4cb-2800-a4-1253-8d00-c97-1288-eef-fae6';
-        this.API_BASE_URL = 'https://'+this.API_URL_TOKEN+'.ngrok-free.app/api/';
-        this.API_LOCALHOST = 'https://192.168.1.7:9083/api/';
+
+        this.AZURE_HOST = 'https://agendateapp-api.azurewebsites.net/api/';
+        this.LOCAL_HOST = 'https://186.48.52.221:9083/api/';
+        
+        this.NGROK_KEY = 'a7d9-2800-a4-c06e-e00-8cce-8aa6-f9d3-c67f';
+        this.NGROK_HOST = 'https://'+this.NGROK_KEY+'.ngrok-free.app/api/';
+
+        this.API_BASE_URL = this.NGROK_HOST;
     }
 
-    getToken = async () => {
-        return this.API_URL_TOKEN;
+    setNgrok = async (token) => {
+        this.NGROK_KEY = token;
     };
 
     getURL = async () => {
         return this.API_BASE_URL;
     };
 
-    getErrorCode = async (error) => {
-        return error.split(' ')[code.length - 1];
-    };
-
-    getConnectionStatus = async (code) => {
-        if (code == 200) {
-            return true;
-        } else {
-            return false;
+    setHost = async (method) => {
+        switch (method) {
+            case 'Ngrok':
+                this.API_BASE_URL = this.NGROK_HOST;
+                break;
+            case 'Localhost':
+                this.API_BASE_URL = this.LOCAL_HOST;
+                break;
+            case 'Azure':
+                this.API_BASE_URL = this.AZURE_HOST;
+                break;
+            default:
+                this.API_BASE_URL = '';
+                break;
         }
-    };
-
-    codeMessage = async (code) => {
-        if (code >= 200 && code < 300) {
-            return true;
-        } else if (code >= 300 && code < 400) {
-            return false;
-        } else if (code >= 400 && code < 500) {
-            return '';
-        } else if (code >= 500) {
-            return 'Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.';
-        } else {
-            reject('Error Desconocido.');    
-        }
-    };
-
-    setNgrokToken = async (code) => {
-        this.API_URL_TOKEN = getToken();
     }
 }
 

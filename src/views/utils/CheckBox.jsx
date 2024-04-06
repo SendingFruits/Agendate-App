@@ -43,8 +43,6 @@ export default function CheckBox( params ) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginHorizontal: 16,
-        marginVertical: 32,
     },
     section: {
         flexDirection: 'row',

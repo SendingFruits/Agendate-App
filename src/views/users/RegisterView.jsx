@@ -6,17 +6,17 @@ import React, {
 } from 'react';
 
 import UsersController from '../../controllers/UsersController';
+import MenuButtonItem from '../home/MenuButtonItem';
 import AlertModal from '../utils/AlertModal';
 
 import {
-	Alert,
 	Text,
 	StyleSheet,
 	View,
 	ScrollView,
 	RefreshControl,
 	TextInput,
-	Button,
+	Image
 } from 'react-native';
 
 const RegisterView = () => {
@@ -25,6 +25,7 @@ const RegisterView = () => {
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [password2, setPassword2] = useState('');
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 
@@ -65,6 +66,9 @@ const RegisterView = () => {
 				break;
 			case 'password':
 				setPassword(text);
+				break
+			case 'password2':
+				setPassword2(text);
 				break;
 			case 'firstName':
 				setFirstName(text);
@@ -73,7 +77,8 @@ const RegisterView = () => {
 				setLastName(text);
 				break;
 			case 'movil':
-				setMovil(text);
+				// setMovil(text);
+				setMovilFormat(text);
 				break;
 			case 'email':
 				setEmail(text);
@@ -96,6 +101,7 @@ const RegisterView = () => {
 		const formData = {
 			username,
 			password,
+			password2,
 			firstName,
 			lastName,
 			movil,
@@ -115,6 +121,7 @@ const RegisterView = () => {
 
 				setUsername('');
 				setPassword('');
+				setPassword2('');
 				setFirstName('');
 				setLastName('');
 				setMovil('');
@@ -129,6 +136,18 @@ const RegisterView = () => {
 		});
 	};
 
+	const setMovilFormat = (movil) => {
+		console.log(movil);
+		var intMovil = parseInt(movil,10);
+		console.log(intMovil);
+		if (!isNaN(intMovil)) {
+			setMovil(intMovil.toString());
+		} else {
+			setMovil(movil);
+		}
+	}
+
+
 	const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
@@ -139,6 +158,7 @@ const RegisterView = () => {
 	useEffect(() => {
         setUsername('');
         setPassword('');
+		setPassword2('');
 		setFirstName('');
 		setLastName('');
 		setMovil('');
@@ -172,11 +192,23 @@ const RegisterView = () => {
 					<TextInput
 						// keyboardType="text"
 						style={styles.input}
-						placeholder="Password"
+						placeholder="Contraseña"
 						secureTextEntry
 						value={password}
 						// onChangeText={setPassword}
 						onChangeText={(text) => handleFieldChange(text, 'password')}
+					/>
+				</View>
+
+				<View style={styles.inputContainer}>
+					<TextInput
+						// keyboardType="text"
+						style={styles.input}
+						placeholder="Confirmar Contraseña"
+						secureTextEntry
+						value={password2}
+						// onChangeText={setPassword}
+						onChangeText={(text) => handleFieldChange(text, 'password2')}
 					/>
 				</View>
 			</View>
@@ -204,10 +236,24 @@ const RegisterView = () => {
 				</View>
 
 				<View style={styles.inputContainer}>
+					<View style={{
+						flexDirection:'row',
+						alignItems:'center',
+						alignContent:'flex-start',
+						backgroundColor:'#ffffff00',
+						marginBottom:1
+						}}>
+						<Image source={require('../../../assets/uru.png')}
+							style={{ 
+								width: 19, height: 11
+							}} />
+						<Text style={{fontSize:14, fontWeight:'bold'}}>  +598 </Text>
+					</View>
 					<TextInput
+						maxLength={8}
 						keyboardType="numeric"
 						style={styles.input}
-						placeholder="Telefono"
+						// placeholder="Telefono"
 						value={movil}
 						// onChangeText={setMovil}
 						onChangeText={(text) => handleFieldChange(text, 'movil')}
@@ -288,11 +334,14 @@ const RegisterView = () => {
 			<View style={styles.footer}>
 				{/* Button */}
 				<View style={styles.sendContainer}>
-					<Button
-						title="Enviar"
-						onPress={sendData}
-						color="#135944"
-					/>
+					
+					<MenuButtonItem 
+						icon = {null}
+						text = "Enviar"
+						type = 'panel'
+						color = {['#135000', '#2ECC71', '#dfe4ff']}
+						onPress = { () => sendData() }
+						/>
 				</View>
 			</View>
 

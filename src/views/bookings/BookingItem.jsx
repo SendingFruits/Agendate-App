@@ -1,12 +1,10 @@
-import { formatDate, getDateFromString } from '../../views/utils/Functions'; 
+import { formatDate, getFormattedDate, getDateFromString } from '../../views/utils/Functions'; 
 
 import { 
     useState, useEffect 
 } from 'react';
 
-import UsersController from '../../controllers/UsersController';
 import BookingController from '../../controllers/BookingController';
-import MenuButtonItem from '../home/MenuButtonItem';
 import AlertModal from '../utils/AlertModal';
 
 import { 
@@ -18,23 +16,12 @@ import {
     TouchableOpacity,
 } from 'react-native';
 
-import { 
-	faCircleXmark,
-    faCircleCheck
-} from '@fortawesome/free-solid-svg-icons';
-
-import { 
-	FontAwesomeIcon 
-} from '@fortawesome/react-native-fontawesome';
-
 import { LinearGradient } from 'expo-linear-gradient';
-
 
 const { width, height } = Dimensions.get('window');
 
 const BookingItem = ( params ) => {
 
-    console.log('params: ', params);
     var {
         index,
         type,
@@ -42,8 +29,6 @@ const BookingItem = ( params ) => {
 		onRefresh,
         onPress,
 	} = params;
-
-    // var item = params.item;
 
     var dateString = item.fechaHoraTurno.split('T');
     var fecha = formatDate(dateString[0]);
@@ -70,10 +55,6 @@ const BookingItem = ( params ) => {
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
     };
-  
-    const editItem = () => {
-        console.log('editItem');
-    };
 
     const editName = () => {
         console.log('editName');
@@ -81,37 +62,49 @@ const BookingItem = ( params ) => {
 
 
     const done = (id) => {
-        console.log('done of: ', id);
-        var text = '¿El cliente asitió en forma y hora al lugar?';
+        
+        // console.log('fechaHoraTurno:',item.fechaHoraTurno);
+        // console.log('fechaHoraHoy:',getFormattedDate(1));
+     
+        const fechaHoraTurno = new Date(item.fechaHoraTurno);
+        const fechaHoraHoy = new Date(getFormattedDate(1));
 
-        AlertModal.showConfirmationAlert(text)
-		.then(alertRes => {
-			console.log('alertRes: ', alertRes);
-			if (alertRes) {
-                // BookingController.handleCancelBooking(id)
-                // .then(resDelete => {
-                //     // console.log('userReturn: ', userReturn);
-                //     if (resDelete) {
-                //         onRefresh();
-                //     }
-                // })
-                // .catch(error => {
-                //     alert(error);
-                // });
-            }
-		})
-		.catch(error => {
-			alert(error);
-		});
+        if (fechaHoraTurno >= fechaHoraHoy) {
+            console.log('El turno es mayor o igual a hoy.');
+            AlertModal.showAlert('Confirmación', 'El turno aún no ocurió, no puede darla por Realizada');
+        } else {
+            console.log('El turno es menor a hoy.');
+            var text = '¿El cliente asitió en forma y hora al lugar?';
+    
+            AlertModal.showBoolAlert(text)
+            .then(alertRes => {
+                if (alertRes) {
+                    BookingController.handleDoneBooking(id)
+                    .then(resDone => {
+                        // console.log('userReturn: ', userReturn);
+                        if (resDone) {
+                            onRefresh();
+                        }
+                    })
+                    .catch(error => {
+                        AlertModal.showAlert('ERROR', error);
+                    });
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
+        }
+
     };
 
     const cancellation = (id) => {
-        console.log('cancellation of: ', id);
+        // console.log('cancellation of: ', id);
         var text = '¿Seguro desea cancelar la Reserva?';
 
         AlertModal.showConfirmationAlert(text)
 		.then(alertRes => {
-			console.log('alertRes: ', alertRes);
+			// console.log('alertRes: ', alertRes);
 			if (alertRes) {
                 BookingController.handleCancelBooking(id)
                 .then(resDelete => {
@@ -129,10 +122,6 @@ const BookingItem = ( params ) => {
 			alert(error);
 		});
     };
-
-    const bodyStyles = isCollapsed ? styles.collapsedBody : styles.expandedBody;
-    const footerStyles = isCollapsed ? styles.collapsedFooter : styles.expandedFooter;
-
 
 	useEffect(() => {
 		setIsCollapsed(true);
@@ -160,22 +149,15 @@ const BookingItem = ( params ) => {
 
                             <View style={{ flexDirection:'row' }}>
                                 <View style={styles.leftLineHeader}>
-                                    { type === 'customer' ? (
-                                        <Text>Reserva para el</Text>
-                                    ) : ( 
-                                        <Text>Reserva para el</Text>
-                                    )}
+                                    <Text>Reserva para el</Text>
                                 </View>
                                 
-                                <View style={styles.centerLineHeader}>
-                                
+                                <View style={styles.centerLineHeader}>                     
                                     <Text style={{ marginLeft:1, fontWeight:'bold' }}> {fecha}</Text>
                                     <Text style={{ fontWeight:'bold' }}> {hora}</Text>
-                                
                                 </View>
                             </View>
                             
-                          
                             <View style={styles.rightLineHeader}>
 
                                 { (getDateFromString(fecha) < new Date() && (item.estado !== 'Cancelada' && item.estado !== 'Realizada')) ? (
@@ -193,8 +175,6 @@ const BookingItem = ( params ) => {
                                         }}> {item.estado}
                                     </Text> 
                                 }
-
-                                
                             </View>
                             
                         </View>
@@ -225,7 +205,10 @@ const BookingItem = ( params ) => {
                                         <View>
                                             <Text>Rubro: {item.rubro}</Text>
                                             <Text>Ciudad: {item.ciudad}</Text>
-                                            <Text>Celular:</Text>
+                                            <View style={{ flexDirection:'row'}}>
+                                                <Text>Celular: </Text>
+                                                <Text style={{ fontWeight:'bold' }}>{item.celular}</Text>
+                                            </View>
                                         </View>
                                     </View>
 
@@ -335,8 +318,6 @@ const BookingItem = ( params ) => {
                                 ) : null }
                             </>
                         )}
-
-
                     </LinearGradient> 
                 </View>
             ) : null }

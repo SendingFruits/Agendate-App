@@ -17,15 +17,12 @@ import {
 	FontAwesomeIcon 
 } from '@fortawesome/react-native-fontawesome';
 
-import { LinearGradient } from 'expo-linear-gradient';
 
 const SearchPanel = ( params ) => {
 
     var {
         onSearch,
-        mapRef,
         width,
-		height,
     } = params;
 
     const styles = StyleSheet.create({
@@ -37,18 +34,19 @@ const SearchPanel = ( params ) => {
             left: 0,
             right: 0,
             bottom: 0,
-            marginVertical:20,
-            marginHorizontal:100,
+            marginVertical:19,
+            marginHorizontal:23,
             borderWidth: 0.8,
             borderColor:'#393',
             borderRadius: 10,
+            backgroundColor:'#ffffee80',
         },
         input: {
             top: 2.2,
-            padding: 10,
+            paddingHorizontal: 10,
         },
         icon: {
-            
+            marginTop: 5
         }
     });
 
@@ -58,23 +56,9 @@ const SearchPanel = ( params ) => {
         onSearch(searchQuery);
     };
     
-    // return (
-    //     // <LinearGradient colors={['#dfe4ff', '#238162', '#2ECC71']} >
-    //         <View style={styles.searchPanel}>
-    //             <LinearGradient colors={['#dfe4ff', '#238162', '#2ECC71']} ></LinearGradient>
-    //             <TextInput
-    //                 style={styles.input}
-    //                 // placeholder="Buscar Empresa"
-    //                 value={searchQuery}
-    //                 onChangeText={setSearchQuery}
-    //                 />
-    //             {/* <Button title="Buscar" color="#69ACDD" onPress={handleSearch} /> */}
-    //         </View>
-    //     // </LinearGradient>
-    // );
-
     return (
-        <LinearGradient colors={['#dfe4ff', '#ffffee']} style={styles.gradient}>
+        // <LinearGradient colors={['#dfe4ff', '#ffffee']} style={styles.gradient}>
+        <View style={styles.gradient}>
             <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
                 <TextInput
                     style={styles.input}
@@ -88,13 +72,12 @@ const SearchPanel = ( params ) => {
                     style={{ marginEnd:20 }}
                     onPress={ () => handleSearch() }
                     >
-                    <FontAwesomeIcon icon={faSearch} style={{color:'#060'}} />
+                    <FontAwesomeIcon icon={faSearch} color={'#060'} style={styles.icon} />
                 </TouchableOpacity>
             </View>
-        </LinearGradient>
+        </View>
+        // </LinearGradient>
     );
 }
-
-
 
 export default SearchPanel;

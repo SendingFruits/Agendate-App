@@ -24,11 +24,11 @@ class BookingServices {
                 },
             };
             
-            console.log(urlCompleta);
+            // console.log(urlCompleta);
 
             axios.get(urlCompleta, options)
             .then(function (response) {
-                // console.log(response.data);
+                console.log(response.data);
                 if (response.status == 200) {
                     resolve(response.data);
                 } else {
@@ -136,16 +136,28 @@ class BookingServices {
     };
 
 
-    putBookingStatus = async (guid) => {
+    putBookingStatus = async (guid, status) => {
         return new Promise((resolve, reject) => {
   
-            var method = 'Reservas/CancelarReserva';
-            var urlCompleta = `${ApiConfig.API_BASE_URL}${method}?idReserva=${guid}`;
+            var method = 'Reservas/';
+            var urlCompleta = `${ApiConfig.API_BASE_URL}`;
+
+            if (status === 'cancel') {
+                method = 'Reservas/CancelarReserva';
+                urlCompleta += `${method}?idReserva=${guid}`;
+            }
+            if (status === 'done') {
+                var sts = 'Realizada';
+                method = 'Reservas/CambiarEstadoReserva';
+                urlCompleta += `${method}?idReserva=${guid}&estadoNuevo=${sts}`;
+            }
 
             const headers = {
                 'Content-Type': 'application/json', 
                 'Accept': 'application/json'
             };
+
+            console.log('urlCompleta: ', urlCompleta);
 
             axios.put(urlCompleta, {}, { headers })
             .then(function (response) {

@@ -56,6 +56,7 @@ class SQLiteHandler {
                                 Nombre TEXT,
                                 Apellido TEXT,
                                 FotoLogo TEXT,
+                                RecibeNotificaciones INTEGER,
                                 Deleted INTEGER
                             );
                         `;
@@ -205,6 +206,52 @@ class SQLiteHandler {
     };
 
 
+    updateUsuario = async (tabla, id, data) => {
+        return new Promise((resolve, reject) => {
+            const db = SQLite.openDatabase('agendate.db');
+
+            // Generar la parte SET de la consulta SQL utilizando el objeto data
+            const setClause = Object.keys(data).map(columna => `${columna} = ?`).join(', ');
+
+            const updateQuery = `
+                UPDATE ${tabla}
+                SET ${setClause}
+                WHERE ID = ?;
+            `;
+
+            const values = [...Object.values(data), id];
+
+            db.transaction(tx => {
+                tx.executeSql(updateQuery, values, (_, result) => {
+                    resolve('Datos actualizados con éxito');
+                }, (error) => {
+                    reject('Error al actualizar datos - Error: ' + error.message);
+                });
+            });
+        });
+    }
+
+    insertUsuario = async (db, id, username, name, lastName, password, document, email, userType) => {
+        return new Promise((resolve, reject) => {
+            const query = `
+                INSERT INTO Usuarios (ID, NombreUsuario, Nombre, Apellido, Contraseña, Documento, Correo, TipoUsuario, RecibeNotificaciones, Deleted)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            `;
+            db.transaction(tx => {
+                tx.executeSql(query, 
+                    [id, username, name, lastName, password, document, email, userType, 1, 0], 
+                (_, result) => {
+                    resolve();
+                }, (error) => {
+                    reject('Error al insertar usuario - Error: ' + error.message);
+                });
+            });
+        });
+    };
+
+
+
+
     // Función para generar datos ficticios de prueba
     generateTestData = async () => {
         const db = SQLite.openDatabase('agendate.db');
@@ -230,24 +277,6 @@ class SQLiteHandler {
         await this.insertReserva(db, 1, 2, 'Pendiente', '2024-02-01', '2023-01-18 12:45:00');
     };
 
-
-    insertUsuario = async (db, id, username, name, lastName, password, document, email, userType) => {
-        return new Promise((resolve, reject) => {
-            const query = `
-                INSERT INTO Usuarios (ID, NombreUsuario, Nombre, Apellido, Contraseña, Documento, Correo, TipoUsuario, Deleted)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-            `;
-            db.transaction(tx => {
-                tx.executeSql(query, 
-                    [id, username, name, lastName, password, document, email, userType, 0], 
-                (_, result) => {
-                    resolve();
-                }, (error) => {
-                    reject('Error al insertar usuario - Error: ' + error.message);
-                });
-            });
-        });
-    };
 
     insertServicio = async (db, empresaId, nombre, hIni, hFin, dias, turno, tipo, costo, descr, ultimaFecha) => {
         return new Promise((resolve, reject) => {

@@ -4,6 +4,7 @@ import axios from 'axios';
 class MapServices {
 
     getCompanies = async (lat, lng, cte) => {
+        // console.log(cte);
         return new Promise((resolve, reject) => {
         
             var method = 'Empresas/ObtenerEmpresasMapa';
@@ -17,10 +18,15 @@ class MapServices {
                 headers: {
                     'accept': 'text/json',
                     // 'verify': false
+                    // 'Authorization': `Bearer ${ApiConfig.JWT}`
                 },
             };
     
             // console.log('urlCompleta: ',urlCompleta); 
+
+            // axios.defaults.httpsAgent = new https.Agent({  
+            //     rejectUnauthorized: false
+            // });
 
             axios.get(urlCompleta, options)
             .then(function (response) {

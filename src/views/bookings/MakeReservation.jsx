@@ -1,65 +1,65 @@
-import { UserContext } from '../../services/context/context'; 
-import { formatDate, formatDate2 } from '../utils/Functions'
-
-import React, { 
-	useState, useEffect, useContext, useRef 
-} from 'react';
-
 import { 
-	View, 
-	Button,
-	TouchableOpacity,
-	RefreshControl,
-	StyleSheet, 
-	Text, 
-	ScrollView, 
-	ActivityIndicator,
-	Modal,
-	Dimensions
-} from 'react-native';
- 
-import { Calendar, LocaleConfig } from 'react-native-calendars';
+    AuthContext 
+} from '../../context/AuthContext';
 
 import ServicesController from '../../controllers/ServicesController';
 import UsersController from '../../controllers/UsersController';
-import BookingController from '../../controllers/BookingController';
-import SchedulesController from '../../controllers/SchedulesController'
-
+import FavoritesController from '../../controllers/FavoritesController';
 import AlertModal from '../utils/AlertModal';
+import CalendarSelector from './CalendarSelector';
 
 import { useNavigation } from '@react-navigation/native';
+
+import React, { 
+	useContext, useState, useEffect, useRef 
+} from 'react';
+
+import { 
+	StyleSheet,
+	Dimensions,
+	View, 
+	ScrollView, 
+	RefreshControl,
+	ActivityIndicator,
+	TouchableOpacity,
+	Text
+} from 'react-native';
+ 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import { 
+	faStar
+} from '@fortawesome/free-solid-svg-icons';
+
+import { 
+	FontAwesomeIcon 
+} from '@fortawesome/react-native-fontawesome';
+
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-const MakeReservation = ({ route }) => {
+const MakeReservation = ( params ) => {
 	
-	// console.log(route);
-
-	const { userPreferences, setUserPreferences } = useContext(UserContext);
-	var user = userPreferences.current_user;
-	var [compId, setCompId] = useState(null);
+	var idSelect = params.route.params;
+	console.log('Seleccion de ID:',idSelect);
 
 	const navigation = useNavigation();
+	const { currentUser } = useContext(AuthContext);
+	var user = currentUser;
+	// console.log('user: ', user);
 	const scrollViewRef = useRef(null);
 
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [availableTimes, setAvailableTimes] = useState([]);
-
-    const [isInforVisible, setInforVisible] = useState(false);
-	const [isCalendarVisible, setCalendarVisible] = useState(false);
-	const [isSchedulesVisible, setSchedulesVisible] = useState(false);
+	const [days, setDays] = useState([]);
 
 	const [company, setCompany] = useState({});
 	const [service, setService] = useState({});
 
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-	
-	const [isLoadingSchedules, setLoadingSchedules] = useState(true);
-	const [isTimePickerVisible, setTimePickerVisible] = useState(false);
+
+	const [favorite, setFavorite] = useState(false);
+	const [idFavorite, setIdFavorite] = useState(null);
 
 
 	const onRefresh = React.useCallback(() => {
@@ -71,221 +71,232 @@ const MakeReservation = ({ route }) => {
 			setCalendarVisible(true);
 			setSchedulesVisible(false);
 			navigation.navigate('Realizar Reserva');
+			console.log('refreshing',refreshing);
 		}, 2000);
-	}, [compId]);
+	}, []);
 	
-	
-	const getCompanyIdStorage = async () => {
-		return new Promise((resolve, reject) => {
-			try {
-				var id = AsyncStorage.getItem('selectedCompanyID');
-				resolve(id);
-			} catch (error) {
-				reject(null);
+	const isFavorite = (serv_id) => {
+		if (serv_id !== '' && serv_id !== undefined) {
+			console.log('isFavorite');
+			if (user.guid !== 'none') {
+				FavoritesController.getFavorite(user.guid,serv_id)
+				.then(favoReturn => {
+					if (favoReturn) {
+						setIdFavorite(favoReturn);
+						setFavorite(true);
+					} else {
+						setIdFavorite('');
+						setFavorite(false);
+					}
+				})
+				.catch(error => {
+					console.log('error isFavorite', error);
+					AlertModal.showAlert('ERROR',JSON.stringify(error));
+				});
 			}
-		});
-    }
-
-
-	const getCompany = async (id) => {
-		try {
-			const companyReturn = await UsersController.getCompanyData(id);
-			// console.log('companyReturn ', companyReturn);
-			if (companyReturn !== null) {
-				setCompany(companyReturn);
-			}
-		} catch (error) {
-			AlertModal.showAlert('Error al intentar cargar la Empresa', error);
-			// alert('ERROR al intentar cargar la Empresa, ' + error);
 		}
 	}
 
-	const getService = async (id) => {
-		try {
-			const serviceReturn = await ServicesController.getServicesForCompany(id);
-			// console.log('serviceReturn ', serviceReturn);
-			if (serviceReturn !== null) {
-				setService(serviceReturn);
-				setIsLoading(false);
-				// saveServiceStorage();
-			} else {
-				setService(null);
-				setIsLoading(true);
-			}
-		} catch (error) {
-			AlertModal.showAlert('Error al intentar cargar el Servicio', error);
-			// alert('ERROR al intentar cargar el Servicio, ' + error);
+	const switchFavorite = (idServicio) => {
+
+		console.log('idServicio',idServicio);
+		console.log('idFavorite',idFavorite);
+
+        var idCliente = user.guid;
+
+		if (idFavorite !== '' && idFavorite !== null) {
+			FavoritesController.handleFavoriteDelete(idFavorite)
+			.then((favoReturn) => {
+				console.log('favoReturn delete: ', favoReturn);
+				setFavorite(false);
+			})
+			.catch(error => {
+				console.log('error delete: ',error);
+				AlertModal.showAlert('ERROR',JSON.stringify(error));
+			});
+		} else {
+			FavoritesController.handleFavoriteCreate({idCliente,idServicio})
+			.then(favoReturn => {
+				console.log('favoReturn create: ', favoReturn);
+				setFavorite(true);
+			})
+			.catch(error => {
+				console.log('error create: ',error);
+				AlertModal.showAlert('ERROR',JSON.stringify(error));
+			});
 		}
-    }
+    };
 
 	const fetchData = async () => {
+		try {
+			setIsLoading(true);
+			// const id = await AsyncStorage.getItem('selectedCompanyID');
+			// console.log('id: ', id);
 		
-		getCompanyIdStorage()
-		.then(id => {
-			// console.log('id ', id);
-			setCompId(id);
-			getCompany(id);
-			getService(id);
-		})
-		.catch(error => {
-			AlertModal.showAlert('Error al intentar cargar la Empresa', error);
-			// alert('ERROR al intentar cargar la Empresa, ' + error);
-		});
-
+			if ((idSelect !== null) && (idSelect !== '')) {
+		
+				const [companyReturn, serviceReturn] = await Promise.all([
+					UsersController.getCompanyData(idSelect),
+					ServicesController.getServicesForCompany(idSelect)
+				]);
+		
+				if (companyReturn !== null) {
+					setCompany(companyReturn);
+				}
+		
+				if (serviceReturn !== null) {
+					setService(serviceReturn);
+					setDays(JSON.parse(serviceReturn.jsonDiasHorariosDisponibilidadServicio));
+					
+					setTimeout(() => {
+						isFavorite(serviceReturn.id);
+					}, 200);
+				} else {
+					setService(null);
+				}
+		
+				setIsLoading(false);
+			}
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			setIsLoading(false);
+			// Manejar errores aquí
+		}
 	};
 
-
 	useEffect(() => {
-		setInforVisible(true);
-		setCalendarVisible(true);
 		fetchData();
+	}, [idFavorite, idSelect, user]);
 
-		setSelectedDate(null);
-        setAvailableTimes([]);
+	return (
+		<> 
+			{isLoading ? ( <ActivityIndicator size={20} color="#0000ff" /> ) : (
+				<>
+					<ScrollView 
+						contentContainerStyle={styles.container}
+						refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  /> } 
+						ref={scrollViewRef} >
+							<View style={styles.datosEmpresa}>
+								<View style={styles.row}>		
+									<Text style={styles.label}>Razón Social: </Text>					
+									<Text style={styles.value}>{company.razonSocial}</Text>
+								</View>
 
-        setLoadingSchedules(false);
+								<View style={{ 
+									flex: 1,
+									alignContent:'flex-end',
+									alignItems:'flex-end',
+									position:'absolute',
+									left: 0, right: 5, top: 0, bottom: 0
+									}}>
 
-		setInforVisible(true);
-        setCalendarVisible(true);
-		setSchedulesVisible(false);
+									{ service !== null ? (
+										<TouchableOpacity
+											style={{ flexDirection:'row', alignItems:'center', }} 
+											onPress={() => switchFavorite(service.id)} >
+											<FontAwesomeIcon icon={faStar} color={favorite ? '#fa0' : 'black'} size={30} />
+										</TouchableOpacity>
+									) : null}
+									
+								</View>
+						
+								<View style={styles.row}>
+									<Text style={styles.label}>Descripción: </Text>
+								</View>
 
-	}, [compId,route]);
+								<View style={styles.row}>
+									<Text style={styles.value}>{company.descripcion}</Text>
+								</View>
 
-	return ( 
-		<ScrollView 
-			style={stylesMake.container}
-			ref={scrollViewRef}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}
-			>
+								<View style={styles.row}>
+									<Text style={styles.label}>Rubro: </Text>
+									<Text style={styles.value}>{company.rubro}</Text>
+								</View>
 
-			{isInforVisible ? (
-				<View>
-					<View>
-						<Text style={stylesMake.title}>{company.razonSocial}</Text>
-					</View>
-					
-					<View>
-						<View style={stylesMake.row}>
-							<Text style={stylesMake.label}>Descripción: </Text>
-							<Text style={stylesMake.value}>{company.descripcion}</Text>
-						</View>
-						<View style={stylesMake.row}>
-							<Text style={stylesMake.label}>Rubro: </Text>
-							<Text style={stylesMake.value}>{company.rubro}</Text>
-						</View>
-						<View style={stylesMake.row}>
-							<Text style={stylesMake.label}>Dirección: </Text>
-							<Text style={stylesMake.value}>{company.direccion}</Text>
-						</View>
-					</View>
-
-					<View>
+								<View style={styles.row}>
+									<Text style={styles.label}>Dirección: </Text>
+									<Text style={styles.value}>{company.direccion}</Text>
+								</View>
+						
+							</View>
 						{service !== null ? (
-							<View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Servicio: </Text>
-									<Text style={stylesMake.value}>{service.nombre}{"\n"}{service.descripcion}</Text>
-								</View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Costo: </Text>
-									<Text style={stylesMake.value}>$ {service.costo}</Text>
-								</View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Turnos: </Text>
-									{service.duracionTurno === 30 ? (
-										<Text style={stylesMake.value}>De {service.duracionTurno} minutos</Text>
-									) : 
-										<Text style={stylesMake.value}>De {service.duracionTurno} hora</Text>
-									}
-								</View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Abierto desde las: </Text>
-									<Text style={stylesMake.value}>{service.horaInicio} horas</Text>
-								</View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Cierra a las: </Text>
-									<Text style={stylesMake.value}>{service.horaFin} horas</Text>
-								</View>
-								<View style={stylesMake.row}>
-									<Text style={stylesMake.label}>Dias: </Text>
-
-									<View style={{ flexDirection: 'row', flexWrap: 'wrap', width:'60%' }}>
-										{service.diasDefinidosSemana && service.diasDefinidosSemana.length > 0 ? (
-											service.diasDefinidosSemana.split(';').map((word, index) => (
-											<Text key={index}> {word} </Text>
-											))
-										) : (
-											<Text>No hay días definidos</Text>
-										)}
+							<>
+								<View style={{ flex:1 }}>
+									<View style={styles.row}>
+										<Text style={styles.label}>Servicio: </Text>
+										<Text style={styles.value}>{service.nombre}</Text>
 									</View>
-								</View>
-							</View>
-						) : <View style={stylesMake.span}>
-								<Text style={{fontWeight:'bold'}}>Esta empresa aún no publicó un Servicio.</Text>
-							</View>
-						}
-					</View>
-				</View>
-			) : null}
 
-			{isCalendarVisible ? (
-				<View>
-					<View>
-						<Text style={stylesMake.title}>Seleccione un dia:</Text>
-					</View>
-					
-					<View>
-						{service !== null ? (
-							<View style={stylesMake.body}>
+									<View style={styles.row}>
+										<Text style={styles.value}>  {service.descripcion}</Text>
+									</View>
 
-								{isLoading ? (
-									<ActivityIndicator size="large" color="#0000ff" />
-								) : (
+									<View style={styles.row}>
+										<Text style={styles.label}>Costo: </Text>
+										<Text style={styles.value}>$ {service.costo}</Text>
+									</View>
+
+									<View style={styles.row}>
+										<Text style={styles.label}>Turnos: </Text>
+										{service.duracionTurno === 30 ? (
+											<Text style={styles.value}>De {service.duracionTurno} minutos</Text>
+										) : 
+											<Text style={styles.value}>De {service.duracionTurno} hora</Text>
+										}
+									</View>
+
+									<View style={styles.row}>
+										<Text style={styles.label}>Dias: </Text>
+
+										<View style={{ flexDirection: 'row', flexWrap: 'wrap', width:'80%' }}>
+											{days !== null ? (
+												Object.keys(days).map((day, index) => (
+													<View key={index}>
+														{ days[day].horaInicio !== null && days[day].horaFin !== null ? (
+															<Text key={index}> {day} </Text>
+														) : null }
+													</View>
+												))
+											) : (
+												<Text>No hay días definidos</Text>
+											)}
+										</View>
+									</View>
+												
 									<View>
-										<CalendarSelector 
-											compId={compId} 
-											userLogin={user} 
-											service={service} 
-											setInforVisible={setInforVisible}
-											setCalendarVisible={setCalendarVisible}
-											setSchedulesVisible={setSchedulesVisible}
-											setSelectedDate = {setSelectedDate}
-											setAvailableTimes = {setAvailableTimes}
-											setTimePickerVisible = {setTimePickerVisible}
-											/>
+										<CalendarSelector company={company} service={service} navigation={navigation} />
 									</View>
-								)}
-				
-							</View>
-						) : null}
-					</View>
-				</View>
-			) : null}
+									
+								</View>
+							</> 
+						) : (
+							<>
+								<View style={styles.span}>
+									<Text style={{fontWeight:'bold'}}>Esta empresa aún no publicó un Servicio.</Text>
+								</View>
+							</>
+						)}
+					</ScrollView>
 
-			{isSchedulesVisible ? (
-				<View>
-					<ScheduleList 
-						compId={compId} 
-						userLogin={user} 
-						service={service} 
-						selectedDate={selectedDate}
-						isLoadingSchedules={isLoadingSchedules}
-						availableTimes={availableTimes}
-						onRefresh={onRefresh}
-					/>
-				</View>
-			) : null}
-
-		</ScrollView>
+					<LinearGradient 
+						colors={['#dfe7ff', '#238162', '#135000' ]} 
+						style={{ padding: 10, justifyContent: 'center', alignItems: 'center' }} >
+						<TouchableOpacity onPress={() => navigation.navigate('Inicio')} >
+							<Text style={{ fontWeight:'bold', color:'#fff' }}>VOLVER</Text>
+						</TouchableOpacity>
+					</LinearGradient>
+				</>
+			)} 
+		</>
 	);
 };
 
-const stylesMake = StyleSheet.create({
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#e3e0ef',
+		height: height,
+		minHeight: height,
+		backgroundColor: '#dfe7ff',
 	},
 
 	title: {
@@ -301,22 +312,27 @@ const stylesMake = StyleSheet.create({
 
 	body: {
 		margin: 1,
-		backgroundColor:'#e3e0ef',
+		backgroundColor:'#dfe7ff',
+	},
+
+	datosEmpresa: {
+		backgroundColor:'#fff',
+		borderColor:'eee',
+		borderWidth: 0.8,
+		borderRadius: 10,
+		margin: 5
 	},
 
 	row: {
-		width: '100%',
         flexDirection: 'row',
-        // justifyContent: 'space-between', // Distribuir en dos columnas
-        alignItems: 'center', // Alinear verticalmente al centro
-        paddingHorizontal: 10, // Espacio horizontal
-		paddingVertical: 2, // Espacio horizontal
-        // borderBottomWidth:1,
-        // borderBottomColor: '#fff'
+        alignItems: 'center',
+        paddingHorizontal: 10,
+		paddingVertical: 2, 
     },
+
     column: {
-        flex: 1, // Ocupar espacio igual en ambas columnas
-        paddingHorizontal: 5, // Espacio horizontal entre columnas
+        flex: 1,
+        paddingHorizontal: 5,
     },
     space: {
         width: 20
@@ -335,427 +351,5 @@ const stylesMake = StyleSheet.create({
 		alignItems:'center',
     },
 });
-
-const CalendarSelector = ( params ) => {
-
-	// console.log(LocaleConfig);
-	const [list, setList] = useState(null);
-	
-	const { 
-		setInforVisible, 
-		setCalendarVisible,
-		setSchedulesVisible,
-		setSelectedDate,
-		setAvailableTimes,
-		setTimePickerVisible,
-	} = params;
-
-    var id_server = params.service.id;
-
-    const markedDates = {};
-    const disabledDates = {};
-
-	LocaleConfig.locales['es']  = {
-		monthNames: [
-			'Enero',
-			'Febrero',
-			'Marzo',
-			'Abril',
-			'Mayo',
-			'Junio',
-			'Julio',
-			'Agosto',
-			'Septiembre',
-			'Octubre',
-			'Noviembre',
-			'Diciembre',
-		],
-		monthNamesShort: [
-		  	'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul.', 'Ago', 'Set', 'Oct', 'Nov', 'Dic',
-		],
-		dayNames: [
-			'Domingo',
-			'Lunes',
-			'Martes',
-			'Miercoles',
-			'Jueves',
-			'Viernes',
-			'Sábado',
-		],
-		dayNamesShort: ['Dom', 'Lun', 'Mar', 'Xer', 'Jue', 'Vie', 'Sab'],
-		today: 'Hoja',
-	};
-
-
-    const getAsyncStorageData = async () => {
-        const keys = await AsyncStorage.getAllKeys();
-        const values = await AsyncStorage.multiGet(keys);
-        // console.log('values: ', values);
-    } 
-
-    const getCompanyData = async () => {
-        var dataCompany = await AsyncStorage.getItem('dataCompany');
-        console.log('dataCompany: ', dataCompany);
-        if (dataCompany !== null) {
-            var companyJSON = JSON.parse(dataCompany);
-            // console.log('serviceJSON: ', serviceJSON);
-            if (companyJSON !== null) {
-                setCompanyData(companyJSON);
-                // console.log('serverSelectId: ', serverSelectId);
-            }
-        }
-    }
-
-    const getServiceId = async () => {
-        var selectedService = await AsyncStorage.getItem('selectedService');
-        console.log('selectedService: ', selectedService);
-        if (selectedService !== null) {
-            var serviceJSON = JSON.parse(selectedService);
-            // console.log('serviceJSON: ', serviceJSON);
-            if (serviceJSON !== null) {
-                setServerSelectId(serviceJSON.id);
-                // console.log('serverSelectId: ', serverSelectId);
-            }
-        }
-    }
-
-    const handleDateSelect = (day) => {
-
-        SchedulesController.getSchedulesForService(id_server,day.dateString)
-        .then(schedulesReturn => {
-            // console.log('schedulesReturn: ', schedulesReturn.resultado);        
-
-            if (schedulesReturn !== null) {
-                setAvailableTimes(schedulesReturn.resultado);    
-            } else {
-                setAvailableTimes([]);
-            }
-
-            setSelectedDate(day.dateString);
-            setTimePickerVisible(true);
-
-			setInforVisible(false);
-			setCalendarVisible(false);
-			setSchedulesVisible(true);
-        })
-        .catch(error => {
-            // alert(error); 
-			AlertModal.showAlert('Horarios ', error);
-        });
-
-    };
-
-	return ( 
-        <View>
-            <Calendar
-                style={stylesPicker.calendar}
-                theme={{
-                    backgroundColor: '#ffffff',
-                    calendarBackground: '#ffffff',
-                    textSectionTitleColor: '#b6c1cd',
-                    selectedDayBackgroundColor: '#00adf5',
-                    selectedDayTextColor: '#ffffff',
-                    todayTextColor: '#00adf5',
-                    dayTextColor: '#000000',
-                    textDisabledColor: '#d9e1e8',
-                    dotColor: '#00adf5',
-                    selectedDotColor: '#ffffff',
-                    arrowColor: 'green',
-                    monthTextColor: 'black',
-                    indicatorColor: 'black',
-                }}
-                // disableTouchEvent={false}
-                markedDates = {markedDates}
-                onDayPress={(day) => handleDateSelect(day)}
-                markingType="multi-dot"
-                disabledDates={disabledDates}
-				// customHeader={({ date, onMonthChange }) => (
-				// 	<CalendarHeader month={date} onMonthChange={onMonthChange} />
-				// )}
-            />
-        </View>
-	);
-};
-
-const stylesPicker = StyleSheet.create({
-	calendar: {
-        // height: '25%',
-		backgroundColor: '#e3e0ef',
-	},
-    title: {
-		alignSelf:'center',
-		marginTop: 3,
-		padding: 2,
-		color:'#000000',
-		fontWeight:'bold',
-		backgroundColor:'#e3eeee',
-		width:'100%',
-		textAlign:'center'
-	},
-	scheduleItem: {
-		flexDirection: 'row',
-		alignContent: 'space-between',
-		paddingVertical: 4,
-		paddingHorizontal: 20,
-		marginTop: 5,
-		marginBottom: 5,
-		borderBottomColor: '#8DA9A4',
-		borderBottomWidth: 1,
-		borderBottomLeftRadius: 10,
-		borderBottomRightRadius: 10,
-	},
-	hourItem: {
-		fontWeight: 'normal',
-		marginRight: 20,
-	},
-	statusItem: {
-		alignSelf:'flex-end',
-		fontWeight: 'bold',
-		textAlign: 'right',
-	},
-	modal: {
-		width: 360,
-		height: 220,
-		alignSelf: 'center',
-		marginHorizontal: 40,
-		marginVertical: 220,
-		paddingHorizontal: 10,
-		paddingVertical: 20,
-		borderRadius: 20,
-		borderColor: 'green',
-		borderWidth: 1,
-		backgroundColor: 'white',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	closeModal: {
-		position: 'absolute',
-		top: 10,
-		right: 10,
-		borderRadius: 15,
-		width: 30,
-		height: 30,
-		justifyContent: 'center',
-		alignItems: 'center',
-
-	},
-	cross: {
-		color: 'green',
-	},
-	textConfirm: {
-		fontSize: 21,
-		textAlign: 'center',
-		marginHorizontal: 2,
-		marginVertical: 2,
-		paddingHorizontal: 6,
-		paddingVertical: 6,
-	},
-});
-
-const ScheduleList = ( params ) => {
-
-	const { 
-		compId, 
-		userLogin,
-		service,
-		selectedDate,
-		isLoadingSchedules,
-		availableTimes,
-		onRefresh
-	} = params;
-
-
-	// console.log(availableTimes);
-
-	const [selectedHour, setSelectedHour] = useState(null);
-	const [showModal, setShowModal] = useState(false);
-
-    const createReservation = (item) => {
-		// console.log(item);
-		// setSelectedItem(item);
-		setSelectedHour(item.fechaHora);
-		setShowModal(true);
-
-		setTimeout(() => {
-			setShowModal(false);
-			onRefresh();
-		}, 10000);
-	};
-
-	const confirmReservation = async (hour) => {
-		// console.log(hour);
-
-		const formData = {
-			idCliente:userLogin.guid,
-			idServicio:service.id,
-			fechaHoraTurno:hour,
-			estado: '',
-		};
-
-		BookingController.handleCreateBooking(formData)
-		.then(userReturn => {
-			// console.log('userReturn: ', userReturn);
-			if (userReturn) {
-				// alert('Se realizó la Reserva con éxito');
-				AlertModal.showAlert('Envio Exitoso ', 'Se realizó la Reserva.');
-				onRefresh();
-			}
-		})
-		.catch(error => {
-			alert(error);
-		});
-	};
-
-	return (
-		<View>
-			{isLoadingSchedules ? (
-				<ActivityIndicator size="large" color="#0000ff" />
-			) : (
-				<View style={stylesPicker.container}>
-					{availableTimes !== null && availableTimes.length > 0 ? (
-						<>
-							<View>
-								<Text style={stylesPicker.title}>Horarios para el dia {formatDate(selectedDate)}</Text>
-			
-								<ScrollView>
-									{availableTimes.map((item, index) => (
-										<View key={index}>
-			
-											<TouchableOpacity onPress={() => createReservation(item)}>
-												<View style={stylesPicker.scheduleItem}>
-													<Text style={stylesPicker.hourItem}>Agendate para las {formatDate2(item.fechaHora)}</Text>
-													<Text style={[stylesPicker.statusItem, { color: item.disponible ? 'green' : 'red' }]}>
-														{item.disponible ? 'Libre' : 'Ocupado'}
-													</Text>
-												</View>
-											</TouchableOpacity>
-			
-										</View>
-									))}
-								</ScrollView>
-							</View>
-						</>
-					) : null }
-		
-					<Modal
-						animationType="slide"
-						visible={showModal}
-						transparent={true}
-						>
-						<View style={stylesPicker.modal}>
-							<TouchableOpacity
-								style={stylesPicker.closeModal}
-								onPress={() => setShowModal(false)}
-							>
-								<Text style={stylesPicker.cross}>X</Text>
-							</TouchableOpacity>
-							<View>
-								<Text style={stylesPicker.textConfirm}>
-									Agendate para el dia {"\n"} {formatDate(selectedDate)} a las {formatDate2(selectedHour)}
-								</Text>
-								<Button
-									title="Confirmar"
-									onPress={() => {
-										confirmReservation(selectedHour);
-										setShowModal(false);
-									}} />
-							</View>
-						</View>
-					</Modal>
-				</View>
-			)}
-		</View>
-	);
-};
-
-const stylesSchedules = StyleSheet.create({
-	container: {
-		backgroundColor: '#e3e0ef',
-	},
-	title: {
-		alignSelf:'center',
-		marginTop: 3,
-		padding: 2,
-		color:'#000000',
-		fontWeight:'bold',
-		backgroundColor:'#e3eeee',
-		width:'100%',
-		textAlign:'center'
-	},
-	scheduleItem: {
-		flexDirection: 'row',
-		paddingVertical: 4,
-		paddingHorizontal: 20,
-		marginTop: 5,
-		marginBottom: 5,
-		borderBottomColor: '#8DA9A4',
-		borderBottomWidth: 1,
-		borderBottomLeftRadius: 10,
-		borderBottomRightRadius: 10,
-	},
-	hourItem: {
-		fontWeight: 'normal',
-		marginRight: 20,
-	},
-	statusItem: {
-		fontWeight: 'bold',
-		textAlign: 'right',
-	},
-	modal: {
-		width: 360,
-		height: 220,
-		alignSelf: 'center',
-		marginHorizontal: 40,
-		marginVertical: 220,
-		paddingHorizontal: 10,
-		paddingVertical: 20,
-		borderRadius: 20,
-		borderColor: 'green',
-		borderWidth: 1,
-		backgroundColor: 'white',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	closeModal: {
-		position: 'absolute',
-		top: 10,
-		right: 10,
-		borderRadius: 15,
-		width: 30,
-		height: 30,
-		justifyContent: 'center',
-		alignItems: 'center',
-
-	},
-	cross: {
-		color: 'green',
-	},
-	textConfirm: {
-		fontSize: 21,
-		textAlign: 'center',
-		marginHorizontal: 2,
-		marginVertical: 2,
-		paddingHorizontal: 6,
-		paddingVertical: 6,
-	},
-});
-
-const CalendarHeader = ({ month, onMonthChange }) => {
-	return (
-		<View>
-			<View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-				<Text>{month}</Text>
-			</View>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
-				<Text style={{ marginHorizontal: 16 }}>Lun</Text>
-				<Text style={{ marginHorizontal: 16 }}>Mar</Text>
-				<Text style={{ marginHorizontal: 16 }}>Mie</Text>
-				<Text style={{ marginHorizontal: 16 }}>Jue</Text>
-				<Text style={{ marginHorizontal: 16 }}>Vie</Text>
-				<Text style={{ marginHorizontal: 16 }}>Sab</Text>
-			</View>
-		</View>
-	);
-};
 
 export default MakeReservation;

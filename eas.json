@@ -1,8 +1,20 @@
 {
   "cli": {
-    "version": "^5.9.3"
+    "version": "7.4.0"
   },
   "build": {
+    "ngrok": {
+      "android": {
+        "buildType":"apk"
+      },
+      "channel": "ngrok"
+    },
+    "azure": {
+      "android": {
+        "buildType":"apk"
+      },
+      "channel": "azure"
+    },
     "testing": {
       "android": {
         "buildType":"apk"

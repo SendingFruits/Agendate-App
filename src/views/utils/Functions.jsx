@@ -56,19 +56,23 @@ export function formatDate2(date) {
     }
 }
 
-export function getFormattedDate() {
+export function getFormattedDate(wH=null) {
     const currentDate = new Date();
+    let formattedDate = '';
 
     // Obtén los componentes de la fecha
-    const year = currentDate.getFullYear();
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-    const day = currentDate.getDate().toString().padStart(2, '0');
-    const hours = '00';
-    const minutes = '00';
-    const seconds = '00';
+    var year = currentDate.getFullYear();
+    var month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    var day = currentDate.getDate().toString().padStart(2, '0');
+    var hours = ('0' + currentDate.getHours()).slice(-2);
+    var minutes = ('0' + currentDate.getMinutes()).slice(-2);
+    var seconds = ('0' + currentDate.getSeconds()).slice(-2);
 
-    // Formatea la fecha como 'YYYY-MM-DD HH:mm:ss'
-    const formattedDate = `${year}-${month}-${day}`;
+    if (wH === null) {
+        formattedDate = `${year}-${month}-${day}`;
+    } else {
+        formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    }
 
     return formattedDate;
 }

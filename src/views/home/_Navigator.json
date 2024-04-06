@@ -1,4 +1,237 @@
 {
+    "descriptors": {
+        "Crear Servicio-pStpDzrnncoi37qnj-aRz": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Favoritos-Ydnw8ncxlDvjqG3QAQ5IC": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Horarios-cBFD0pmEei5ViVHuuNBC4": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Inicio-Tfmmm2GMAUGYJYIbOpWD-": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Login-gifnDarQKjtmSHaEjxoWY": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Password-JyEsWtH3Hqgh2sqXxkVPw": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Perfil de Usuario-Msr3gbHdZvKwgJr2d9wIL": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Promociones-p-dXVSmXrcCR3kwlQb_7z": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Realizar Reserva-jaQkqXo-N95HXLvfsY_iQ": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Registro de Usuario-oDKezBr00grx_eH78s9fa": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Reservas-FZaQIvkTDdEKzXOPdlk-f": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "Servicios-P-0uKaFPvFcB4QproSL4S": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        },
+        "testing-y4uHpmHAzFvfFeXqouuAF": {
+            "navigation": [Object
+            ],
+            "options": [Object
+            ],
+            "render": [Function render
+            ],
+            "route": [Object
+            ]
+        }
+    },
+    "navigation": {
+        "canGoBack": [Function canGoBack
+        ],
+        "closeDrawer": [Function anonymous
+        ],
+        "dispatch": [Function dispatch
+        ],
+        "emit": [Function anonymous
+        ],
+        "getId": [Function getId
+        ],
+        "getParent": [Function getParent
+        ],
+        "getState": [Function anonymous
+        ],
+        "goBack": [Function anonymous
+        ],
+        "isFocused": [Function anonymous
+        ],
+        "jumpTo": [Function anonymous
+        ],
+        "navigate": [Function anonymous
+        ],
+        "openDrawer": [Function anonymous
+        ],
+        "reset": [Function anonymous
+        ],
+        "setParams": [Function anonymous
+        ],
+        "toggleDrawer": [Function anonymous
+        ]
+    },
+    "params": {
+        "isConnected": true,
+        "setIsConnected": [Function bound dispatchSetState
+        ],
+        "setUserPreferences": [Function bound dispatchSetState
+        ],
+        "userPreferences": {
+            "current_user": "{\"documento\":\"47659893\",\"tieneNotificaciones\":true,\"id\":1,\"nombreUsuario\":\"admin\",\"nombre\":\"AdminUser\",\"apellido\":\"Administrador\",\"contrasenia\":\"0350MwGjTiI4C8O8o61/VA==\",\"celular\":\"1234567890\",\"correo\":\"admin@agendate.app.com\",\"tipoUsuario\":\"customer\",\"activo\":true}"
+        }
+    },
+    "state": {
+        "default": "closed",
+        "history": [
+            [Object
+            ]
+        ],
+        "index": 0,
+        "key": "drawer-wjZsrlY5NKaO-5f_MT_IF",
+        "routeNames": [
+            "Inicio",
+            "Reservas",
+            "Servicios",
+            "Favoritos",
+            "Crear Servicio",
+            "Promociones",
+            "Realizar Reserva",
+            "Horarios",
+            "Login",
+            "Registro de Usuario",
+            "Password",
+            "Perfil de Usuario",
+            "testing"
+        ],
+        "routes": [
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ],
+            [Object
+            ]
+        ],
+        "stale": false,
+        "type": "drawer"
+    }
+}
+
+
+
+{
     "default": "closed",
     "history": [
         {
