@@ -74,6 +74,7 @@ const PromoItem = (params) => {
 			if (alertRes) {
                 PromosController.handlePromoDelete(id)
                 .then(deleted => {
+                    console.log(deleted);
                     onRefresh();
                 })
                 .catch(error => {

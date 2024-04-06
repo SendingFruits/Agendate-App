@@ -3,7 +3,6 @@ import {
 } from '../../context/AuthContext';
 
 import { useNavigation } from '@react-navigation/native';
-import { getOrientation } from '../utils/Functions'; 
 
 import ServiceItem from './ServiceItem';
 import ServicesController from '../../controllers/ServicesController';
@@ -19,8 +18,7 @@ import {
     View, 
     ScrollView,
     RefreshControl,
-    TouchableOpacity,
-    Keyboard
+    TouchableOpacity
 } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,7 +34,6 @@ const ServicesView = ( params ) => {
     const [editMode, setEditMode] = useState(false);
     const [isCreate, setIsCreate] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [orientation, setOrientation] = useState(getOrientation());
     const [bodyHeight, setBodyHeight] = useState(370); 
     
     const handleEditItem = (item) => {
@@ -58,59 +55,67 @@ const ServicesView = ( params ) => {
 		}, 2000);
 	}, [editMode,list]);
 
-    const handleOrientationChange = () => {
-		const newOrientation = getOrientation();
-		setOrientation(newOrientation);
-	};
-
     const getServices = async () => {
-        ServicesController.getServicesForCompany(guid)
-        .then(serviceReturn => {
-            console.log('serviceReturn: ', serviceReturn);
-            if (serviceReturn !== null) {
-                setList([serviceReturn]);
-            } else {
-                setList([]);
-            }
-        })
-        .catch(error => {
-            alert('ERROR al intentar cargar los Servicios, ' + error);
-        });
+        if (guid !== 'none') {
+            ServicesController.getServicesForCompany(guid)
+            .then(serviceReturn => {
+                // console.log('serviceReturn: ', serviceReturn);
+                if (serviceReturn !== null) {
+                    setList([serviceReturn]);
+                } else {
+                    setList([]);
+                }
+            })
+            .catch(error => {
+                alert('ERROR al intentar cargar los Servicios, ' + error);
+            });
+        }
     }
 
+    const listServices = () => {
+		if (list) {
+			return list.map((item, index) => {
+				// return item && (
+				// 	<PromoItem 
+                //         guid={guid}
+                //         key={index}
+                //         index={index}
+                //         item={item} 
+                //         editMode={editMode}
+                //         // setEditMode={setEditMode}
+                //         setEditMode={() => toggleEditMode(index)}
+                //         onRefresh={onRefresh}
+                //         onPress={() => handleEditItem(item)}
+                //         navigation={navigation}
+                //     />
+				// )
+			});
+		}
+	};
+
+    const toggleEditMode = (index) => {
+        // setEditMode((prevEditMode) => ({
+        //     ...prevEditMode,
+        //     [index]: !prevEditMode[index],
+        // }));
+    };
+
     useEffect(() => {
-    
+        getServices();
+        setIsCreate(false);
+        if (list) {
+            // const initialEditMode = list.reduce((acc, _, index) => {
+            //     return { ...acc, [index]: false };
+            // }, {});
+            setEditMode(false);
+        }
+
         if (editMode) {
             setBodyHeight(480);
         } else {
             setBodyHeight(370);
         }
-
-        setEditMode(false);
-        setIsCreate(false);
-        getServices();
-
-        Dimensions.addEventListener('change', handleOrientationChange);
-
-        /**
-         * esto sirve para controlar el teclado:
-         */
-        // const keyboardDidShowListener = Keyboard.addListener(
-        //     'keyboardDidShow', () => {
-        //         // console.log('Teclado abierto');
-        //         setEditing(true);
-        //     }
-        // );     
-        // const keyboardDidHideListener = Keyboard.addListener(
-        //     'keyboardDidHide',
-        //     () => {
-        //         // console.log('Teclado cerrado');
-        //         setEditing(false);
-        //     }
-        // );
-
-    }, [params]);
-
+    }, [guid]);
 
     return (
         <View style={styles.container}>
@@ -162,32 +167,6 @@ const ServicesView = ( params ) => {
                     </LinearGradient>
                 </View>
             )}
-
-            {!editMode ? (
-                <>
-                    {orientation === 'portrait' ? (		
-                        <>
-                            {/* <View style={styles.footer}>
-                                <Text style={styles.textVersion1}>
-                                    En esta versión solo puede tener un servicio</Text>
-                                <TouchableOpacity 
-                                    onPress={() => premiumUpdate()} 
-                                    style={{ alignItems:'center' }}>
-                                    <Text>Necesita actualizar a la versión Premium</Text>
-                                    <Text>si quiere manejar multiples servicios</Text>
-                                </TouchableOpacity>
-                                <View>        
-                                </View>
-                            </View> */}
-                        </>		
-                    ) : (
-                        <></>
-                    )}
-                </>
-            ) : (
-                <></>
-            )}
-
         </View>
     );
 };

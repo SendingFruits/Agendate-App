@@ -12,6 +12,14 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 const CalendarSelector = ( params ) => {
 
+	LocaleConfig.locales['es'] = {
+		monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+		monthNamesShort: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
+		dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+		dayNamesShort: ['Dom.', 'Lun.', 'Mar.', 'Mié.', 'Jue.', 'Vie.', 'Sáb.'],
+		today: 'Hoy',
+	};
+
 	const {
 		company,
 		service,
@@ -21,44 +29,7 @@ const CalendarSelector = ( params ) => {
     var idServer = service.id;
 	var idCompany = company.id;
 
-    const markedDates = {};
-    const disabledDates = {};
-
-	LocaleConfig.locales['es']  = {
-		monthNames: [
-			'Enero',
-			'Febrero',
-			'Marzo',
-			'Abril',
-			'Mayo',
-			'Junio',
-			'Julio',
-			'Agosto',
-			'Septiembre',
-			'Octubre',
-			'Noviembre',
-			'Diciembre',
-		],
-		monthNamesShort: [
-		  	'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul.', 'Ago', 'Set', 'Oct', 'Nov', 'Dic',
-		],
-		dayNames: [
-			'Domingo',
-			'Lunes',
-			'Martes',
-			'Miercoles',
-			'Jueves',
-			'Viernes',
-			'Sábado',
-		],
-		dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
-		today: 'Hoja',
-	};
-
-	LocaleConfig.defaultLocale = 'es';
-
 	const [minDate, setMinDate] = useState('');
-	const [colorSelected, setColorSelected] = useState('#000');
 	const [paramsSchedules, setParamsSchedules] = useState('');
 
     const handleDateSelect = (date) => {
@@ -70,6 +41,7 @@ const CalendarSelector = ( params ) => {
 
 
 	useEffect(() => {
+		LocaleConfig.defaultLocale = 'es';
 		const currentDate = new Date();
         const year = currentDate.getFullYear();
         const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
@@ -97,14 +69,9 @@ const CalendarSelector = ( params ) => {
                     indicatorColor: 'black',
                 }}
                 hideExtraDays={true}
-                markedDates = {markedDates}
                 onDayPress={(day) => handleDateSelect(day)}
                 markingType="multi-dot"
-                disabledDates={disabledDates}
 				minDate={minDate}
-				// customHeader={({ date, onMonthChange }) => (
-				// 	<CalendarHeader month={date} onMonthChange={onMonthChange} />
-				// )}
             />
 
 			{paramsSchedules ? 

@@ -80,7 +80,8 @@ const ServiceCreate = ( params ) => {
 		})
 		.catch(error => {
 			console.log(error);
-            // AlertModal.showAlert('', error);
+            AlertModal.showAlert('Error', 
+            'No se pudo crear el Servicio\n'+ JSON.stringify(error));
 		});
     };
 
