@@ -52,7 +52,7 @@ const CompanyPanel = () => {
         },
         header: {
             alignItems: 'center',
-            marginTop: 5,
+            marginTop: 15,
             marginHorizontal: 10,
             borderTopLeftRadius: 8,
             borderTopRightRadius: 8,
@@ -62,24 +62,23 @@ const CompanyPanel = () => {
             borderColor: '#fff',
         },
         textHeader: {
-            color: '#fff',
+            color: '#166e30',
             fontWeight:'bold',
             padding: 10,
+            fontSize: 20,
         },
         body: {
             height: height-50,
             // marginTop: 20,
             marginHorizontal: 15,
             // borderRadius: 12,
-            borderWidth: 1.2,
-            borderColor: '#fff',
         },
         row: {
             flexDirection: 'row',
             justifyContent: 'space-between', // Distribuir en dos columnas
             alignItems: 'center', // Alinear verticalmente al centro
-            paddingHorizontal: 1, // Espacio horizontal
-            borderBottomWidth:1,
+            paddingHorizontal: -10, // Espacio horizontal
+            borderBottomWidth: 1 ,
             borderBottomColor: '#fff'
         },
         column: {
@@ -88,7 +87,7 @@ const CompanyPanel = () => {
         },
         columnB: {
             flex: 0.75, 
-            paddingHorizontal: 1, 
+            paddingHorizontal: 3, 
         },
         columnT: {
             flex: 0.65, 
@@ -99,7 +98,7 @@ const CompanyPanel = () => {
             paddingHorizontal: 5,
         },
         space: {
-            width: 15 
+            width: 12
         },
         btnCaptureLocation: {
             marginVertical: 10,
@@ -109,42 +108,48 @@ const CompanyPanel = () => {
             color: '#fff',
         },
         txtCoord: {
-            fontSize:13,
+            fontSize:15,
             fontWeight: 'bold',
         },
         txtLat: {
-            fontSize:11,
+            fontSize:13,
         },
         txtLng: {
-            fontSize:11,
+            fontSize:13,
         },
         dataLabel: {
             fontWeight:'bold',
             paddingHorizontal:20,
             marginVertical:3,
+            textAlign: 'right',
             paddingVertical:5,
         },
         dataEdit: {
+            marginHorizontal:-18,
             marginVertical:3,
             marginRight:15,
             backgroundColor:'#fff',
+            borderRadius: 12,
+            paddingHorizontal: 8,
         },
         dataEditDesc: {
-            width:width-75.1,
-            height:120,
+            width:width-55.1,
+            height:130,
             marginVertical:3,
             marginBottom:10,
-            marginHorizontal:20,
+            marginHorizontal:15,
             backgroundColor:'#fff',
             textAlignVertical: 'top',
-          
+            paddingHorizontal: 10,
+            borderRadius: 15,
         },
         imageContainer: {
-            height: 75,
-            width: 90,
-            margin: 20,
+            height: 120,
+            width: 200,
+            margin: 10,
+            marginRight: -42,
             alignSelf: 'center',
-            borderRadius: 20,
+            borderRadius: 10,
             backgroundColor: '#fff',
             alignItems: 'center', // Centrar horizontalmente
             justifyContent: 'center', // Centrar verticalmente
@@ -157,9 +162,9 @@ const CompanyPanel = () => {
         },
         image: {
             flex: 1,
-            height: 75,
+            height: 120,
             width: 90,
-            borderRadius: 20,
+            borderRadius: 10,
             resizeMode: 'cover',
         },
         buttonContent: {
@@ -167,19 +172,8 @@ const CompanyPanel = () => {
             alignItems: 'center',
         },
     
-        footer: {
-            position: 'absolute',
-            bottom: -15,
-            left: -3,
-            right: -3,
-            
-            flexDirection: 'row', // Ajusta la dirección del contenido según tu diseño
-            justifyContent: 'center', // Ajusta la alineación horizontal según tu diseño
-            alignItems: 'center', // Ajusta la alineación vertical según tu diseño
-            
-            // marginTop: 10,
-            borderWidth: 2,
-            borderColor: '#fff',
+        saveButton: {
+            marginTop:-30
         },
     });
 
@@ -191,7 +185,7 @@ const CompanyPanel = () => {
     const [city, setCity] = useState(currentUser.city);
     const [description, setDescription] = useState(currentUser.description);
     
-    const [logoBase, setLogoBase] = useState('');
+    const [logoBase, setLogoBase] = useState(currentUser.logo);
     const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(currentUser.logo));
     const [selectedPicture, setSelectedPicture] = useState(null);
 
@@ -202,14 +196,36 @@ const CompanyPanel = () => {
     
     const [refreshing, setRefreshing] = useState(false);
 
-	const onRefresh = React.useCallback(() => {
+	const onRefresh = React.useCallback((formData) => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
 
-            // setCurrentUser(currentUser);
-            setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
-            
+            if (formData)
+            {
+                setRut(formData.rut);
+                setOwner(formData.owner);
+                setBusinessName(formData.businessName);
+                setCategory(formData.category);
+                setAddress(formData.address);
+                setCity(formData.city);
+                setDescription(formData.description);
+                setLogoBase(formData.logoBase);
+                setLocation({latitude:formData.location.latitude, longitude:formData.location.longitude});
+            }
+            else
+            {
+                setRut(currentUser.rut);
+                setOwner(currentUser.owner);
+                setBusinessName(currentUser.businessName);
+                setCategory(currentUser.category);
+                setAddress(currentUser.address);
+                setCity(currentUser.city);
+                setDescription(currentUser.description);
+                setLogoBase(currentUser.logo);
+                setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+            }
+            setLogoUrl(loadImageFromBase64(currentUser.logo));
             setShowModal(false);
             setShowSaveButtom(true);
 
@@ -221,7 +237,6 @@ const CompanyPanel = () => {
         try {
             if (await MapController.requestLocationPermission() === 'granted') {
                 const region = await MapController.getLocation();
-                // console.log(region);
                 setLocation(region);
                 setShowModal(true);
                 setTimeout(() => {
@@ -235,17 +250,8 @@ const CompanyPanel = () => {
         }
     };
 
-    const viewMyLocation = async () => {
-        try {
-            console.log('MyLoc');
-        } catch (error) {
-            console.log('ERROR captureLocation: '+error);
-        }
-    };
-
 
     const saveDataCompany = async () => {
-        // console.log('saveDataCompany');
 
         const formData = {
             guid,
@@ -262,12 +268,10 @@ const CompanyPanel = () => {
 
 		UsersController.handleCompanyUpdate(formData)
 		.then(dataReturn => {
-			// console.log('dataReturn: ', dataReturn);
 			if (dataReturn) {
-				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');       
-                console.log(dataReturn);
-                setLogoUrl(loadImageFromBase64(dataReturn.logo));
-                onRefresh();
+				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');  
+                onRefresh(formData);
+                
 			}
 		})
 		.catch(error => {
@@ -279,7 +283,6 @@ const CompanyPanel = () => {
     let openLogoPickerAsync = async () => {
 
 		let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-		// console.log(permissionResult.granted);
 		if (permissionResult.granted === false) {
 			AlertModal.showAlert('Se requiere permisos de acceso a la camara.', '');
 			return;
@@ -316,16 +319,6 @@ const CompanyPanel = () => {
 
 	useEffect(() => {
 
-        setRut(currentUser.rut);
-        setOwner(currentUser.owner);
-        setBusinessName(currentUser.businessName);
-        setCategory(currentUser.category);
-        setAddress(currentUser.address);
-        setCity(currentUser.city);
-        setDescription(currentUser.description);
-        
-        setLogoBase(currentUser.logo);
-        setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
         
         setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
@@ -467,8 +460,8 @@ const CompanyPanel = () => {
                         
                         <View style={sty.row}>
                             <SafeAreaView>
-                                <Text style={{fontWeight:'bold',paddingHorizontal:22,marginVertical:3,paddingVertical:5,}}
-                                    > Descripción:</Text>
+                                <Text style={{fontWeight:'bold',paddingHorizontal:20,marginVertical:3,marginTop:15,paddingVertical:5,}}
+                                    > Descripción de la empresa:</Text>
                                 <TextInput 
                                     style={sty.dataEditDesc} 
                                     value={description}
@@ -479,6 +472,9 @@ const CompanyPanel = () => {
                         </View> 
         
                         <View style={sty.row}>
+                        <SafeAreaView>
+                        <Text style={{fontWeight:'bold',paddingHorizontal:20,marginVertical:-20,marginTop:7,paddingVertical:5,}}
+                                    > Logo:</Text>
                             <View>
                                 <View style={sty.imageContainer}>
                                     <TouchableOpacity 
@@ -496,52 +492,26 @@ const CompanyPanel = () => {
                                         </View>
                                     </TouchableOpacity>
                                 </View>
-                            </View>
+                            
                             <View style={sty.column}>
-                                {logoBase === '' ? (
-                                    <Text>Elija el logo de su Empresa </Text>
-                                ) : null}
+                                    <Text style={{marginVertical:5,
+                                    marginBottom:40,
+                                    marginLeft:50,
+                                    }}
+                                    >Pulse en el recuadro para cargar su logo</Text>
                             </View>
-                        </View>
-        
-
-
-                        <View style={sty.row}>
-                            <View style={sty.column}>
-                                <Text>  </Text>
                             </View>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                        </View>
-        
-                        <View style={sty.row}>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                        </View>
-        
-                        <View style={sty.row}>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
+                            </SafeAreaView>
                         </View>
 
-                        <View style={sty.row}>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                            <View style={sty.column}>
-                                <Text>  </Text>
-                            </View>
-                        </View>
-                        
+                                <View style={sty.saveButton}>
+                                    <MenuButtonItem 
+                                        icon = {null}
+                                        type = {'capture'}
+                                        text = {'Guardar'}
+                                        onPress={() => saveDataCompany()}
+                                    />
+                                </View>
                     </ScrollView>
 
                     <>
@@ -564,19 +534,8 @@ const CompanyPanel = () => {
 
                 </View>
 
-                {showSaveButtom ? (
-                    <LinearGradient
-                        style={sty.footer}
-                        colors={['#2ECC71', '#238162', '#dfe4ff']} >
-                        <View style={{ marginTop :10}}>
-                            <MenuButtonItem 
-                                icon = {null}
-                                type = {'panel'}
-                                text = {'Guardar'}
-                                onPress={() => saveDataCompany()} />
-                        </View>
-                    </LinearGradient>
-                ): null}
+
+                
         
             </LinearGradient>
         </View>
