@@ -4,7 +4,6 @@ import CompanyServices from '../services/CompanyServices';
 class UsersController {
 
 	handleLogin(username, password) {
-		console.log('handleLogin',username);
 		return new Promise((resolve, reject) => {
 
 			if (username == '') {
@@ -27,10 +26,8 @@ class UsersController {
 	}
 
 	handleRegister(data) {
-		console.log('handleRegister',data);
 		return new Promise((resolve, reject) => {
 			
-			// console.log(data);
 
 			if (data.username == '') {
 				reject('Por favor ingrese el username.');
@@ -119,7 +116,6 @@ class UsersController {
 	}
 
 	handleUpdate(data, type) {
-		console.log('handleUpdate', ' -'+data+' -'+type);
 		return new Promise((resolve, reject) => {
 		
 			if (data.type === 'customer' 
@@ -148,8 +144,6 @@ class UsersController {
 				return;
 			}
 
-			console.log(type);
-
 			if (type === 'customer') {
 
 				const dataConvert = {
@@ -162,8 +156,6 @@ class UsersController {
 					foto: data.foto,
 					tieneNotificaciones: data.recibe,
 				}
-
-				// console.log(dataConvert);
 
 				UserServices.putUserDataCustomer(dataConvert)
 				.then(userReturn => {
@@ -194,7 +186,6 @@ class UsersController {
 	}
 
 	handleUpdatePass(data) {
-		console.log('handleUpdatePass',data);
 		return new Promise((resolve, reject) => {
 
 			if (data.old === '') {
@@ -205,13 +196,10 @@ class UsersController {
 				reject('Debe ingresar la Contraseña Nueva.');
 				return;
 			}
-
 			if (data.new.length < 8) {
 				reject('La contraseña nueva debe tener al menos 8 caracteres como minínimo.');
 				return;
 			}
-
-
 
 			var json = {
                 'Id':data.idu,
@@ -236,12 +224,9 @@ class UsersController {
 	}
 
 	handleRecoveryPass(dataJSON) {
-		console.log('handleRecoveryPass',dataJSON);
 		return new Promise((resolve, reject) => {
 
-			console.log('dataJSON: ', dataJSON);
 			var data = JSON.parse(dataJSON);
-			console.log('data: ', data);
 
 			if (data.user === '') {
 				reject('Debe ingresar su nombre de usuario.');
@@ -274,9 +259,7 @@ class UsersController {
 	}
 
 	getCompanyData(guid) {
-		console.log('getCompanyData',guid);
 		return new Promise((resolve, reject) => {
-			// console.log('getServicesForCompany', guid);
 			if ((guid == '') || (guid == undefined)) {
 				reject('Se requiere ID de Empresa.');
 				return;
@@ -284,7 +267,6 @@ class UsersController {
 
 			CompanyServices.getDataCompany(guid)
 			.then(serviceReturn => {
-				// console.log('serviceReturn', serviceReturn);
 				if (serviceReturn !== null) {
 					resolve(serviceReturn);
 				} else {
@@ -298,7 +280,6 @@ class UsersController {
 	}
 
 	handleCompanyUpdate(data) {
-		console.log('handleCompanyUpdate',data);
 		return new Promise((resolve, reject) => {
 		
 			if (data.rut == '') {
@@ -308,8 +289,6 @@ class UsersController {
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
 			if (data.location.longitude === undefined) data.location.longitude = 0.0; 
-
-			// console.log('data: ',data);
 			var code64 = 'data:image/png;base64, ';
 
 			var dataConvert = {
@@ -325,7 +304,6 @@ class UsersController {
 				longitude: data.location.longitude,
 				logo: data.logoBase
 			}
-			// console.log('dataConvert: ',dataConvert);
 			
 
 			CompanyServices.putCompanyData(dataConvert)
@@ -339,7 +317,6 @@ class UsersController {
 	}
 
 	handleDelete(id) {
-		console.log('handleDelete',id);
 		return new Promise((resolve, reject) => {
 			UserServices.putDelete(id)
 			.then(userReturn => {
