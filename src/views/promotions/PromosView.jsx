@@ -3,7 +3,6 @@ import {
 } from '../../context/AuthContext';
 
 import { useNavigation } from '@react-navigation/native';
-import { getOrientation } from '../utils/Functions'; 
 
 import PromoItem from './PromoItem';
 import PromosController from '../../controllers/PromosController';
@@ -23,7 +22,6 @@ import {
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-
 const PromosView = ( params ) => {
 
     const { currentUser } = useContext(AuthContext);
@@ -35,7 +33,7 @@ const PromosView = ( params ) => {
     const [editMode, setEditMode] = useState({});
     const [isCreate, setIsCreate] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [orientation, setOrientation] = useState(getOrientation());
+    const [bodyHeight, setBodyHeight] = useState(370); 
 
     const handleEditItem = (item) => {
         console.log('handleEditItem', item);
@@ -50,6 +48,7 @@ const PromosView = ( params ) => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
+
             getPromos();
 			// navigation.navigate('Servicios');
 		}, 2000);
@@ -58,10 +57,10 @@ const PromosView = ( params ) => {
     const getPromos = async () => {
         if (guid !== 'none') {     
             PromosController.getPromosForCompany(guid)
-            .then(favoritesReturn => {
-                // console.log('favoritesReturn: ', favoritesReturn);
-                if (favoritesReturn !== null) {
-                    setList(favoritesReturn);
+            .then(promosReturn => {
+                // console.log('promosReturn: ', promosReturn);
+                if (promosReturn !== null) {
+                    setList(promosReturn);
                 } else {
                     setList([]);
                 }
@@ -110,7 +109,6 @@ const PromosView = ( params ) => {
             setEditMode(initialEditMode);
         }
     }, [guid]);
-
 
     return (
         <View style={styles.container}>

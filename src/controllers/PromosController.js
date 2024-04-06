@@ -63,8 +63,8 @@ class PromosController {
 		return new Promise((resolve, reject) => {
 		
 			PromosServices.deletePromo(guid)
-			.then(servReturn => {
-				resolve(servReturn);
+			.then(pReturn => {
+				resolve(pReturn);
 			})
 			.catch(error => {
 				reject(error);

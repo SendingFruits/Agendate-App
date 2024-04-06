@@ -65,7 +65,8 @@ const PromoCreate = ( params ) => {
 			}
 		})
 		.catch(error => {
-			AlertModal.showAlert('Error', 'No se pudo crear la Promoción\n'+ error);
+			AlertModal.showAlert('Error', 
+            'No se pudo crear la Promoción\n'+ JSON.stringify(error));
 		});
     };
 

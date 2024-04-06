@@ -4,35 +4,21 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 const CalendarPicker = ( params ) => {
 
+    LocaleConfig.locales['es'] = {
+		monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+		monthNamesShort: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
+		dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+		dayNamesShort: ['Dom.', 'Lun.', 'Mar.', 'Mié.', 'Jue.', 'Vie.', 'Sáb.'],
+		today: 'Hoy',
+	};
+    
     var {
         handleDateSelect,
 	} = params;
 
-
-    const markedDates = {};
-    const disabledDates = {};
-
-    const spanishMonthNames = {
-        enero: 'Enero',
-        febrero: 'Febrero',
-        marzo: 'Marzo',
-        abril: 'Abril',
-        mayo: 'Mayo',
-        junio: 'Junio',
-        julio: 'Julio',
-        agosto: 'Agosto',
-        septiembre: 'Septiembre',
-        octubre: 'Octubre',
-        noviembre: 'Noviembre',
-        diciembre: 'Diciembre',
-    };
-
-    LocaleConfig.defaultLocale = 'es';
-
     useEffect(() => {
-        // ..
+        LocaleConfig.defaultLocale = 'es';
     }, []);
-
 
 	return ( 
         <View>
@@ -53,11 +39,8 @@ const CalendarPicker = ( params ) => {
                     indicatorColor: 'black',
                 }}
                 hideExtraDays={true}
-                markedDates = {markedDates}
                 onDayPress={(day) => handleDateSelect(day)}
                 markingType="multi-dot"
-                disabledDates={disabledDates}
-                monthNames={spanishMonthNames}
             />
         </View>
 	);

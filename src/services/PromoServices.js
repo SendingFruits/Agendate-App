@@ -90,11 +90,12 @@ class PromoServices {
                 'Content-Type': 'application/json', 
                 'Accept': 'application/json'
             };
-
+            
             axios.delete(urlCompleta, { headers })
             .then(function (response) {
                 if (response.status == 200) {
-                    resolve(JSON.stringify(response.data));
+                    console.log(response);
+                    resolve(response.data);
                 } else {
                     resolve(response.errors);
                 }

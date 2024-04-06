@@ -118,6 +118,7 @@ const ServiceItem = (params) => {
 			if (alertRes) {
                 ServicesController.handleServiceDelete(id)
                 .then(deleted => {
+                    console.log(deleted);
                     onRefresh();
                 })
                 .catch(error => {
@@ -162,7 +163,7 @@ const ServiceItem = (params) => {
                                 >    
                             
                                 <View style={styles.textHeader}>
-                                    <Text>{item.nombre}</Text>
+                                    <Text style={{ width:'95%' }}>{item.nombre}</Text>
                                 </View>
         
                                 <View style={styles.buttonsRow}>
