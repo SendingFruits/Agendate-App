@@ -15,7 +15,8 @@ import React, {
 } from 'react';
 
 import { 
-	StyleSheet, 
+	StyleSheet,
+	Dimensions,
 	View, 
 	ScrollView, 
 	RefreshControl,
@@ -35,6 +36,8 @@ import {
 } from '@fortawesome/react-native-fontawesome';
 
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 const MakeReservation = ( params ) => {
 	
@@ -171,53 +174,61 @@ const MakeReservation = ( params ) => {
 				<>
 					<ScrollView 
 						contentContainerStyle={styles.container}
-						ref={scrollViewRef}
-						// refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  /> } 
-						>
+						refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  /> } 
+						ref={scrollViewRef} >
+							<View style={styles.datosEmpresa}>
+								<View style={styles.row}>		
+									<Text style={styles.label}>Razón Social: </Text>					
+									<Text style={styles.value}>{company.razonSocial}</Text>
+								</View>
+
+								<View style={{ 
+									flex: 1,
+									alignContent:'flex-end',
+									alignItems:'flex-end',
+									position:'absolute',
+									left: 0, right: 5, top: 0, bottom: 0
+									}}>
+
+									{ service !== null ? (
+										<TouchableOpacity
+											style={{ flexDirection:'row', alignItems:'center', }} 
+											onPress={() => switchFavorite(service.id)} >
+											<FontAwesomeIcon icon={faStar} color={favorite ? '#fa0' : 'black'} size={30} />
+										</TouchableOpacity>
+									) : null}
+									
+								</View>
+						
+								<View style={styles.row}>
+									<Text style={styles.label}>Descripción: </Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.value}>{company.descripcion}</Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.label}>Rubro: </Text>
+									<Text style={styles.value}>{company.rubro}</Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.label}>Dirección: </Text>
+									<Text style={styles.value}>{company.direccion}</Text>
+								</View>
+						
+							</View>
 						{service !== null ? (
 							<>
 								<View style={{ flex:1 }}>
-									<View style={styles.row}>		
-										<Text style={styles.label}>Razón Social: </Text>					
-										<Text style={styles.value}>{company.razonSocial}</Text>
-									</View>
-
-									<View style={{ 
-										flex: 1,
-										alignContent:'flex-end',
-										alignItems:'flex-end',
-										position:'absolute',
-										left: 0, right: 5, top: 0, bottom: 0
-										}}>
-
-										{ service !== null ? (
-											<TouchableOpacity
-												style={{ flexDirection:'row', alignItems:'center', }} 
-												onPress={() => switchFavorite(service.id)} >
-												<FontAwesomeIcon icon={faStar} color={favorite ? '#fa0' : 'black'} size={30} />
-											</TouchableOpacity>
-										) : null}
-										
-									</View>
-							
-									<View style={styles.row}>
-										<Text style={styles.label}>Descripción: </Text>
-										<Text style={styles.value}>{company.descripcion}</Text>
-									</View>
-
-									<View style={styles.row}>
-										<Text style={styles.label}>Rubro: </Text>
-										<Text style={styles.value}>{company.rubro}</Text>
-									</View>
-
-									<View style={styles.row}>
-										<Text style={styles.label}>Dirección: </Text>
-										<Text style={styles.value}>{company.direccion}</Text>
-									</View>
-							
 									<View style={styles.row}>
 										<Text style={styles.label}>Servicio: </Text>
-										<Text style={styles.value}>{service.nombre}{"\n"}{service.descripcion}</Text>
+										<Text style={styles.value}>{service.nombre}</Text>
+									</View>
+
+									<View style={styles.row}>
+										<Text style={styles.value}>  {service.descripcion}</Text>
 									</View>
 
 									<View style={styles.row}>
@@ -283,6 +294,8 @@ const MakeReservation = ( params ) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		height: height,
+		minHeight: height,
 		backgroundColor: '#dfe7ff',
 	},
 
@@ -300,6 +313,14 @@ const styles = StyleSheet.create({
 	body: {
 		margin: 1,
 		backgroundColor:'#dfe7ff',
+	},
+
+	datosEmpresa: {
+		backgroundColor:'#fff',
+		borderColor:'eee',
+		borderWidth: 0.8,
+		borderRadius: 10,
+		margin: 5
 	},
 
 	row: {

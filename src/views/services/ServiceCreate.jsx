@@ -33,14 +33,14 @@ const ServiceCreate = ( params ) => {
     
     var {
         isCreate,
-        setIsCreate
+        setIsCreate,
+        onRefresh
     } = params.route.params;
 
     const { currentUser } = useContext(AuthContext);
     const navigation = useNavigation();
 
     var jsonString = '{"Lunes": {"horaInicio": null,"horaFin": null},\n"Martes": {"horaInicio": null,"horaFin": null},\n"Miercoles": {"horaInicio": null,"horaFin": null},\n"Jueves": {"horaInicio": null,"horaFin": null},\n"Viernes": {"horaInicio": null,"horaFin": null},\n"Sabado": {"horaInicio": null,"horaFin": null},\n"Domingo": {"horaInicio": null,"horaFin": null}}';
-    var edit = false;
 
     const [bodyHeight, setBodyHeight] = useState(480); 
 
@@ -50,6 +50,8 @@ const ServiceCreate = ( params ) => {
     const [turno, setTurno] = useState(30);
     const [descripcion, setDescription] = useState('');
     const [dias, setDias] = useState(JSON.parse(jsonString));
+    const [viewDays, setViewDays] = useState(true);
+
     // JSON.parse(item.jsonDiasHorariosDisponibilidadServicio)
 
     const [marginStatusTop, setMarginStatusTop] = useState(0);
@@ -68,28 +70,29 @@ const ServiceCreate = ( params ) => {
 
 		ServicesController.handleServiceCreate(formData)
 		.then(servReturn => {
-			console.log('servReturn: ', servReturn);
+			// console.log('servReturn: ', servReturn);
 			if (servReturn) {
                 AlertModal.showAlert('Envio Exitoso', 'Se creó el Servicio');
                 setIsCreate(true);
                 navigation.navigate('Servicios', { isCreate });
-                // navigation.goBack();
+                onRefresh();
 			}
 		})
 		.catch(error => {
-			alert(error);
+			console.log(error);
+            // AlertModal.showAlert('', error);
 		});
     };
 
 	useEffect(() => {
         setBodyHeight(560); 
-
+        setViewDays(true);
+        
         setNombre('');
         setTipo('');
         setCosto(0.00);
         setTurno(30);
         setDescription('');
-
         setDias(JSON.parse(jsonString));
 
         /**
@@ -98,7 +101,8 @@ const ServiceCreate = ( params ) => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow', () => {
                 // console.log('Teclado abierto');
-                setMarginStatusTop(20);
+                setViewDays(false);
+                setMarginStatusTop(60);
                 setBodyHeight(450);
             }
         );     
@@ -106,12 +110,13 @@ const ServiceCreate = ( params ) => {
             'keyboardDidHide',
             () => {
                 // console.log('Teclado cerrado');
+                setViewDays(true);
                 setMarginStatusTop(0);
                 setBodyHeight(560);
             }
         );
 
-	}, [edit]);
+	}, [isCreate]);
     
     return (
         <View style={styles.container}>
@@ -131,7 +136,7 @@ const ServiceCreate = ( params ) => {
                                 <View style={styles.columnV}>
                                     <TextInput 
                                         style={styles.dataEdit} 
-                                        value={nombre.toString()}
+                                        value={nombre}
                                         onChangeText={setNombre}
                                         />
                                 </View>
@@ -143,7 +148,7 @@ const ServiceCreate = ( params ) => {
                                 <View style={styles.columnV}>
                                     <TextInput 
                                         style={styles.dataEdit} 
-                                        value={tipo.toString()}
+                                        value={tipo}
                                         onChangeText={setTipo}
                                         />
                                 </View>
@@ -153,12 +158,12 @@ const ServiceCreate = ( params ) => {
                                     <Text style={styles.label}>Costo:</Text>
                                 </View>
                                 <View style={styles.columnV}>
-                                <TextInput
-                                    keyboardType="numeric"
-                                    style={styles.dataEdit} 
-                                    value={costo.toString()}
-                                    onChangeText={setCosto()}
-                                    />
+                                    <TextInput
+                                        keyboardType="numeric"
+                                        style={styles.dataEdit} 
+                                        value={costo.toString()}
+                                        onChangeText={setCosto}
+                                        />
                                 </View>
                             </View>
                            
@@ -170,7 +175,7 @@ const ServiceCreate = ( params ) => {
                                     <TextInput 
                                         multiline
                                         style={styles.dataEdit} 
-                                        value={descripcion.toString()}
+                                        value={descripcion}
                                         onChangeText={setDescription}
                                         />
                                 </View>
@@ -197,9 +202,12 @@ const ServiceCreate = ( params ) => {
                                     <Text style={styles.label}>Dias de Actividad</Text>
                                 </View>
                             </View>
-                            <View style={styles.row}>
-                                <DaysSelector dias={dias} setDias={setDias} create={true} />
-                            </View>
+
+                            {viewDays ? (
+                                <View style={styles.row}>
+                                    <DaysSelector dias={dias} setDias={setDias} create={true} />
+                                </View>
+                            ) : null }
                         </ScrollView>
                     </View>
                 </LinearGradient>
@@ -237,7 +245,6 @@ const ServiceCreate = ( params ) => {
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {

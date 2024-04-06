@@ -13,11 +13,14 @@ import React, {
 } from 'react';
 
 import { 
-    StyleSheet, 
+    StyleSheet,
+    Dimensions,
     View, 
     ScrollView,
     RefreshControl,
 } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const FavoriteView = ( params ) => {
 
@@ -132,8 +135,10 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flex: 1,
-        alignItems:'center',
+        height: height,
+		minHeight: height,
         width: '100%',
+        alignItems:'center',
     },
     btnCreate: {
 		paddingVertical: 10,

@@ -16,12 +16,15 @@ import React, {
 } from 'react';
 
 import { 
-    Text, 
-    StyleSheet, 
+    StyleSheet,
+    Dimensions,
     View, 
     ScrollView,
-    RefreshControl,
+    Text,
+    RefreshControl
 } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const BookingsView = ( params ) => {
 
@@ -169,6 +172,8 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flex: 1,
+        height: height,
+		minHeight: height,
         width: '100%',
     },
     btnCreate: {

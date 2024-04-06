@@ -205,7 +205,10 @@ const BookingItem = ( params ) => {
                                         <View>
                                             <Text>Rubro: {item.rubro}</Text>
                                             <Text>Ciudad: {item.ciudad}</Text>
-                                            <Text>Celular: {item.celular}</Text>
+                                            <View style={{ flexDirection:'row'}}>
+                                                <Text>Celular: </Text>
+                                                <Text style={{ fontWeight:'bold' }}>{item.celular}</Text>
+                                            </View>
                                         </View>
                                     </View>
 

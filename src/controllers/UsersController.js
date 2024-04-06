@@ -48,6 +48,16 @@ class UsersController {
 				reject('Por favor ingrese el apellido.');
 				return;
 			}
+
+			if (data.movil == '') {
+				reject('Por favor ingrese el teléfono.');
+				return;
+			}
+			if (data.movil.length < 8) {
+				reject('El número ingresado no es correcto.');
+				return;
+			}
+
 			if (data.email == '') {
 				reject('Por favor ingrese el correo electrónico.');
 				return;
@@ -70,7 +80,8 @@ class UsersController {
 			}
 
 			var dataConvert = {};
-			
+			var ctica = '+598';
+
 			if (data.userType === 'company') {
 				dataConvert = {
 					rutDocumento: data.document,
@@ -87,7 +98,9 @@ class UsersController {
 					apellido: data.lastName.trim(),
 					nombreUsuario: data.username.trim(),
 					contrasenia: data.password.trim(),
-					celular: data.movil.trim(),
+
+					celular: ctica+data.movil.trim(),
+					
 					correo: data.email.trim(),
 					tipoUsuario: data.userType,
 					logo: '',
@@ -100,7 +113,7 @@ class UsersController {
 					apellido: data.lastName.trim(),
 					nombreUsuario: data.username.trim(),
 					contrasenia: data.password.trim(),
-					celular: data.movil.trim(),
+					celular: ctica+data.movil.trim(),
 					correo: data.email.trim(),
 					tipoUsuario: data.userType,
 

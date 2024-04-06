@@ -13,16 +13,17 @@ export const AuthProvider = ({ children }) => {
     const [navigation, setNavigation] = useState(null);
     const [isLogin, setIsLogin] = useState(false);
     const [currentUser, setCurrentUser] = useState({
-        'guid':'none',
+        'guid':'55',
+        'user':'lcapi',
+        'type':'company',
+        'docu':'none',
         'name':'none',
         'last':'none',
-        'user':'none',
         'pass':'none',
-        'type':'none',
         'mail':'none', 
-        'docu':'none',
         'celu':'none',
-        'logo':'none', 
+        'logo':'none',
+        'noti':'none', 
     });
 
     const delUser = async () => {
@@ -76,13 +77,13 @@ export const AuthProvider = ({ children }) => {
         const timer = setTimeout(() => {
             // Cierra la sesión después de cierto tiempo de inactividad
             setUser({
-                'guid':'none',
+                'guid':'55',
+                'user':'lcapi',
+                'type':'customer',
                 'docu':'none',
                 'name':'none',
                 'last':'none',
-                'user':'none',
                 'pass':'none',
-                'type':'none',
                 'mail':'none', 
                 'celu':'none',
                 'logo':'none',

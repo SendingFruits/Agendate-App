@@ -48,6 +48,7 @@ const ServiceItem = (params) => {
         onRefresh
     } = params;
    
+    console.log('item',item);
     const [isCollapsed, setIsCollapsed] = useState(true);
     
     const [nombre, setNombre] = useState(item.nombre);

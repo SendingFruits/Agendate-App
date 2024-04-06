@@ -45,11 +45,7 @@ const ServicesView = ( params ) => {
  
     const createItem = (guid) => {
         // console.log('create', guid);
-        navigation.navigate('Crear Servicio', {isCreate, setIsCreate});
-    };
-
-    const premiumUpdate = () => {
-        console.log('premiumUpdate');
+        navigation.navigate('Crear Servicio', {isCreate, setIsCreate, onRefresh});
     };
 
     const onRefresh = React.useCallback(() => {
@@ -70,7 +66,7 @@ const ServicesView = ( params ) => {
     const getServices = async () => {
         ServicesController.getServicesForCompany(guid)
         .then(serviceReturn => {
-            // console.log('serviceReturn: ', serviceReturn);
+            console.log('serviceReturn: ', serviceReturn);
             if (serviceReturn !== null) {
                 setList([serviceReturn]);
             } else {
@@ -113,7 +109,7 @@ const ServicesView = ( params ) => {
         //     }
         // );
 
-    }, [params,isCreate]);
+    }, [params]);
 
 
     return (

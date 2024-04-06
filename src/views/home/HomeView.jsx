@@ -294,8 +294,8 @@ const HomeView = ( params ) => {
 					const newRegion = {
 						latitude: foundCompany.location.latitude,
 						longitude: foundCompany.location.longitude,
-						latitudeDelta: 0.0100,
-						longitudeDelta: 0.0100,
+						latitudeDelta: 0.0010,
+						longitudeDelta: 0.0010,
 					};
 					// Centra el mapa en la ubicación de la empresa encontrada
 					mapRef.current.animateToRegion(newRegion); 

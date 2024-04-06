@@ -45,9 +45,11 @@ const DaysSelector = ( params ) => {
     const [selectedDatePicker1, setSelectedDatePicker1] = useState(new Date());
     const [selectedDatePicker2, setSelectedDatePicker2] = useState(new Date());
 
+    // const [isChecked, setIsChecked] = useState((dias[day].horaInicio !== null || dias[day].horaFin !== null));
+    // console.log(isChecked);
 
     const showStartTimePicker = (day,hours) => {
-        console.log(hours);
+        // console.log(hours);
         setSelectedDatePicker1(createDateTimeFromDecimalHour(hours.horaInicio));
         setSelectedDay(day);
         setStartTimePickerVisible(true);
@@ -61,8 +63,8 @@ const DaysSelector = ( params ) => {
   
 
     const datesControl = (start,end) => {
-        console.log(start);
-        console.log(end);
+        // console.log(start);
+        // console.log(end);
         if (end < start && end !== null) {
             AlertModal.showAlert('Mensaje', 'La fecha de fin debe ser posterior a la fecha de inicio.');
             return false;
@@ -73,117 +75,130 @@ const DaysSelector = ( params ) => {
 
 
     const handleStartTimeConfirm = (date) => {
-        // console.log(date);
-        const updatedSchedule = { ...schedules };
-        var selectedHours = date.getHours();
-        var selectedMinutes = date.getMinutes();
-        var selectedTimeInHours = selectedHours + selectedMinutes / 60;
-
-        if (datesControl(selectedTimeInHours, updatedSchedule[selectedDay].horaFin)) {
-            console.log(selectedTimeInHours);
-            updatedSchedule[selectedDay].horaInicio = selectedTimeInHours;
-            setSchedules(updatedSchedule);
-            setDias(updatedSchedule);
+        // console.log('date',date);
+        if (date) {
+            const updatedSchedule = { ...schedules };
+            var selectedHours = date.getHours();
+            var selectedMinutes = date.getMinutes();
+            var selectedTimeInHours = selectedHours + selectedMinutes / 60;
+    
+            if (datesControl(selectedTimeInHours, updatedSchedule[selectedDay].horaFin)) {
+                console.log(selectedTimeInHours);
+                updatedSchedule[selectedDay].horaInicio = selectedTimeInHours;
+                setSchedules(updatedSchedule);
+                setDias(updatedSchedule);
+            }
+            setStartTimePickerVisible(false);
         }
-        setStartTimePickerVisible(false);
     };
   
     const handleEndTimeConfirm = (date) => {
-        const updatedSchedule = { ...schedules };
-        var selectedHours = date.getHours();
-        var selectedMinutes = date.getMinutes();
-        var selectedTimeInHours = selectedHours + selectedMinutes / 60;
-
-        if (datesControl(updatedSchedule[selectedDay].horaInicio, selectedTimeInHours)) {
-            console.log(selectedTimeInHours);
-            updatedSchedule[selectedDay].horaFin = selectedTimeInHours;
-            setSchedules(updatedSchedule);
-            setDias(updatedSchedule);
+        // console.log('date',date);
+        if (date) {
+            const updatedSchedule = { ...schedules };
+            var selectedHours = date.getHours();
+            var selectedMinutes = date.getMinutes();
+            var selectedTimeInHours = selectedHours + selectedMinutes / 60;
+    
+            if (datesControl(updatedSchedule[selectedDay].horaInicio, selectedTimeInHours)) {
+                console.log(selectedTimeInHours);
+                updatedSchedule[selectedDay].horaFin = selectedTimeInHours;
+                setSchedules(updatedSchedule);
+                setDias(updatedSchedule);
+            }
+            setEndTimePickerVisible(false);
         }
-        setEndTimePickerVisible(false);
     };
   
   
     useEffect(() => {
-        console.log('dias: ', dias);
+        // console.log('dias: ', dias);
 	}, []);
 
     return (
         <View>
             {dias !== null ? (
                 <View style={{ flex:1 }}>
-                    {Object.keys(dias).map((day, index) => (
-                        <View key={index}>
-                            {[isChecked, setIsChecked] = // por defecto debe ser true
-                                useState((dias[day].horaInicio !== null || dias[day].horaFin !== null))}
-                            
-                            <View style={styles.row}>
-                                {/* {console.log(isChecked)} */}
-                                <Text style={{ fontSize: 13, width:'31%' }}>{day}: </Text>
-                            
-                                { isChecked ? (
-                                    <> 
-                                        <TextInput
-                                            editable={false}
-                                            style={{
-                                                textAlign:'right',
-                                                paddingHorizontal:5,
-                                                backgroundColor:'#fff',
-                                                width:'20%',
-                                                borderWidth: 0.8,
-                                                borderRadius: 5,
-                                                borderColor:'#005'
-                                            }}
-                                            value={dias[day].horaInicio !== null 
-                                                ? convertHour(dias[day].horaInicio, 'toHours').toString() : ''}
-                                            />
-                                        <TouchableOpacity
-                                            style={{ marginHorizontal:10 }}
-                                            onPress={() => showStartTimePicker(day,dias[day])} >
-                                            {/* <Text>Comienzo</Text> */}
-                                            <FontAwesomeIcon icon={faClock} />
-                                        </TouchableOpacity>
+                    {Object.keys(dias).map((day, index) => {
+                        const [isChecked, setIsChecked] = 
+                            useState((dias[day].horaInicio !== null || dias[day].horaFin !== null));
+                        return (
+                            <View key={index}>
+                                <View style={styles.row}>
+                                    {/* {console.log(isChecked)} */}
                                 
-                                        <TextInput
-                                            editable={false}
-                                            style={{
-                                                textAlign:'right',
-                                                paddingHorizontal:5,
-                                                backgroundColor:'#fff',
-                                                width:'20%',
-                                                borderWidth: 0.8,
-                                                borderRadius: 5,
-                                                borderColor:'#005'
-                                            }}
-                                            value={dias[day].horaFin !== null 
-                                                ? convertHour(dias[day].horaFin, 'toHours').toString() : ''}
-                                            />
-                                        <TouchableOpacity
-                                            style={{ marginHorizontal:10 }}
-                                            onPress={() => showEndTimePicker(day,dias[day])} >
-                                            {/* <Text>Termino</Text> */}
-                                            <FontAwesomeIcon icon={faClock} />
-                                        </TouchableOpacity>
-                                    </>
-                                ) : (
-                                    dias[day].horaInicio = null, dias[day].horaFin = null   
-                                )}
+                                    { isChecked ? (
+                                        <> 
+                                            <Text style={{ fontSize: 13, width:'28%' }}>{day}: </Text>
 
-                                <View style={{ alignItems:'flex-end', marginRight: 5 }}>
-                                    <CheckBox 
-                                        style={{
-                                            width:30,
-                                        }}
-                                        type={'normal'}
-                                        text={null}
-                                        isChecked={isChecked}
-                                        setChecked={setIsChecked}
-                                        />
+                                            <TextInput
+                                                editable={false}
+                                                style={{
+                                                    textAlign:'right',
+                                                    paddingHorizontal:5,
+                                                    backgroundColor:'#fff',
+                                                    width:'20%',
+                                                    borderWidth: 0.8,
+                                                    borderRadius: 5,
+                                                    borderColor:'#005',
+                                                    color: '#000'
+                                                }}
+                                                value={dias[day].horaInicio !== null 
+                                                    ? convertHour(dias[day].horaInicio, 'toHours').toString() : ''}
+                                                />
+                                            <TouchableOpacity
+                                                style={{ marginHorizontal:10 }}
+                                                onPress={() => showStartTimePicker(day,dias[day])} >
+                                                {/* <Text>Comienzo</Text> */}
+                                                <FontAwesomeIcon icon={faClock} />
+                                            </TouchableOpacity>
+                                    
+                                            <TextInput
+                                                editable={false}
+                                                style={{
+                                                    textAlign:'right',
+                                                    paddingHorizontal:5,
+                                                    backgroundColor:'#fff',
+                                                    width:'20%',
+                                                    borderWidth: 0.8,
+                                                    borderRadius: 5,
+                                                    borderColor:'#005',
+                                                    color: '#000'
+                                                }}
+                                                value={dias[day].horaFin !== null 
+                                                    ? convertHour(dias[day].horaFin, 'toHours').toString() : ''}
+                                                />
+                                            <TouchableOpacity
+                                                style={{ marginHorizontal:10 }}
+                                                onPress={() => showEndTimePicker(day,dias[day])} >
+                                                {/* <Text>Termino</Text> */}
+                                                <FontAwesomeIcon icon={faClock} />
+                                            </TouchableOpacity>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Text style={{ fontSize: 13, width:'91%' }}>{day}: </Text>
+                                            {dias[day].horaInicio = null} 
+                                            {dias[day].horaFin = null}   
+                                        </>
+                                    )}
+
+                                    <View style={{ alignItems:'flex-end', marginRight: 5 }}>
+                                        <CheckBox 
+                                            style={{
+                                                width:30,
+                                            }}
+                                            type={'normal'}
+                                            text={null}
+                                            isChecked={isChecked}
+                                            setChecked={setIsChecked}
+                                            />
+                                    </View>
+                                    
                                 </View>
-                                
                             </View>
-                        </View>
-                    ))}
+                        );
+                    })}
                 </View>
             ) : (
                 <Text>No hay dias seleccionados</Text>
@@ -197,7 +212,7 @@ const DaysSelector = ( params ) => {
                 minuteInterval={30}
 
                 isVisible={isStartTimePickerVisible}
-                onConfirm={handleStartTimeConfirm()}
+                onConfirm={handleStartTimeConfirm}
                 onCancel={() => setStartTimePickerVisible(false)}
                 />
             <DateTimePickerModal
@@ -208,7 +223,7 @@ const DaysSelector = ( params ) => {
                 minuteInterval={30}
                 
                 isVisible={isEndTimePickerVisible}
-                onConfirm={handleEndTimeConfirm()}
+                onConfirm={handleEndTimeConfirm}
                 onCancel={() => setEndTimePickerVisible(false)}
                 />
         </View>

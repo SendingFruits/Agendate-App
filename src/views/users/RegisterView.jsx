@@ -16,6 +16,7 @@ import {
 	ScrollView,
 	RefreshControl,
 	TextInput,
+	Image
 } from 'react-native';
 
 const RegisterView = () => {
@@ -76,7 +77,8 @@ const RegisterView = () => {
 				setLastName(text);
 				break;
 			case 'movil':
-				setMovil(text);
+				// setMovil(text);
+				setMovilFormat(text);
 				break;
 			case 'email':
 				setEmail(text);
@@ -133,6 +135,18 @@ const RegisterView = () => {
 			AlertModal.showAlert('', error);
 		});
 	};
+
+	const setMovilFormat = (movil) => {
+		console.log(movil);
+		var intMovil = parseInt(movil,10);
+		console.log(intMovil);
+		if (!isNaN(intMovil)) {
+			setMovil(intMovil.toString());
+		} else {
+			setMovil(movil);
+		}
+	}
+
 
 	const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
@@ -222,10 +236,24 @@ const RegisterView = () => {
 				</View>
 
 				<View style={styles.inputContainer}>
+					<View style={{
+						flexDirection:'row',
+						alignItems:'center',
+						alignContent:'flex-start',
+						backgroundColor:'#ffffff00',
+						marginBottom:1
+						}}>
+						<Image source={require('../../../assets/uru.png')}
+							style={{ 
+								width: 19, height: 11
+							}} />
+						<Text style={{fontSize:14, fontWeight:'bold'}}>  +598 </Text>
+					</View>
 					<TextInput
+						maxLength={8}
 						keyboardType="numeric"
 						style={styles.input}
-						placeholder="Telefono"
+						// placeholder="Telefono"
 						value={movil}
 						// onChangeText={setMovil}
 						onChangeText={(text) => handleFieldChange(text, 'movil')}
