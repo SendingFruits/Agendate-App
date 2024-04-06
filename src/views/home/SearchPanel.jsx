@@ -59,13 +59,12 @@ const SearchPanel = ( params ) => {
     return (
         // <LinearGradient colors={['#dfe4ff', '#ffffee']} style={styles.gradient}>
         <View style={styles.gradient}>
-            <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+            <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center',backgroundColor: 'rgba(255, 255, 255, 0.25)' }}>
                 <TextInput
                     style={styles.input}
                     // value={null}
                     onChangeText={setSearchQuery}
-                    placeholder="Buscar Empresa"
-                    backgroundColor="transparent"
+                    placeholder="Buscar empresa"
                     placeholderTextColor="#060"// Puedes ajustar el color del texto del marcador de posición
                 />
                 <TouchableOpacity
