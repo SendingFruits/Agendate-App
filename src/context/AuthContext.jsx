@@ -13,9 +13,9 @@ export const AuthProvider = ({ children }) => {
     const [navigation, setNavigation] = useState(null);
     const [isLogin, setIsLogin] = useState(false);
     const [currentUser, setCurrentUser] = useState({
-        'guid':'55',
-        'user':'lcapi',
-        'type':'company',
+        'guid':'none',
+        'user':'none',
+        'type':'none',
         'docu':'none',
         'name':'none',
         'last':'none',
