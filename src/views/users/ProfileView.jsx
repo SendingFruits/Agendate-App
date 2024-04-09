@@ -285,7 +285,7 @@ const ProfileView = () => {
                         <TouchableOpacity 
                             // style={{ backgroundColor:'#e12' }}
                             onPress={ () => handleImagePicker(0) } > 	                      
-                            {console.log(logoUrl)}
+                            {}
                             { ((logoUrl === 'data:image/png;base64,none') || (logoUrl === 'data:image/png;base64,undefined')) ? (
                                 <FontAwesomeIcon 
                                     style={styles.image} icon={faCircleUser} color={'#0a7a75'}/>
@@ -304,14 +304,11 @@ const ProfileView = () => {
                     </View>
                 }
 
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        value={username}
-                        editable={false}
-                        // onChangeText={setUsername}
-                        // onChangeText={(text) => handleFieldChange(text, 'username')}
-                    />
+                <View style={styles.textViewUser}>
+                    <Text style={styles.textUser}>
+                        {username}
+                        </Text> 
+                    
                 </View>
  
                 { (user.type === 'customer') ? (
@@ -320,17 +317,19 @@ const ProfileView = () => {
                             style={styles.input}
                             value={docu}
                             onChangeText={setDocu}
+                            placeholder='Documento'
                             // onChangeText={(text) => handleFieldChange(text, 'firstname')}
                         />
                     </View>
                 ) : null}
                 
-
+                
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={firstname}
                         onChangeText={setFirstname}
+                        placeholder='Nombre'
                         // onChangeText={(text) => handleFieldChange(text, 'firstname')}
                     />
                 </View>
@@ -340,6 +339,7 @@ const ProfileView = () => {
                         style={styles.input}
                         value={lastname}
                         onChangeText={setLastname}
+                        placeholder='Apellido'
                         // onChangeText={(text) => handleFieldChange(text, 'lastname')}
                     />
                 </View>
@@ -349,6 +349,7 @@ const ProfileView = () => {
                         style={styles.input}
                         value={movil}
                         onChangeText={setMovil}
+                        placeholder='Celular'
                         // onChangeText={(text) => handleFieldChange(text, 'movil')}
                     />
                 </View>
@@ -359,7 +360,8 @@ const ProfileView = () => {
                         style={styles.input}
                         value={email}
                         autoCapitalize="none"
-                        onChangeText={(text) => handleEmailChange(text)} />
+                        onChangeText={(text) => handleEmailChange(text)}
+                        placeholder='Correo' />
                     {
                         !isValidEmail &&
                         <Text style={styles.errorText}>
@@ -386,33 +388,36 @@ const ProfileView = () => {
                 </View> */}
 
             </ScrollView>
-
-            {showButtons ? (
-                <View style={styles.footer}>
-
-                    <View style={styles.buttons}>
-                        <MenuButtonItem 
-                            icon = {null}
-                            text = {'Cambiar Contraseña'}
-                            onPress={() => updatePass()}
-                        /> 
-
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Actualizar Datos'}
-                            onPress={() => updateData()}
-                        />
-
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Eliminar Cuenta'}
-                            onPress={() => deleteAccount()}
-                        />
-                    </View>
+            {showButtons && (
+            <View> 
+                <View style={styles.buttonUpdate}>
+                    <MenuButtonItem
+                        style={{marginBottom: -10}}
+                        icon={null}
+                        type={'capture'}
+                        text={'Actualizar Datos'}
+                        onPress={() => updateData()}
+                        alignItems='center'
+                    />
                 </View>
-            ) : null}
+
+                <View style={styles.buttons}>
+                    <MenuButtonItem 
+                        icon={null}
+                        type={'capture'}
+                        text={'Cambiar Contraseña'}
+                        onPress={() => updatePass()}
+                    /> 
+                    <MenuButtonItem
+                        style={{marginHorizontal: 20}}
+                        type={'capture'}
+                        icon={null}
+                        text={'Eliminar Cuenta'}
+                        onPress={() => deleteAccount()}
+                    />
+                </View>
+            </View>
+)}
         </View>
     );
 }
@@ -428,12 +433,23 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
         
 		borderWidth: 1,
-		borderRadius: 5,
+		borderRadius: 8,
 		marginHorizontal:45,
-		marginBottom: 5,
+		marginBottom: 10,
 		paddingHorizontal: 15,
 		paddingVertical: 3,
 	},
+    textViewUser: {
+        alignSelf: 'center',
+        marginBottom: 20,
+        marginTop:-13,
+    },
+    textUser: {
+        fontWeight: 'normal',
+        fontSize: 17,
+        borderColor: 10,
+        fontWeight: 'bold'
+    },
     input: {
 		color: 'black',
 		fontWeight: 'bold',
@@ -481,9 +497,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttons: { 
-        marginHorizontal:45, 
-        marginBottom:15, 
+        marginHorizontal:70, 
+        marginBottom:90, 
         textAlign:'center' 
+    },
+    buttonUpdate: { 
+        marginHorizontal:43, 
+        marginBottom:0,
+        marginTop: 30, 
+        alignContent:'center' 
     },
 
     checkContainer: {
@@ -491,10 +513,11 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems:'center',
 		marginHorizontal:20,
-		marginVertical:25,
+		marginVertical: 5,
 	},
 
     header: {
+        marginTop:10,
         flex:1,
         flexDirection:'row',
         alignItems:'center',
