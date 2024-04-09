@@ -224,13 +224,6 @@ const ProfileView = () => {
 		});
 	};
 
-    const handleOrientationChange = () => {
-        const { width, height } = Dimensions.get('window');
-        setWidthMax(width);
-        setHeightMax(height);
-    };
-    
-
 	useEffect(() => {
 
         setType(currentUser.type);
@@ -250,9 +243,6 @@ const ProfileView = () => {
 
         setOldPass('');
         setNewPass('');
-
-        Dimensions.addEventListener('change', handleOrientationChange);
-        // openImageSavedAsync();
 
         /**
          * esto sirve para controlar el teclado:
@@ -276,9 +266,7 @@ const ProfileView = () => {
         <View style={styles.container}>
 
             <ScrollView 
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                } >
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> } >
 
                 { (user.type === 'customer') ? (
                     <View style={styles.header}>
@@ -304,7 +292,12 @@ const ProfileView = () => {
                     </View>
                 }
 
-                <View style={styles.inputContainer}>
+
+                <View style={styles.textViewUser}>
+                    <Text style={styles.textUser}> {username}</Text> 
+                </View>
+
+                {/* <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={username}
@@ -312,7 +305,7 @@ const ProfileView = () => {
                         // onChangeText={setUsername}
                         // onChangeText={(text) => handleFieldChange(text, 'username')}
                     />
-                </View>
+                </View> */}
  
                 { (user.type === 'customer') ? (
                     <View style={styles.inputContainer}>
@@ -430,10 +423,23 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderRadius: 5,
 		marginHorizontal:45,
-		marginBottom: 5,
+		marginBottom: 10,
 		paddingHorizontal: 15,
 		paddingVertical: 3,
 	},
+
+    textViewUser: {
+        alignSelf: 'center',
+        marginBottom: 20,
+        marginTop:-13,
+    },
+    textUser: {
+        fontWeight: 'normal',
+        fontSize: 17,
+        borderColor: 10,
+        fontWeight: 'bold'
+    },
+
     input: {
 		color: 'black',
 		fontWeight: 'bold',

@@ -5,7 +5,7 @@ import {
 import MenuButtonItem from './MenuButtonItem';
 
 import React, { 
-	useContext, useEffect 
+	useContext, useEffect, useState
 } from 'react';
 
 import { 
@@ -13,6 +13,7 @@ import {
 	View, 
 	Text, 
 	TouchableOpacity,
+	Modal
 } from 'react-native';
 
 import { CommonActions } from '@react-navigation/native';
@@ -26,7 +27,8 @@ import {
 	faCalendar,
 	faScrewdriverWrench,
 	faTags,
-	faPowerOff
+	faPowerOff,
+	faCircleInfo
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -39,6 +41,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Menu = ( params ) => {	
 	
+	[showModalInfo, setShowModalInfo] = useState(false);
+
 	const { navigation } = params;
     const { 
 		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation 
@@ -90,7 +94,12 @@ const Menu = ( params ) => {
 		setNavigation(navigation);
 	};
 	
+	const viewInfo = async () => {
+		
+	};
+
 	useEffect(() => {
+		setShowModalInfo(false);
         setNavigation(navigation);
 		if (!isLogin) {
 			navigation.navigate('Inicio');
@@ -108,6 +117,24 @@ const Menu = ( params ) => {
 				{/* Header */}
 				<View style={styles.header}>
 					<Text style={styles.title}>Menú</Text>
+					<TouchableOpacity style={{ margin: 5 }} onPress={ () => setShowModalInfo(true) }>
+						<FontAwesomeIcon icon={faCircleInfo} color={'#000'}/>
+					</TouchableOpacity>
+
+					<Modal
+						visible={showModalInfo} 
+						transparent={true}
+						animationIn="slideInRight" 
+						animationOut="slideOutRight"  
+						>
+						<View style={{ 
+							borderRadius: 10,
+							paddingHorizontal:85, 
+							paddingVertical:90 
+							}}>	
+							<Text>Info</Text>
+						</View>
+					</Modal>
 				</View>
 				{/* Body */}
 				<View style={styles.body}>
@@ -228,6 +255,8 @@ const styles = StyleSheet.create({
 		height: 30,
 		marginBottom: 25,
 		marginHorizontal: 15,
+		flexDirection:'row',
+		justifyContent:'space-between'
 	},
 	body: {
 		flex: 1,
