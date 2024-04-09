@@ -77,9 +77,9 @@ export const AuthProvider = ({ children }) => {
         const timer = setTimeout(() => {
             // Cierra la sesión después de cierto tiempo de inactividad
             setUser({
-                'guid':'55',
-                'user':'lcapi',
-                'type':'customer',
+                'guid':'none',
+                'user':'none',
+                'type':'none',
                 'docu':'none',
                 'name':'none',
                 'last':'none',

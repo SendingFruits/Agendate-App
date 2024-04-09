@@ -51,90 +51,118 @@ const MakeReservation = ( params ) => {
 	const scrollViewRef = useRef(null);
 
 	const [days, setDays] = useState([]);
-
 	const [company, setCompany] = useState({});
 	const [service, setService] = useState({});
-
 	const [isLoading, setIsLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-
 	const [favorite, setFavorite] = useState(false);
 	const [idFavorite, setIdFavorite] = useState(null);
-
 
 	const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			fetchData();
 			setRefreshing(false);
-			setInforVisible(true);
-			setCalendarVisible(true);
-			setSchedulesVisible(false);
 			navigation.navigate('Realizar Reserva');
 			console.log('refreshing',refreshing);
 		}, 2000);
 	}, []);
 	
 	const isFavorite = (serv_id) => {
-		if (serv_id !== '' && serv_id !== undefined) {
-			console.log('isFavorite');
-			if (user.guid !== 'none') {
-				FavoritesController.getFavorite(user.guid,serv_id)
-				.then(favoReturn => {
-					if (favoReturn) {
-						setIdFavorite(favoReturn);
-						setFavorite(true);
-					} else {
-						setIdFavorite('');
-						setFavorite(false);
-					}
+		return new Promise((resolve, reject) => {
+			if (serv_id !== '' && serv_id !== undefined) {
+				if (user.guid !== 'none') {
+					FavoritesController.getFavorite(user.guid,serv_id)
+					.then(favoReturn => {
+						if (favoReturn) {
+							setIdFavorite(favoReturn);
+							setFavorite(true);
+						} else {
+							setIdFavorite(null);
+							setFavorite(false);
+						}
+						resolve();
+					})
+					.catch(error => {
+						AlertModal.showAlert('ERROR',JSON.stringify(error));
+						reject(error);
+					});
+				}
+			} else {
+				resolve();
+			}
+		});
+	}
+
+	const switchFavorite = (idServicio) => {
+		if (!idServicio) {
+			return; // Salir de la función si no hay un ID de servicio válido
+		}
+	
+		var idCliente = user.guid;
+	
+		isFavorite(idServicio)
+			.then(() => {
+				if (idFavorite !== '' && idFavorite !== null && favorite) {
+					setFavorite(false);
+					return FavoritesController.handleFavoriteDelete(idFavorite);
+				} else {
+					setFavorite(true);
+					return FavoritesController.handleFavoriteCreate({ idCliente, idServicio });
+				}
+			})
+			.then((favoReturn) => {
+				if (favoReturn) {
+					console.log('favoReturn:', favoReturn);
+				}
+			})
+			.catch(error => {
+				console.log('Error en switchFavorite:', error);
+				AlertModal.showAlert('ERROR', JSON.stringify(error));
+			});
+	};
+
+	const switchFavoriteOld = (idServicio) => {
+
+        var idCliente = user.guid;
+		console.log(' - idCliente',idCliente);
+		console.log(' - idServicio',idServicio);
+		console.log(' - idFavorite',idFavorite);
+
+		if (idServicio) {
+			isFavorite(idServicio);
+
+			if (idFavorite !== '' && idFavorite !== null && favorite) {
+				setFavorite(false);
+				FavoritesController.handleFavoriteDelete(idFavorite)
+				.then((favoReturn) => {
+					console.log('favoReturn delete: ', favoReturn);
 				})
 				.catch(error => {
-					console.log('error isFavorite', error);
+					console.log('error delete: ',error);
+					AlertModal.showAlert('ERROR',JSON.stringify(error));
+				});
+			} else {
+				setFavorite(true);
+				FavoritesController.handleFavoriteCreate({idCliente,idServicio})
+				.then(favoReturn => {
+					console.log('favoReturn create: ', favoReturn);
+				})
+				.catch(error => {
+					console.log('error create: ',error);
 					AlertModal.showAlert('ERROR',JSON.stringify(error));
 				});
 			}
 		}
-	}
 
-	const switchFavorite = (idServicio) => {
-
-		console.log('idServicio',idServicio);
-		console.log('idFavorite',idFavorite);
-
-        var idCliente = user.guid;
-
-		if (idFavorite !== '' && idFavorite !== null) {
-			FavoritesController.handleFavoriteDelete(idFavorite)
-			.then((favoReturn) => {
-				console.log('favoReturn delete: ', favoReturn);
-				setFavorite(false);
-			})
-			.catch(error => {
-				console.log('error delete: ',error);
-				AlertModal.showAlert('ERROR',JSON.stringify(error));
-			});
-		} else {
-			FavoritesController.handleFavoriteCreate({idCliente,idServicio})
-			.then(favoReturn => {
-				console.log('favoReturn create: ', favoReturn);
-				setFavorite(true);
-			})
-			.catch(error => {
-				console.log('error create: ',error);
-				AlertModal.showAlert('ERROR',JSON.stringify(error));
-			});
-		}
     };
 
 	const fetchData = async () => {
 		try {
-			setIsLoading(true);
-			// const id = await AsyncStorage.getItem('selectedCompanyID');
-			// console.log('id: ', id);
-		
 			if ((idSelect !== null) && (idSelect !== '')) {
 		
+				setIsLoading(true);
+
 				const [companyReturn, serviceReturn] = await Promise.all([
 					UsersController.getCompanyData(idSelect),
 					ServicesController.getServicesForCompany(idSelect)
@@ -147,10 +175,7 @@ const MakeReservation = ( params ) => {
 				if (serviceReturn !== null) {
 					setService(serviceReturn);
 					setDays(JSON.parse(serviceReturn.jsonDiasHorariosDisponibilidadServicio));
-					
-					setTimeout(() => {
-						isFavorite(serviceReturn.id);
-					}, 200);
+					isFavorite(serviceReturn.id);
 				} else {
 					setService(null);
 				}
@@ -166,7 +191,7 @@ const MakeReservation = ( params ) => {
 
 	useEffect(() => {
 		fetchData();
-	}, [idFavorite, idSelect, user]);
+	}, [idSelect, user]);
 
 	return (
 		<> 

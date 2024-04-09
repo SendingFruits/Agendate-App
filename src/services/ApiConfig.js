@@ -5,7 +5,7 @@ class ApiConfig {
         this.AZURE_HOST = 'https://agendateapp-api.azurewebsites.net/api/';
         this.LOCAL_HOST = 'https://186.48.52.221:9083/api/';
         
-        this.NGROK_KEY = 'a7d9-2800-a4-c06e-e00-8cce-8aa6-f9d3-c67f';
+        this.NGROK_KEY = '6407-2800-a4-c1c1-2e00-5411-bd62-ea51-8de0';
         this.NGROK_HOST = 'https://'+this.NGROK_KEY+'.ngrok-free.app/api/';
 
         this.API_BASE_URL = this.NGROK_HOST;

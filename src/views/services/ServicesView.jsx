@@ -12,22 +12,23 @@ import React, {
 } from 'react';
 
 import { 
-    Dimensions,
     StyleSheet, 
-    Text, 
+    Dimensions,
+    RefreshControl,
     View, 
     ScrollView,
-    RefreshControl,
+    Text, 
     TouchableOpacity
 } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
+const { width, height } = Dimensions.get('window');
+
 const ServicesView = ( params ) => {
 
-    const { currentUser } = useContext(AuthContext);
-
     const navigation = useNavigation();
+    const { currentUser } = useContext(AuthContext);
     var guid = currentUser.guid;
 
     const [list, setList] = useState(null);
@@ -36,10 +37,7 @@ const ServicesView = ( params ) => {
     const [refreshing, setRefreshing] = useState(false);
     const [bodyHeight, setBodyHeight] = useState(370); 
     
-    const handleEditItem = (item) => {
-        console.log('handleEditItem', item);
-    };
- 
+  
     const createItem = (guid) => {
         // console.log('create', guid);
         navigation.navigate('Crear Servicio', {isCreate, setIsCreate, onRefresh});

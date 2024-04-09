@@ -435,10 +435,12 @@ const HomeView = ( params ) => {
 
 	useEffect(() => {
 
-		// navigation.dispatch(CommonActions.reset({
+		// navigation.reset({
 		// 	index: 0,
-		// 	routes: [{ name: 'Inicio' }] 
-		// }));
+		// 	routes: [
+		// 	  { name: 'Inicio' },
+		// 	],
+		// });
   
 		fetchData();
 		setShowModal(false);
@@ -468,7 +470,7 @@ const HomeView = ( params ) => {
             }
         );
 		
-	}, [ratio, countMap ]); // isConnected, ubicacion
+	}, [ratio, countMap]); // isConnected, ubicacion
 	// location - pasarle location para actualizar siempre que se geolocalice
 	// companies - pasarle companies para actualizar siempre las empresas - bug
 
@@ -509,7 +511,11 @@ const HomeView = ( params ) => {
 						animationOut="slideOutRight"  
 						// animationType="fade" 
 						>
-						<View style={{ paddingHorizontal:85, paddingVertical:120 }}>	
+						<View style={{ 
+							borderRadius: 10,
+							paddingHorizontal:85, 
+							paddingVertical:90 
+							}}>	
 							<Text style={styles.alertNoLogin}> 
 								Debe ingresar como Cliente para poder realizar reservas
 							</Text>
