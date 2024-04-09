@@ -30,8 +30,6 @@ const { width, height } = Dimensions.get('window');
 
 const PromoItem = (params) => {
     
-    // console.log('PromoItem: ', params);
-
     var {
         guid,
         index,

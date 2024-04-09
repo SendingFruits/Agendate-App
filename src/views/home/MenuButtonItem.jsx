@@ -50,7 +50,7 @@ const MenuButtonItem = ({ icon, text, type, color, onPress }) => {
 					style={styles.btnPanel}
 					>
 					<TouchableOpacity onPress={onPress} >
-						<View style={styles.container}>
+						<View style={styles.containerPanel}>
 							{icon && <FontAwesomeIcon icon={icon} style={styles.icon} />}
 							<Text style={[styles.text, icon ? null : { textAlign: 'center' }]}>{text}</Text>
 						</View>
@@ -100,7 +100,9 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderColor: '#000',
 		borderWidth: 0.3,
-		borderRadius: 15
+		borderRadius: 15,
+		flexDirection:'row',
+		alignContent:'center'
 	},
 	btnPanel: {
 		paddingVertical: 14,
@@ -122,6 +124,12 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flexDirection: 'row',
+		justifyContent: 'left',
+		alignItems: 'center',
+	},
+	containerPanel: {
+		flexDirection: 'row',
+		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	containerCapture: {
