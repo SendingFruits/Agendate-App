@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 
 import {
-    faClose,
+    faClose, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -131,13 +131,13 @@ const PromoItem = (params) => {
                 })
                 .catch(error => {
                     console.log(error);
-                    // AlertModal.showAlert('Errro de Envio', error);
+                    AlertModal.showAlert('',error);
                 });
             }
 		})
 		.catch(error => {
             console.log(error);
-			// AlertModal.showAlert('Hubo un error', error);
+			AlertModal.showAlert('Hubo un error', error);
 		});
     }
 
@@ -179,7 +179,7 @@ const PromoItem = (params) => {
                                     style={{ flexDirection:'row', alignItems:'center', }} 
                                     onPress={() => deleteItem()} >
                                     {/* <Text style={{ marginLeft:6 }}>Quitar</Text> */}
-                                    <FontAwesomeIcon icon={faClose} />
+                                    <FontAwesomeIcon icon={faTrash} />
                                 </TouchableOpacity>
                             </View>
 
