@@ -1,13 +1,16 @@
-import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
-
 import React, { 
 	useState, useEffect 
 } from 'react';
 
+import {
+    validarCedula,
+	validarRUT,
+} from '../utils/Functions'
+
 import UsersController from '../../controllers/UsersController';
 import MenuButtonItem from '../home/MenuButtonItem';
 import AlertModal from '../utils/AlertModal';
+import EditMovil from '../utils/EditMovil';
 
 import {
 	Text,
@@ -16,8 +19,10 @@ import {
 	ScrollView,
 	RefreshControl,
 	TextInput,
-	Image
 } from 'react-native';
+
+import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
 const RegisterView = () => {
 
@@ -36,6 +41,9 @@ const RegisterView = () => {
 	const [userType, setUserType] = useState('customer');
 	const [document, setDocument] = useState('');
 
+	const [isValidCi, setIsValidCi] = useState(false);
+	const [isValidRut, setIsValidRut] = useState(false);
+
 	const [refreshing, setRefreshing] = useState(false);
 
 
@@ -43,20 +51,6 @@ const RegisterView = () => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		// alert('El correo es incorrecto!');
 		return emailRegex.test(email);
-	};
-
-	const handleTextInputChange = (text) => {
-		// Validar según el tipo de teclado (keyboardType)
-		if (/^[a-zA-Z]*$/.test(text)) {
-		  // Solo letras
-		  setInputValue(text);
-		} else if (/^[0-9]*$/.test(text)) {
-		  // Solo números
-		  setInputValue(text);
-		} else {
-		  // Otros caracteres (no se permite)
-		  alert('Solo se permiten letras o números.');
-		}
 	};
 
 	const handleFieldChange = (text,field) => {
@@ -88,9 +82,18 @@ const RegisterView = () => {
 				setUserType(text);
 				break;
 			case 'document':
+				console.log(userType);
+				if (userType === 'customer') {
+					if (setIsValidCi(text)) {
+						console.log('cedula correcta');
+					}
+				} else {
+					if (setIsValidRut(text)) {
+						console.log('rut correcta');
+					}
+				}
 				setDocument(text);
 				break;
-
 			default:
 				break;
 		}
@@ -137,9 +140,9 @@ const RegisterView = () => {
 	};
 
 	const setMovilFormat = (movil) => {
-		console.log(movil);
+		// console.log(movil);
 		var intMovil = parseInt(movil,10);
-		console.log(intMovil);
+		// console.log(intMovil);
 		if (!isNaN(intMovil)) {
 			setMovil(intMovil.toString());
 		} else {
@@ -236,33 +239,10 @@ const RegisterView = () => {
 				</View>
 
 				<View style={styles.inputContainer}>
-					<View style={{
-						flexDirection:'row',
-						alignItems:'center',
-						alignContent:'flex-start',
-						backgroundColor:'#ffffff00',
-						marginBottom:1
-						}}>
-						<Image source={require('../../../assets/uru.png')}
-							style={{ 
-								width: 19, height: 11
-							}} />
-						<Text style={{fontSize:14, fontWeight:'bold'}}>  +598 </Text>
-					</View>
-					<TextInput
-						maxLength={8}
-						keyboardType="numeric"
-						style={styles.input}
-						// placeholder="Telefono"
-						value={movil}
-						// onChangeText={setMovil}
-						onChangeText={(text) => handleFieldChange(text, 'movil')}
-					/>
+					<EditMovil movil={movil} handleFieldChange={handleFieldChange} />
 				</View>
 
-				<View style={[styles.inputContainer, 
-					!isValidEmail && styles.invalidInput]}
-					>
+				<View style={[styles.inputContainer, !isValidEmail && styles.invalidInput]} >
 					<TextInput
 						keyboardType="email-address"
 						style={styles.input}
@@ -270,8 +250,7 @@ const RegisterView = () => {
 						value={email}
 						// onChangeText={setEmail}
 						onChangeText={(text) => handleFieldChange(text, 'email')}
-						autoCapitalize="none"
-					/>
+						autoCapitalize="none" />
 					{
 						!isValidEmail && 
 						<Text style={styles.errorText}>

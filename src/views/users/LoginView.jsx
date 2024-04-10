@@ -45,12 +45,18 @@ const LoginView = ( params ) => {
         setPassword('');
     }, []);
 
-	const login = async  () => {
+	const login = async () => {
 		UsersController.handleLogin(username, password)
 		.then(userReturn => {
 			if (userReturn != null) {
 
 				var user = JSON.parse(userReturn);
+
+				if (typeof user.celular === 'string' && user.celular.includes("+598")) 
+				{
+					user.celular = user.celular.replace("+598", "");
+				}
+
 				// console.log('user: ', user);
 				var currentUser = {
 					guid: user.id,

@@ -73,8 +73,7 @@ const CompanyPanel = () => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-            console.log(formData);
-            console.log(currentUser);
+
             if (formData) {
                 setRut(formData.rut);
                 setOwner(formData.owner);
@@ -141,7 +140,6 @@ const CompanyPanel = () => {
 			if (dataReturn) {
 				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');  
                 onRefresh(formData);
-                
 			}
 		})
 		.catch(error => {

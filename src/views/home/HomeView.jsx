@@ -52,7 +52,7 @@ const HomeView = ( params ) => {
 		setIsConnected,
 	} = params.route.params || {};
 
-	console.log('isConnected: ', isConnected);
+	// console.log('isConnected: ', isConnected);
 	// console.log('setIsConnected: ', setIsConnected);
 
 	var countMap = 0;
@@ -535,6 +535,8 @@ const HomeView = ( params ) => {
 						mapType={"standard"}
 						showsUserLocation={true}
 						showsMyLocationButton={false}
+						showsCompass={false}
+
 						// followsUserLocation={true}
 						// paddingAdjustmentBehavior="automatic"
 						// minZoomLevel={0.0100}

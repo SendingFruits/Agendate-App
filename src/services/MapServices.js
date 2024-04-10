@@ -22,7 +22,7 @@ class MapServices {
                 },
             };
     
-            // console.log('urlCompleta: ',urlCompleta); 
+            console.log('URL REQUEST MAP: ',urlCompleta); 
 
             // axios.defaults.httpsAgent = new https.Agent({  
             //     rejectUnauthorized: false

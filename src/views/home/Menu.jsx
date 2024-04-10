@@ -95,7 +95,7 @@ const Menu = ( params ) => {
 	};
 	
 	const viewInfo = async () => {
-		
+		setShowModalInfo(true)
 	};
 
 	useEffect(() => {
@@ -117,11 +117,11 @@ const Menu = ( params ) => {
 				{/* Header */}
 				<View style={styles.header}>
 					<Text style={styles.title}>Menú</Text>
-					<TouchableOpacity style={{ margin: 5 }} onPress={ () => setShowModalInfo(true) }>
+					<TouchableOpacity style={{ margin: 5 }} onPress={ () => viewInfo() }>
 						<FontAwesomeIcon icon={faCircleInfo} color={'#000'}/>
 					</TouchableOpacity>
 
-					<Modal
+					{/* <Modal
 						visible={showModalInfo} 
 						transparent={true}
 						animationIn="slideInRight" 
@@ -132,9 +132,8 @@ const Menu = ( params ) => {
 							paddingHorizontal:85, 
 							paddingVertical:90 
 							}}>	
-							<Text>Info</Text>
 						</View>
-					</Modal>
+					</Modal> */}
 				</View>
 				{/* Body */}
 				<View style={styles.body}>

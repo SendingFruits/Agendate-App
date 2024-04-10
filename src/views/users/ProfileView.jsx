@@ -2,12 +2,17 @@ import {
     AuthContext 
 } from '../../context/AuthContext';
 
-import { getBase64FromUri, loadImageFromBase64 } from '../utils/Functions'
+import {
+    validarCedula,
+    getBase64FromUri, 
+    loadImageFromBase64 
+} from '../utils/Functions'
 
 import UsersController from '../../controllers/UsersController';
 import AlertModal from '../utils/AlertModal';
 import MenuButtonItem from '../home/MenuButtonItem';
 import CheckBox from '../utils/CheckBox';
+import EditMovil from '../utils/EditMovil';
 
 import React, { 
     useState, useEffect, useContext 
@@ -46,17 +51,16 @@ const ProfileView = () => {
 
     const { currentUser, setCurrentUser } = useContext(AuthContext);
 
-    // console.log('ProfileView currentUser: ', currentUser);
-    const [widthMax, setWidthMax] = useState(width);
-    const [heightMax, setHeightMax] = useState(height);
-
     const navigation = useNavigation();
 
     const [user, setUser] = useState(currentUser);
     const [guid, setGuid] = useState(currentUser.guid);
 
     const [type, setType] = useState(currentUser.type);
+
+    const [isValidDocu, setIsValidDocu] = useState(false);
     const [docu, setDocu] = useState(currentUser.docu);
+
     const [username, setUsername] = useState(currentUser.user);
     const [firstname, setFirstname] = useState(currentUser.name);
     const [lastname, setLastname] = useState(currentUser.last);
@@ -78,6 +82,15 @@ const ProfileView = () => {
 
     const [showButtons, setShowButtons] = useState(true);
 
+
+    const handlerCedula = (ci) => {
+        setDocu(ci);
+        if (ci !== '') {
+            // console.log(validarCedula(ci));
+            setIsValidDocu(validarCedula(ci));
+        }
+	};
+
 	const validateEmail = (email) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return emailRegex.test(email);
@@ -86,6 +99,10 @@ const ProfileView = () => {
 	const handleEmailChange = (text) => {
 		setEmail(text);
 		setIsValidEmail(validateEmail(text));
+	};
+
+    const handleImagePicker = () => {
+		openLogoPickerAsync();
 	};
 
 
@@ -129,14 +146,33 @@ const ProfileView = () => {
     }
 
 
-    const handleImagePicker = () => {
-		openLogoPickerAsync();
-	};
-
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback((formData) => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
+
+            if (formData) {
+                setType(formData.type);
+                setDocu(formData.docu);
+                setUsername(formData.user);
+                setFirstname(formData.name);
+                setLastname(formData.last);
+                setMovil(formData.celu);
+                setEmail(formData.mail);
+            } else {
+                setType(currentUser.type);
+                setDocu(currentUser.docu);
+                setUsername(currentUser.user);
+                setFirstname(currentUser.name);
+                setLastname(currentUser.last);
+                setMovil(currentUser.celu);
+                setEmail(currentUser.mail);
+            }
+            setLogoBase(currentUser.logo);
+            setLogoUrl(loadImageFromBase64(currentUser.logo));
+            setSelectedPicture(logoUrl); 
+
+            navigation.navigate('Perfil de Usuario');
 		}, 2000);
 	}, []);
 
@@ -174,7 +210,7 @@ const ProfileView = () => {
                     type: user.type,
                 });
                 // setUser(userReturn);
-                onRefresh();
+                onRefresh(formData);
 			}
 		})
 		.catch(error => {
@@ -270,10 +306,7 @@ const ProfileView = () => {
 
                 { (user.type === 'customer') ? (
                     <View style={styles.header}>
-                        <TouchableOpacity 
-                            // style={{ backgroundColor:'#e12' }}
-                            onPress={ () => handleImagePicker(0) } > 	                      
-                            {console.log(logoUrl)}
+                        <TouchableOpacity onPress={ () => handleImagePicker(0) } >
                             { ((logoUrl === 'data:image/png;base64,none') || (logoUrl === 'data:image/png;base64,undefined')) ? (
                                 <FontAwesomeIcon 
                                     style={styles.image} icon={faCircleUser} color={'#0a7a75'}/>
@@ -291,7 +324,6 @@ const ProfileView = () => {
                         </TouchableOpacity>
                     </View>
                 }
-
 
                 <View style={styles.textViewUser}>
                     <Text style={styles.textUser}> {username}</Text> 
@@ -312,13 +344,15 @@ const ProfileView = () => {
                         <TextInput
                             style={styles.input}
                             value={docu}
-                            onChangeText={setDocu}
+                            onChangeText={ (ci) => handlerCedula(ci) }
                             // onChangeText={(text) => handleFieldChange(text, 'firstname')}
                         />
+                        {isValidDocu ? (
+                            <Text style={{ color:'red' }}> # Documento Incorrecto</Text>
+                        ) : null }
                     </View>
                 ) : null}
                 
-
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
@@ -336,31 +370,35 @@ const ProfileView = () => {
                         // onChangeText={(text) => handleFieldChange(text, 'lastname')}
                     />
                 </View>
-
-                <View style={styles.inputContainer}>
+ 
+                {/* <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={movil}
                         onChangeText={setMovil}
                         // onChangeText={(text) => handleFieldChange(text, 'movil')}
                     />
-                </View>
+                </View> */}
+
+                <View style={styles.inputContainer}>
+					<EditMovil movil={movil} handleFieldChange={setMovil} />
+				</View>
 
                 <View style={[styles.inputContainer, !isValidEmail && styles.invalidInput]} >
                     <TextInput
                         keyboardType="email-address"
-                        style={styles.input}
-                        value={email}
-                        autoCapitalize="none"
-                        onChangeText={(text) => handleEmailChange(text)} />
+						style={styles.input}
+						placeholder="Correo"
+						value={email}
+						// onChangeText={setEmail}
+                        onChangeText={(text) => handleEmailChange(text)} 
+						autoCapitalize="none" 
+                    />
                     {
                         !isValidEmail &&
-                        <Text style={styles.errorText}>
-                            Correo electrónico inválido
-                        </Text>
+                        <Text style={{ color:'red' }}> # Correo electrónico inválido </Text>
                     }
                 </View>
-
 
                 { (user.type === 'customer') ? (
                     <View style={styles.checkContainer}>
