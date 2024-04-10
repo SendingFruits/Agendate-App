@@ -311,6 +311,14 @@ class UsersController {
 				reject('Falta el RUT.');
 				return;
 			}
+			if (data.businessName == '') {
+				reject('Falta la razón social.');
+				return;
+			}
+			if (data.category == '') {
+				reject('Falta la categoría.');
+				return;
+			}
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
 			if (data.location.longitude === undefined) data.location.longitude = 0.0; 

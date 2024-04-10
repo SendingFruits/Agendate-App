@@ -504,24 +504,6 @@ const HomeView = ( params ) => {
 						</TouchableOpacity>
 					</View>
 
-					<Modal
-						visible={showModal} 
-						transparent={true}
-						animationIn="slideInRight" 
-						animationOut="slideOutRight"  
-						// animationType="fade" 
-						>
-						<View style={{ 
-							borderRadius: 10,
-							paddingHorizontal:85, 
-							paddingVertical:90 
-							}}>	
-							<Text style={styles.alertNoLogin}> 
-								Debe ingresar como Cliente para poder realizar reservas
-							</Text>
-						</View>
-					</Modal>
-				
 					<MapView
 						ref={mapRef}
 						style={ orientation === 'portrait' 
@@ -555,6 +537,22 @@ const HomeView = ( params ) => {
 					) : null }
 				</>
 			)}
+
+			<>
+				<Modal
+					visible={showModal} // showModal
+					animationIn="slideInLeft" 
+					animationOut="slideOutLeft" 
+					animationType='fade'
+					transparent={true}
+					>
+					<TouchableOpacity onPress={ () => setShowModal(false) }>
+						<Text style={styles.alertNoLogin}> 
+							Debe ingresar como Cliente para poder realizar reservas
+						</Text>
+					</TouchableOpacity>
+				</Modal>
+			</>
 		</View>
 	);
 	
@@ -660,12 +658,16 @@ const styles = StyleSheet.create({
 		flexDirection:'row',
 	},
 
-	alertNoLogin: { 
+	alertNoLogin: {
+		marginHorizontal:60,
+		marginVertical:65,
 		color:'#f20', 
-		fontSize:16, 
+		fontSize:16,
+		fontWeight:'bold',
 		textAlign:'center',
-		backgroundColor: '#fff',
-		padding: 9
+		padding: 12,
+		backgroundColor:'#fff',
+		borderRadius:10
 	}
 })
 
