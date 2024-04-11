@@ -40,14 +40,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width, height } = Dimensions.get('window');
 
 const MakeReservation = ( params ) => {
-	
-	var idSelect = params.route.params;
-	console.log('Seleccion de ID:',idSelect);
-
+	// console.log(params);
 	const navigation = useNavigation();
-	const { currentUser } = useContext(AuthContext);
+	const { currentUser, idSelected, setIdSelected } = useContext(AuthContext);
 	var user = currentUser;
-	// console.log('user: ', user);
+	// console.log('navigation: ', navigation);
+
 	const scrollViewRef = useRef(null);
 
 	const [days, setDays] = useState([]);
@@ -101,6 +99,10 @@ const MakeReservation = ( params ) => {
 	
 		var idCliente = user.guid;
 	
+		console.log('idFavorite',idFavorite);
+		console.log('idCliente',idCliente);
+		console.log('idServicio',idServicio);
+
 		isFavorite(idServicio)
 			.then(() => {
 				if (idFavorite !== '' && idFavorite !== null && favorite) {
@@ -118,7 +120,7 @@ const MakeReservation = ( params ) => {
 			})
 			.catch(error => {
 				console.log('Error en switchFavorite:', error);
-				AlertModal.showAlert('ERROR', JSON.stringify(error));
+				// AlertModal.showAlert('ERROR', JSON.stringify(error));
 			});
 	};
 
@@ -159,13 +161,13 @@ const MakeReservation = ( params ) => {
 
 	const fetchData = async () => {
 		try {
-			if ((idSelect !== null) && (idSelect !== '')) {
-		
+			console.log('idSelected',idSelected);
+			if ((idSelected !== null) && (idSelected !== '') && (idSelected !== undefined)) {
 				setIsLoading(true);
 
 				const [companyReturn, serviceReturn] = await Promise.all([
-					UsersController.getCompanyData(idSelect),
-					ServicesController.getServicesForCompany(idSelect)
+					UsersController.getCompanyData(idSelected),
+					ServicesController.getServicesForCompany(idSelected)
 				]);
 		
 				if (companyReturn !== null) {
@@ -190,8 +192,9 @@ const MakeReservation = ( params ) => {
 	};
 
 	useEffect(() => {
+		setIdSelected(idSelected);
 		fetchData();
-	}, [idSelect, user]);
+	}, [idSelected, user]);
 
 	return (
 		<> 
@@ -201,10 +204,40 @@ const MakeReservation = ( params ) => {
 						contentContainerStyle={styles.container}
 						refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  /> } 
 						ref={scrollViewRef} >
+
 							<View style={styles.datosEmpresa}>
 								<View style={styles.row}>		
 									<Text style={styles.label}>Razón Social: </Text>					
 									<Text style={styles.value}>{company.razonSocial}</Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.label}>Descripción: </Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.value}>{company.descripcion}</Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.label}>Rubro: </Text>
+									<Text style={styles.value}>{company.rubro}</Text>
+								</View>
+
+								<View style={styles.row}>
+									<Text style={styles.label}>Dirección: </Text>
+									<Text style={styles.value}>{company.direccion}</Text>
+								</View>
+						
+							</View>
+
+						{service !== null ? (
+
+							<View style={styles.datosServicio}>
+							
+								<View style={styles.row}>
+									<Text style={styles.label}>Servicio: </Text>
+									<Text style={styles.value}>{service.nombre}</Text>
 								</View>
 
 								<View style={{ 
@@ -225,75 +258,49 @@ const MakeReservation = ( params ) => {
 									
 								</View>
 						
-								<View style={styles.row}>
-									<Text style={styles.label}>Descripción: </Text>
-								</View>
 
 								<View style={styles.row}>
-									<Text style={styles.value}>{company.descripcion}</Text>
+									<Text style={styles.value}>  {service.descripcion}</Text>
 								</View>
 
 								<View style={styles.row}>
-									<Text style={styles.label}>Rubro: </Text>
-									<Text style={styles.value}>{company.rubro}</Text>
+									<Text style={styles.label}>Costo: </Text>
+									<Text style={styles.value}>$ {service.costo}</Text>
 								</View>
 
 								<View style={styles.row}>
-									<Text style={styles.label}>Dirección: </Text>
-									<Text style={styles.value}>{company.direccion}</Text>
+									<Text style={styles.label}>Turnos: </Text>
+									{service.duracionTurno === 30 ? (
+										<Text style={styles.value}>De {service.duracionTurno} minutos</Text>
+									) : 
+										<Text style={styles.value}>De {service.duracionTurno} hora</Text>
+									}
 								</View>
-						
-							</View>
-						{service !== null ? (
-							<>
-								<View style={{ flex:1 }}>
-									<View style={styles.row}>
-										<Text style={styles.label}>Servicio: </Text>
-										<Text style={styles.value}>{service.nombre}</Text>
-									</View>
 
-									<View style={styles.row}>
-										<Text style={styles.value}>  {service.descripcion}</Text>
-									</View>
+								<View style={styles.row}>
+									<Text style={styles.label}>Dias: </Text>
 
-									<View style={styles.row}>
-										<Text style={styles.label}>Costo: </Text>
-										<Text style={styles.value}>$ {service.costo}</Text>
+									<View style={{ flexDirection: 'row', flexWrap: 'wrap', width:'80%' }}>
+										{days !== null ? (
+											Object.keys(days).map((day, index) => (
+												<View key={index}>
+													{ days[day].horaInicio !== null && days[day].horaFin !== null ? (
+														<Text key={index}> {day} </Text>
+													) : null }
+												</View>
+											))
+										) : (
+											<Text>No hay días definidos</Text>
+										)}
 									</View>
-
-									<View style={styles.row}>
-										<Text style={styles.label}>Turnos: </Text>
-										{service.duracionTurno === 30 ? (
-											<Text style={styles.value}>De {service.duracionTurno} minutos</Text>
-										) : 
-											<Text style={styles.value}>De {service.duracionTurno} hora</Text>
-										}
-									</View>
-
-									<View style={styles.row}>
-										<Text style={styles.label}>Dias: </Text>
-
-										<View style={{ flexDirection: 'row', flexWrap: 'wrap', width:'80%' }}>
-											{days !== null ? (
-												Object.keys(days).map((day, index) => (
-													<View key={index}>
-														{ days[day].horaInicio !== null && days[day].horaFin !== null ? (
-															<Text key={index}> {day} </Text>
-														) : null }
-													</View>
-												))
-											) : (
-												<Text>No hay días definidos</Text>
-											)}
-										</View>
-									</View>
-												
-									<View>
-										<CalendarSelector company={company} service={service} navigation={navigation} />
-									</View>
-									
 								</View>
-							</> 
+											
+								<View>
+									<CalendarSelector company={company} service={service} navigation={navigation} />
+								</View>
+								
+								
+							</View> 
 						) : (
 							<>
 								<View style={styles.span}>
@@ -306,7 +313,9 @@ const MakeReservation = ( params ) => {
 					<LinearGradient 
 						colors={['#dfe7ff', '#238162', '#135000' ]} 
 						style={{ padding: 10, justifyContent: 'center', alignItems: 'center' }} >
-						<TouchableOpacity onPress={() => navigation.navigate('Inicio')} >
+						<TouchableOpacity onPress={() => {
+								navigation.navigate('Inicio') // {coordinates, item}
+							}} >
 							<Text style={{ fontWeight:'bold', color:'#fff' }}>VOLVER</Text>
 						</TouchableOpacity>
 					</LinearGradient>
@@ -341,6 +350,14 @@ const styles = StyleSheet.create({
 	},
 
 	datosEmpresa: {
+		backgroundColor:'#fff',
+		borderColor:'eee',
+		borderWidth: 0.8,
+		borderRadius: 10,
+		margin: 5
+	},
+
+	datosServicio: {
 		backgroundColor:'#fff',
 		borderColor:'eee',
 		borderWidth: 0.8,

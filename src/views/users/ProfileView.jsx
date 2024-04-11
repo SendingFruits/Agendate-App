@@ -36,7 +36,7 @@ import {
 } from 'react-native';
 
 import { 
-	faCircleUser
+	faCircleUser, faBan
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -50,7 +50,7 @@ const { width, height } = Dimensions.get('window');
 const ProfileView = () => {
 
     const { currentUser, setCurrentUser } = useContext(AuthContext);
-    // console.log(currentUser);
+    // console.log('currentUser',currentUser);
     const navigation = useNavigation();
 
     const [user, setUser] = useState(currentUser);
@@ -250,18 +250,19 @@ const ProfileView = () => {
                             'logo':'none', 
                             'noti':'none', 
                         });
-                        onRefresh();
-                        navigation.navigate('Inicio');
+                        
                         AlertModal.showAlert('La cuenta fue eliminada');
+                        // onRefresh();
+                        navigation.navigate('Inicio');
                     }
                 })
                 .catch(error => {
-                    alert(error);
+                    AlertModal.showAlert(error);
                 });
             }
 		})
 		.catch(error => {
-			alert(error);
+			AlertModal.showAlert('ERROR', error);
 		});
 	};
 
@@ -300,7 +301,7 @@ const ProfileView = () => {
                 setShowButtons(true);
             }
         );
-	}, []);
+	}, [currentUser]);
 
     return (
         <View style={styles.container}>
@@ -430,25 +431,32 @@ const ProfileView = () => {
                 <View style={styles.footer}>
 
                     <View style={styles.buttons}>
-                        <MenuButtonItem 
-                            icon = {null}
-                            text = {'Cambiar Contraseña'}
-                            onPress={() => updatePass()}
-                        /> 
 
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Actualizar Datos'}
-                            onPress={() => updateData()}
-                        />
+                        <View style={{ marginBottom:10 }}>
+                            <MenuButtonItem
+                                icon = {null}
+                                type = {'panel'}
+                                text = {'Actualizar Datos'}
+                                onPress={() => updateData()}
+                            />
+                        </View>
+                        <View style={{ marginBottom:10 }}>
+                            <MenuButtonItem 
+                                icon = {null}
+                                text = {'Cambiar Contraseña'}
+                                onPress={() => updatePass()}
+                            /> 
+                        </View>
 
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Eliminar Cuenta'}
+                        <TouchableOpacity
                             onPress={() => deleteAccount()}
-                        />
+                            style={{
+                                flexDirection:'row',
+                                justifyContent:'center',
+                            }}>
+                            <FontAwesomeIcon icon={faBan} color={'red'}/>
+                            <Text style={{ marginLeft:5, color:'red' }}>Eliminar Cuenta</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             ) : null}
@@ -534,6 +542,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttons: { 
+        flexDirection:'column',
+        alignItems:'center',
         marginHorizontal:45, 
         marginBottom:15, 
         textAlign:'center' 

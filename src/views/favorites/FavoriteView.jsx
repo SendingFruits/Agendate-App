@@ -24,7 +24,7 @@ const { width, height } = Dimensions.get('window');
 const FavoriteView = ( params ) => {
 
     const navigation = useNavigation();
-    const { currentUser } = useContext(AuthContext);
+    const { currentUser, favoriteSelected, setFavoriteSelected } = useContext(AuthContext);
     var guid = currentUser.guid; 
 
     const [list, setList] = useState(null);
@@ -66,6 +66,7 @@ const FavoriteView = ( params ) => {
     }
 
     const listFavorites = () => {
+        // console.log(list);
 		if (list) {
 			return list.map((item, index) => {
 				return item && (
@@ -77,6 +78,8 @@ const FavoriteView = ( params ) => {
                         onRefresh={onRefresh}
                         onPress={() => handleEditItem(item)}
                         navigation={navigation}
+                        favoriteSelected={favoriteSelected}
+                        setFavoriteSelected={setFavoriteSelected}
                     />
 				)
 			});
@@ -99,20 +102,15 @@ const FavoriteView = ( params ) => {
 
     return (
         <View style={styles.container}>
-
-            {(list !== null && Array.isArray(list) && list.length > 0) ? (
-                <ScrollView 
-                    contentContainerStyle={styles.scrollContainer}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }>
-
-                    {listFavorites()}
-
-                </ScrollView>
-            ) : null }
-
-
+            <ScrollView 
+                contentContainerStyle={styles.scrollContainer}
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
+                {(list !== null && Array.isArray(list) && list.length > 0) ? (
+                    <>
+                        {listFavorites()}
+                    </>
+                ) : null }
+            </ScrollView>
         </View>
     );
 };
