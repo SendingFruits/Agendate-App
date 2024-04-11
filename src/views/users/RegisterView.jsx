@@ -82,7 +82,7 @@ const RegisterView = () => {
 				setUserType(text);
 				break;
 			case 'document':
-				console.log(userType);
+				// console.log(userType);
 				if (userType === 'customer') {
 					if (setIsValidCi(text)) {
 						console.log('cedula correcta');
@@ -118,7 +118,7 @@ const RegisterView = () => {
 			// console.log('userReturn: ', userReturn);
 			if (userReturn) {
 				// AlertModal.showAlert('Enviado','Usuario creado con éxito \n Se le enviará un Correo Electrónico para confirmar su creación.');
-				var text = 'Usuario creado con éxito \n Se le enviará un Correo Electrónico para confirmar su creación.';
+				var text = 'Usuario creado con éxito \nSe le enviará un Correo Electrónico para confirmar su creación.';
 				AlertModal.showAlert('', text);
 				navigation.navigate('Login');
 

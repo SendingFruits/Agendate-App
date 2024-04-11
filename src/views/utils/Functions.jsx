@@ -204,11 +204,15 @@ export function validarCedula(ci) {
 export function validarCorreo(correo) {
     var expresionRegular1 = /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/;
     var expresionRegular2 = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (expresionRegular1.test(correo) 
-     && expresionRegular2.test(correo)) {
+    console.log(expresionRegular2.test(correo));
+    if (expresionRegular2.test(correo) ) { //  && expresionRegular2.test(correo)) {
         return true;
     } else {
         return false;
     }
     // return expresionRegular.test(correo);
+}
+
+export function controlarHorario(dias,turno) {
+    
 }

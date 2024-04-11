@@ -1,5 +1,5 @@
 import { 
-    formatDate, convertHour, createDateTimeFromDecimalHour
+    convertHour, 
 } from '../../views/utils/Functions'; 
 
 import { Picker } from '@react-native-picker/picker';
@@ -58,6 +58,16 @@ const ServiceItem = (params) => {
     const [descripcion, setDescription] = useState(item.descripcion);
     const [dias, setDias] = useState(JSON.parse(item.jsonDiasHorariosDisponibilidadServicio));
 
+
+    const setDuracionTurno = (item) => {
+        // console.log(item);
+        if (item === 30) {
+            setInterval(30);
+        } else {
+            setInterval(60);
+        }
+        setTurno(item);
+    };
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -400,16 +410,31 @@ const ServiceItem = (params) => {
                                                 <Text style={styles.label}>Duración de Turnos:</Text>
                                             </View>
                                             <View style={styles.columnV}>
-                                                <Picker
-                                                    // style={styles.picker}
-                                                    // placeholder="Tipo"
-                                                    selectedValue={turno}
-                                                    onValueChange={(itemValue) => setTurno(itemValue)}
-                                                    // onValueChange={(itemValue) => handleFieldChange(itemValue, 'userType')}
-                                                    >
-                                                    <Picker.Item label="30 min" value={30} />
-                                                    <Picker.Item label="1 hora" value={60} />
-                                                </Picker>
+                                                <View
+                                                    style={{ 
+                                                        height: 30,
+                                                        width: 260,
+                                                        // marginLeft: 30,
+                                                        marginVertical: 5,
+                                                        borderRadius: 10,
+                                                        backgroundColor:'#0f8c8aee'
+                                                    }}>
+                                                    <Picker
+                                                        style={{ 
+                                                            top:-10,
+                                                            alignSelf: 'center', // Alinear horizontalmente
+                                                            height: '8%', // Ajustar al contenedor
+                                                            width: '90%', // Ajustar al contenedor
+                                                        }}
+                                                        // placeholder="Tipo"
+                                                        selectedValue={turno}
+                                                        onValueChange={(itemValue) => setDuracionTurno(itemValue)}
+                                                        // onValueChange={(itemValue) => handleFieldChange(itemValue, 'userType')}
+                                                        >
+                                                        <Picker.Item label="30 minutos" value={30} />
+                                                        <Picker.Item label="1 hora" value={1} />
+                                                    </Picker>
+                                                </View>
                                             </View>
                                     </View>
                                     <View style={styles.row}>
@@ -418,7 +443,7 @@ const ServiceItem = (params) => {
                                         </View>
                                     </View>
                                     <View style={styles.row}>
-                                        <DaysSelector dias={dias} setDias={setDias} create={false} />
+                                        <DaysSelector dias={dias} setDias={setDias} create={false} interval={interval}/>
                                     </View>
     
                                 </ScrollView>
