@@ -12,11 +12,17 @@ import Slider from '@react-native-community/slider';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-const RatioPanel = ({ onRatioChange, mapRef }) => {
+const RatioPanel = ( params ) => {
 
-    const [ratio, setRatio] = useState(1);
-    
+    var {
+        onRatioChange,
+        ratio,
+        setRatio
+    } = params;
+
+
     const handleRatioChange = (value) => {
+        console.log(value);
         if (value === 0) value = 1;
         setRatio(value);
         // Llama a la función de devolución de llamada con el nuevo valor
@@ -26,7 +32,7 @@ const RatioPanel = ({ onRatioChange, mapRef }) => {
     const allowedValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     
     useEffect(() => {
-		setRatio(1);
+		setRatio(ratio);
 	}, []); // isConnected
 
     return (
@@ -43,7 +49,8 @@ const RatioPanel = ({ onRatioChange, mapRef }) => {
                 // minimumTrackTintColor="#FFFFFF"
                 // maximumTrackTintColor="#000000"
                 thumbTintColor="#389338" 
-                step={1}
+                step={5}
+                value={ratio} 
                 onSlidingComplete={handleRatioChange}
             />
 

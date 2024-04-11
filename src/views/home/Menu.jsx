@@ -45,7 +45,7 @@ const Menu = ( params ) => {
 
 	const { navigation } = params;
     const { 
-		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation 
+		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation , setRatioSelected
 	} = useContext(AuthContext);
 	// console.log('currentUser Menu: ', currentUser);
 
@@ -73,6 +73,7 @@ const Menu = ( params ) => {
             'logo':'none', 
 			'noti':'none', 
         });
+		setRatioSelected(1);
 		clearCache();
 
 		/**
@@ -95,7 +96,8 @@ const Menu = ( params ) => {
 	};
 	
 	const viewInfo = async () => {
-		setShowModalInfo(true)
+		// setShowModalInfo(true)
+		
 	};
 
 	useEffect(() => {

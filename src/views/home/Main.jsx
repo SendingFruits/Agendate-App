@@ -1,5 +1,5 @@
 import { 
-	AuthContext, AuthProvider
+	AuthProvider
 } from '../../context/AuthContext';
 
 import HomeView from './HomeView';
@@ -23,7 +23,7 @@ import Testing from '../utils/Testing';
 import BaseError from '../utils/BaseError';
 
 import React, { 
-	useContext, useEffect 
+	useEffect 
 } from 'react';
 
 import { Keyboard } from 'react-native';
@@ -37,8 +37,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const Main = ( params ) => {
 
+	// const { currentUser } = useContext(AuthContext);
+
 	const Drawer = createDrawerNavigator();
-	console.log(params);
+	// console.log(params);
 	var {
 		isLogin,
 		setIsLogin,
@@ -46,8 +48,6 @@ const Main = ( params ) => {
 		setIsConnected,
 		// setNavigation,
 	} = params;
-
-	// const { navigation } = useContext(AuthContext);
 
 	var menuParams = {
 		isLogin:isLogin,
@@ -61,6 +61,7 @@ const Main = ( params ) => {
 	}
 
 	useEffect(() => {
+		// console.log(currentUser);
 		// setCurrentUser(current_User);
 		// setNavigation(navigation);
 	}, []);

@@ -12,6 +12,11 @@ export const AuthProvider = ({ children }) => {
 
     const [navigation, setNavigation] = useState(null);
     const [isLogin, setIsLogin] = useState(false);
+    
+    const [idSelected, setIdSelected] = useState(null);
+    const [ratioSelected, setRatioSelected] = useState(1);
+    const [favoriteSelected, setFavoriteSelected] = useState({});
+    
     const [currentUser, setCurrentUser] = useState({
         'guid':'none',
         'user':'none',
@@ -89,6 +94,10 @@ export const AuthProvider = ({ children }) => {
                 'logo':'none',
                 'noti':'none', 
             });
+
+            setRatioSelected(1);
+            setFavoriteSelected({});
+
             if (isLogin) {
                 setIsLogin(false);
                 AlertModal.showAlert('Sesión Caducada',  'Vuelva a iniciar sesión.');
@@ -112,7 +121,13 @@ export const AuthProvider = ({ children }) => {
                 setUser,
                 setPassword,
                 navigation, 
-                setNavigation
+                setNavigation,
+                idSelected,
+                setIdSelected,
+                ratioSelected, 
+                setRatioSelected,
+                favoriteSelected, 
+                setFavoriteSelected
             }}>
             {children}
         </AuthContext.Provider>

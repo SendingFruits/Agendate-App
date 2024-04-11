@@ -43,17 +43,16 @@ const { width, height } = Dimensions.get('window');
 
 const HomeView = ( params ) => {
 	
-	const { currentUser } = useContext(AuthContext);
+	const { 
+		currentUser, 
+		setIdSelected, 
+		ratioSelected, 
+		setRatioSelected,
+		favoriteSelected, 
+       	setFavoriteSelected
+	} = useContext(AuthContext);
 
-	var {
-		coordinates,
-		item,
-		isConnected,
-		setIsConnected,
-	} = params.route.params || {};
-
-	// console.log('isConnected: ', isConnected);
-	// console.log('setIsConnected: ', setIsConnected);
+	var { setIsConnected } = params.route.params || {};
 
 	var countMap = 0;
 
@@ -61,42 +60,18 @@ const HomeView = ( params ) => {
 	var userLogin = currentUser;
 	const navigation = useNavigation();
 
+	// console.log('navigation.getState', navigation.getState());
+	// console.log('navigation.goBack', navigation.goBack());
+
 	const [location, setLocation] = useState(null);
 	const [companies, setCompanies] = useState([]);
 	const [selectedMarker, setSelectedMarker] = useState(null);
 	const [orientation, setOrientation] = useState(getOrientation());
 	const [showModal, setShowModal] = useState(false);
-	const [ratio, setRatio] = useState(1);
-	const [fav, setFav] = useState(null);
-	const [favoriteCallout, setFavoriteCallout] = useState(false);
+	const [ratio, setRatio] = useState((ratioSelected !== '' ? ratioSelected : 1));
+
 	const [showRatioPanel, setShowRatioPanel] = useState(true);
-
-
-	const errorPermission = async () => {
-		// return (
-		// 	<Modal
-		// 		animationType="slide"
-		// 		visible={true}
-		// 		transparent={true}
-		// 		>
-		// 		<View style={styles.modal}>
-					
-		// 			<Text>
-		// 				Debe tener Aceptar los permisos de Ubicación para el correcto funcionamiento de la aplicación
-		// 			</Text>
-
-		// 			<Button
-		// 				title="Confirmar"
-		// 				onPress={() => {
-		// 					confirmReservation(selectedHour);
-		// 					setShowModal(false);
-		// 				}} />
-		// 		</View>
-		// 	</Modal>
-		// );
-		// console.log('error permisos');
-		AlertModal.showAlert('Mapa','No tiene permisos para obtener la ubicación.');
-	}
+	const [favoriteCallout, setFavoriteCallout] = useState(true);
 
 	const fetchData = async () => {
 		try {
@@ -129,7 +104,8 @@ const HomeView = ( params ) => {
 			// console.log(error.message);
 
 			if (error.message == 'Permiso de acceso a la ubicación denegado.') {
-				errorPermission();
+				// errorPermission();
+				AlertModal.showAlert('',error.message);
 			} else {
 				setIsConnected(false);
 			}
@@ -138,11 +114,13 @@ const HomeView = ( params ) => {
 	};
 
 	const handleRatioChange = (value) => {
-		// console.log(value);
+		console.log('favoriteSelected handleRatio 1',favoriteSelected);
+		setFavoriteSelected(null);
+		console.log('favoriteSelected handleRatio 2',favoriteSelected);
 		var rango = 0.0200;
 		if (location !== null) {
 			setRatio(value);
-			
+			setRatioSelected(value);
 			if (value >= 0 && value < 2)
 				rango = 0.0200;
 			if (value >= 2 && value < 10)
@@ -158,7 +136,6 @@ const HomeView = ( params ) => {
 			};
 			mapRef.current.animateToRegion(myLoc); 
 		}
-
     };
 
 	const onRegionChange = (region, gesture) => {
@@ -308,7 +285,7 @@ const HomeView = ( params ) => {
 	};
 
 	const handleReservation = (userLogin, item) => {
-		// console.log('userLogin: ', userLogin);
+		console.log('item: ', item);
 
 		if (userLogin === null) {
 			setShowModal(true);
@@ -327,66 +304,68 @@ const HomeView = ( params ) => {
 				idSelect = item.id;
 			}
 
-			saveCompanyID(idSelect);
-
+			setIdSelected(idSelect);
+			// saveCompanyID(idSelect);
 			navigation.navigate('Realizar Reserva', idSelect);
 		}
 
 	}; 
 
-	const saveCompanyID = async (id) => {
-		try {
-			await clearAsyncStorageItem('selectedCompanyID');
-			await AsyncStorage.setItem('selectedCompanyID', id.toString());
-			var selected = await AsyncStorage.getItem('selectedCompanyID');
-			// console.log('id seleccionado: ', selected);
-		} catch (error) {
-			alert('ERROR al intentar cargar la Empresa, ' + error);
-		}
-    }
+	const getFavorite = () => {
+		if (favoriteSelected !== undefined && 
+			favoriteSelected !== null && 
+			favoriteSelected !== {}
+		) {
+			var favoriteCoordinates = {latitude:favoriteSelected.latitude, longitude:favoriteSelected.longitude};
+			console.log('favoriteCoordinates',favoriteCoordinates);
+			
+			if (favoriteCoordinates.latitude !== null
+			 && favoriteCoordinates.longitude !== null
+			 && favoriteCoordinates.latitude !== undefined 
+			 && favoriteCoordinates.longitude !== undefined
+			) {
 
-	const clearAsyncStorageItem = async (key) => {
-		return new Promise((resolve, reject) => {
-			try {
-				AsyncStorage.removeItem(key);
-				// console.log(`Elemento con clave "${key}" eliminado.`);
-				resolve(true);
-			} catch (error) {
-				// console.error(`Error al eliminar el elemento con clave "${key}" `, error);
-				reject(error);
 			}
-		});
-	};
+		}
+	}
 
-	const favoriteTarget = (coordinates, item) => {
-		if (item !== null && item !== undefined) {
-			if (coordinates !== null) {
-				console.log('companies',companies);
-				console.log('coordinates',coordinates);
-				console.log('item',item);
-				var empresa = item;
+	const favoriteTarget = () => {
+		console.log('favoriteSelected',favoriteSelected);
 
+		if (favoriteSelected !== undefined && 
+			favoriteSelected !== null && 
+			favoriteSelected !== {}
+		) {
+			var favoriteCoordinates = {latitude:favoriteSelected.latitude, longitude:favoriteSelected.longitude};
+			console.log('favoriteCoordinates',favoriteCoordinates);
+			
+			if (favoriteCoordinates.latitude !== null
+			 && favoriteCoordinates.longitude !== null
+			 && favoriteCoordinates.latitude !== undefined 
+			 && favoriteCoordinates.longitude !== undefined
+			) {
 				var newCoord = {
-					latitude: coordinates.latitude,
-					longitude: coordinates.longitude,
+					latitude: favoriteCoordinates.latitude,
+					longitude: favoriteCoordinates.longitude,
 					latitudeDelta: 0.0200,
 					longitudeDelta: 0.0200,
 				};
-
+				// console.log('newCoord',newCoord);
 				mapRef.current.animateToRegion(newCoord); 
-				const idEmpresaExistente = companies.some(company => company.id === item.idEmpresa);
-
+				const idEmpresaExistente = companies.some(company => company.id === favoriteSelected.idEmpresa);
+				// console.log(idEmpresaExistente);
 				return (
 					<>
+						{/* de esta forma se va directo a la reserva */}
+						{/* {handleReservation(userLogin, empresa)} */}
+
 						{!idEmpresaExistente ? (
 							<Marker
-								// key={index}
 								pinColor='#0af'
 								coordinate={newCoord}
-								onPress={() => {
-									setSelectedMarker(item)
-									setFavoriteCallout(true)
-								}}
+								// onPress={() => {
+								// 	setSelectedMarker(item)
+								// }}
 								anchor={{ x: 0.5, y: 0.5 }} 
 								>
 			
@@ -396,16 +375,25 @@ const HomeView = ( params ) => {
 										}} icon={faBuilding} size={35} />
 								</View>
 			
-								{favoriteCallout && (
+								{userLogin.type === 'customer' ? (
 									<Callout 
 										style={styles.openCallout}
-										onPress={() => handleReservation(userLogin, empresa)} 
+										onPress={() => handleReservation(userLogin, favoriteSelected)} 
 										>
 										<View style={{ flexDirection:'row', alignContent:'space-between', alignItems:'center' }}>
-											<Text style={styles.title}>{item.razonSocial}</Text>
-											{/* <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} /> */}
+											<Text style={styles.title}>{favoriteSelected.razonSocial}</Text>
 										</View>
-										<Text style={styles.description}>{item.descripcionEmpresa}</Text>
+										<Text style={styles.description}>{favoriteSelected.descripcionEmpresa}</Text>
+									</Callout>
+								) : (
+									<Callout style={styles.openCallout} 
+										onPress={() => handleReservation(null, null)} 
+										>
+										<Text style={styles.title}>{item.title}</Text>  
+										<Text style={styles.description}>{item.description}</Text>
+										{/* <Text style={{ color:'#f00', fontSize:16, alignSelf:'center' }}>
+											Debe ingresar como Cliente
+										</Text> */}
 									</Callout>
 								)}
 								
@@ -434,27 +422,13 @@ const HomeView = ( params ) => {
 	};
 
 	useEffect(() => {
-
-		// navigation.reset({
-		// 	index: 0,
-		// 	routes: [
-		// 	  { name: 'Inicio' },
-		// 	],
-		// });
+		
+		if (ratioSelected > 5) {
+			setRatio(ratioSelected);
+		}
   
 		fetchData();
 		setShowModal(false);
-		setFavoriteCallout(false)
-
-		if ((coordinates !== null) && (coordinates !== undefined)) {
-			setFav(coordinates);
-		} 
-		else {
-			setFav(null);
-		}
-		
-		console.log('favorites Coordinates',fav);
-		// console.log('selectedMarker',selectedMarker);
 
 		const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow', () => {
@@ -470,9 +444,7 @@ const HomeView = ( params ) => {
             }
         );
 		
-	}, [ratio, countMap]); // isConnected, ubicacion
-	// location - pasarle location para actualizar siempre que se geolocalice
-	// companies - pasarle companies para actualizar siempre las empresas - bug
+	}, [favoriteSelected, ratio, countMap]);
 
 	return (
 		<View style={styles.container}>
@@ -525,14 +497,22 @@ const HomeView = ( params ) => {
 						// maxZoomLevel={0.0300}
 						>
 						{showCompanyLocations()}
-						{ userLogin.type === 'customer' ? (
-							favoriteTarget(coordinates, item)
+
+						{ favoriteSelected !== undefined && 
+						  favoriteSelected !== null && 
+						  favoriteSelected !== {}
+						? (
+							favoriteTarget()
 						) : null }
 					</MapView>
 					
 					{showRatioPanel ? (
 						<View style={orientation === 'portrait' ? styles.ratioPanelPortrait : styles.ratioPanelLandscape}>
-							<RatioPanel onRatioChange={(newRatio) => handleRatioChange(newRatio)} />
+							<RatioPanel 
+								onRatioChange={(newRatio) => handleRatioChange(newRatio)} 
+								setRatio={setRatio}
+								ratio={ratio}
+								/>
 						</View>	
 					) : null }
 				</>
