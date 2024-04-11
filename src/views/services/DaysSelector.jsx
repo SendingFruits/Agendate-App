@@ -1,5 +1,5 @@
 import { 
-    formatDate, convertHour, createDateTimeFromDecimalHour
+    convertHour, createDateTimeFromDecimalHour, controlarHorario
 } from '../utils/Functions'; 
 
 import React, { 
@@ -29,13 +29,14 @@ import {
 
 const DaysSelector = ( params ) => {
 
-    console.log(params);
-
     var {
         dias,
         setDias,
         create,
+        interval,
     } = params;
+
+    console.log('interval',interval);
 
     const [schedules, setSchedules] = useState(dias);
     const [selectedDay, setSelectedDay] = useState(null);
@@ -80,6 +81,11 @@ const DaysSelector = ( params ) => {
             const updatedSchedule = { ...schedules };
             var selectedHours = date.getHours();
             var selectedMinutes = date.getMinutes();
+            
+            if (interval === 60) {
+                selectedMinutes = 0;
+            }
+            
             var selectedTimeInHours = selectedHours + selectedMinutes / 60;
     
             if (datesControl(selectedTimeInHours, updatedSchedule[selectedDay].horaFin)) {
@@ -98,6 +104,11 @@ const DaysSelector = ( params ) => {
             const updatedSchedule = { ...schedules };
             var selectedHours = date.getHours();
             var selectedMinutes = date.getMinutes();
+
+            if (interval === 60) {
+                selectedMinutes = 0;
+            }
+
             var selectedTimeInHours = selectedHours + selectedMinutes / 60;
     
             if (datesControl(updatedSchedule[selectedDay].horaInicio, selectedTimeInHours)) {
@@ -138,6 +149,7 @@ const DaysSelector = ( params ) => {
                                                     paddingHorizontal:5,
                                                     backgroundColor:'#fff',
                                                     width:'20%',
+                                                    height:'88%',
                                                     borderWidth: 0.8,
                                                     borderRadius: 5,
                                                     borderColor:'#005',
@@ -147,10 +159,10 @@ const DaysSelector = ( params ) => {
                                                     ? convertHour(dias[day].horaInicio, 'toHours').toString() : ''}
                                                 />
                                             <TouchableOpacity
-                                                style={{ marginHorizontal:10 }}
+                                                style={{ marginHorizontal:6 }}
                                                 onPress={() => showStartTimePicker(day,dias[day])} >
                                                 {/* <Text>Comienzo</Text> */}
-                                                <FontAwesomeIcon icon={faClock} />
+                                                <FontAwesomeIcon icon={faClock} size={22}/>
                                             </TouchableOpacity>
                                     
                                             <TextInput
@@ -160,6 +172,7 @@ const DaysSelector = ( params ) => {
                                                     paddingHorizontal:5,
                                                     backgroundColor:'#fff',
                                                     width:'20%',
+                                                    height:'88%',
                                                     borderWidth: 0.8,
                                                     borderRadius: 5,
                                                     borderColor:'#005',
@@ -169,24 +182,25 @@ const DaysSelector = ( params ) => {
                                                     ? convertHour(dias[day].horaFin, 'toHours').toString() : ''}
                                                 />
                                             <TouchableOpacity
-                                                style={{ marginHorizontal:10 }}
+                                                style={{ marginHorizontal:6 }}
                                                 onPress={() => showEndTimePicker(day,dias[day])} >
                                                 {/* <Text>Termino</Text> */}
-                                                <FontAwesomeIcon icon={faClock} />
+                                                <FontAwesomeIcon icon={faClock} size={22} />
                                             </TouchableOpacity>
                                         </>
                                     ) : (
                                         <>
-                                            <Text style={{ fontSize: 13, width:'91%' }}>{day}: </Text>
+                                            <Text style={{ fontSize: 13, width:'90%' }}>{day}: </Text>
                                             {dias[day].horaInicio = null} 
                                             {dias[day].horaFin = null}   
                                         </>
                                     )}
 
-                                    <View style={{ alignItems:'flex-end', marginRight: 5 }}>
+                                    <View style={{ alignItems:'flex-end', marginRight: 6, marginTop: 5 }}>
                                         <CheckBox 
                                             style={{
                                                 width:30,
+                                                color:'#f35f44'
                                             }}
                                             type={'normal'}
                                             text={null}
@@ -209,7 +223,7 @@ const DaysSelector = ( params ) => {
                 display="spinner"
                 is24Hour={true}
                 date = {selectedDatePicker1}
-                minuteInterval={30}
+                minuteInterval={interval}
 
                 isVisible={isStartTimePickerVisible}
                 onConfirm={handleStartTimeConfirm}
@@ -220,7 +234,7 @@ const DaysSelector = ( params ) => {
                 display="spinner"
                 is24Hour={true}
                 date = {selectedDatePicker2}
-                minuteInterval={30}
+                minuteInterval={interval}
                 
                 isVisible={isEndTimePickerVisible}
                 onConfirm={handleEndTimeConfirm}

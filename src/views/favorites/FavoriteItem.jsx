@@ -30,6 +30,8 @@ const FavoriteItem = (params) => {
         item,
         edit,
         navigation,
+        favoriteSelected, 
+        setFavoriteSelected
     } = params;
 
     const [isCollapsed, setIsCollapsed] = useState(true);
@@ -41,15 +43,16 @@ const FavoriteItem = (params) => {
         setIsCollapsed(!isCollapsed);
     };
   
-    const goToMap = (coordinates, item) => {
-        // console.log(coordinates);
-        navigation.navigate('Inicio', {coordinates, item});
+    const goToMap = () => {
+        // setFavoriteCoordinates({latitude:item.latitude, longitude:item.longitude});
+        console.log('favoriteSelected',favoriteSelected);
+        navigation.navigate('Inicio');
     }
    
 	useEffect(() => {
         setBodyHeight(130);
-		
-	}, [edit]);
+		setFavoriteSelected(item);
+	}, [favoriteSelected,edit]);
     
     return (
         <View style={styles.container}>
@@ -70,7 +73,7 @@ const FavoriteItem = (params) => {
                                 }}>
                                 <TouchableOpacity 
                                     style={{ flexDirection:'row', alignItems:'center', }} 
-                                    onPress={() => goToMap({latitude:item.latitude, longitude:item.longitude}, item)} >
+                                    onPress={() => goToMap()} >
                                     <FontAwesomeIcon style={{ color:'#fa0' }} icon={faStar} />
                                     <FontAwesomeIcon style={{ color:'#0af', marginLeft:6 }} icon={faMapMarker} />
                                 </TouchableOpacity>

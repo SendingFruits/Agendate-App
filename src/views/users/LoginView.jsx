@@ -32,7 +32,7 @@ import {
 const LoginView = ( params ) => {
 
 	const navigation = useNavigation();
-	const { setIsLogin, setUser } = useContext(AuthContext);
+	const { setIsLogin, setUser, setCurrentUser } = useContext(AuthContext);
 	// console.log('isLogin: ', isLogin);
 
     const [username, setUsername] = useState('');
@@ -41,16 +41,30 @@ const LoginView = ( params ) => {
 	const [rememberMe, setRememberMe] = useState(false);
 
     useEffect(() => {
+
+		// navigation.reset({
+		// 	index: 0,
+		// 	routes: [
+		// 	  { name: 'Login' },
+		// 	],
+		// });
+
         setUsername('');
         setPassword('');
     }, []);
 
-	const login = async  () => {
+	const login = async () => {
 		UsersController.handleLogin(username, password)
 		.then(userReturn => {
 			if (userReturn != null) {
 
 				var user = JSON.parse(userReturn);
+				// console.log(user);
+				if (typeof user.celular === 'string' && user.celular.includes("+598")) 
+				{
+					user.celular = user.celular.replace("+598", "");
+				}
+
 				// console.log('user: ', user);
 				var currentUser = {
 					guid: user.id,
@@ -78,6 +92,7 @@ const LoginView = ( params ) => {
 					}),
 				};
 
+				setCurrentUser(currentUser);
 				setUser(currentUser);
 				setIsLogin(true);
 

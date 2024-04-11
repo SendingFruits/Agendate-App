@@ -1,5 +1,6 @@
 import UserServices from '../services/UserServices';
 import CompanyServices from '../services/CompanyServices';
+import { validarCorreo } from '../views/utils/Functions'
 
 class UsersController {
 
@@ -79,52 +80,65 @@ class UsersController {
 			var dataConvert = {};
 			var ctica = '+598';
 
-			if (data.userType === 'company') {
-				dataConvert = {
-					rutDocumento: data.document,
-					razonSocial: "",
-					nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
-					rubro: "",
-					direccion: "",
-					ciudad: "",
-					descripcion: "",
-					latitude: 0.00,
-					longitude: 0.00,
-
-					nombre: data.firstName.trim(),
-					apellido: data.lastName.trim(),
-					nombreUsuario: data.username.trim(),
-					contrasenia: data.password.trim(),
-
-					celular: ctica+data.movil.trim(),
-					
-					correo: data.email.trim(),
-					tipoUsuario: data.userType,
-					logo: '',
+			if (data.password === data.password2) {
+				if (validarCorreo(data.email)) {
+				
+					if (data.userType === 'company') {
+						dataConvert = {
+							rutDocumento: data.document,
+							razonSocial: "",
+							nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
+							rubro: "",
+							direccion: "",
+							ciudad: "",
+							descripcion: "",
+							latitude: 0.00,
+							longitude: 0.00,
+		
+							nombre: data.firstName.trim(),
+							apellido: data.lastName.trim(),
+							nombreUsuario: data.username.trim(),
+							contrasenia: data.password.trim(),
+		
+							celular: ctica+data.movil.trim(),
+							
+							correo: data.email.trim(),
+							tipoUsuario: data.userType,
+							logo: '',
+						}
+					} else {
+						dataConvert = {
+							documento: data.document.trim(),
+		
+							nombre: data.firstName.trim(),
+							apellido: data.lastName.trim(),
+							nombreUsuario: data.username.trim(),
+							contrasenia: data.password.trim(),
+							celular: ctica+data.movil.trim(),
+							correo: data.email.trim(),
+							tipoUsuario: data.userType,
+		
+							// tieneNotificaciones: data.recibe
+						}
+					}
+		
+					UserServices.postUserRegister(dataConvert)
+					.then(userReturn => {
+						resolve(userReturn);
+					})
+					.catch(error => {
+						reject(error);
+					});
+				} else {
+					reject('El correo es incorrecto.');
 				}
 			} else {
-				dataConvert = {
-					documento: data.document.trim(),
-
-					nombre: data.firstName.trim(),
-					apellido: data.lastName.trim(),
-					nombreUsuario: data.username.trim(),
-					contrasenia: data.password.trim(),
-					celular: ctica+data.movil.trim(),
-					correo: data.email.trim(),
-					tipoUsuario: data.userType,
-
-					// tieneNotificaciones: data.recibe
-				}
+				reject('Debe confirmar la contraseña correctamente.');
+				return;
 			}
 
-			UserServices.postUserRegister(dataConvert)
-			.then(userReturn => {
-				resolve(userReturn);
-			})
-			.catch(error => {
-				reject(error);
-			});
+
+			
 		});
 	}
 
@@ -157,43 +171,49 @@ class UsersController {
 				return;
 			}
 
-			if (type === 'customer') {
+			var ctica = '+598';
 
-				const dataConvert = {
-					id: data.guid,
-					documento: data.docu,
-					nombre: data.firstname,
-					apellido: data.lastname,
-					celular: data.movil,
-					correo: data.email,
-					foto: data.foto,
-					tieneNotificaciones: data.recibe,
+			if (validarCorreo(data.email)) {
+				if (type === 'customer') {
+					// console.log('data.recibe',data.recibe);
+					const dataConvert = {
+						id: data.guid,
+						documento: data.docu.trim(),
+						nombre: data.firstname.trim(),
+						apellido: data.lastname.trim(),
+						celular: ctica+data.movil.trim(),
+						correo: data.email.trim(),
+						foto: data.foto,
+						tieneNotificaciones: data.recibe,
+					}
+					// console.log('dataConvert',dataConvert);
+					UserServices.putUserDataCustomer(dataConvert)
+					.then(userReturn => {
+						resolve(userReturn);
+					})
+					.catch(error => {
+						reject(error);
+					});
+				} else {
+	
+					const dataConvert = {
+						id: data.guid,
+						nombre: data.firstname.trim(),
+						apellido: data.lastname.trim(),
+						celular: ctica+data.movil.trim(),
+						correo: data.email.trim(),
+					}
+	
+					UserServices.putUserDataCompany(dataConvert)
+					.then(userReturn => {
+						resolve(userReturn);
+					})
+					.catch(error => {
+						reject(error);
+					});
 				}
-
-				UserServices.putUserDataCustomer(dataConvert)
-				.then(userReturn => {
-					resolve(userReturn);
-				})
-				.catch(error => {
-					reject(error);
-				});
 			} else {
-
-				const dataConvert = {
-					id: data.guid,
-					nombre: data.firstname,
-					apellido: data.lastname,
-					celular: data.movil,
-					correo: data.email,
-				}
-
-				UserServices.putUserDataCompany(dataConvert)
-				.then(userReturn => {
-					resolve(userReturn);
-				})
-				.catch(error => {
-					reject(error);
-				});
+				reject('El correo es incorrecto.');
 			}
 		});
 	}
@@ -254,6 +274,9 @@ class UsersController {
 				return;
 			}
 
+			// var movil = parseInt(data.movil).toString();
+			// console.log(movil);
+
 			var json = {
                 'user':data.user,
                 'email':data.email,
@@ -299,6 +322,14 @@ class UsersController {
 				reject('Falta el RUT.');
 				return;
 			}
+			if (data.businessName == '') {
+				reject('Falta la razón social.');
+				return;
+			}
+			if (data.category == '') {
+				reject('Falta la categoría.');
+				return;
+			}
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
 			if (data.location.longitude === undefined) data.location.longitude = 0.0; 
@@ -334,6 +365,20 @@ class UsersController {
 			UserServices.putDelete(id)
 			.then(userReturn => {
 				resolve(userReturn);
+			})
+			.catch(error => {
+				reject(error);
+			});
+		});
+	}
+
+	handleConnection(type,url) {
+		return new Promise((resolve, reject) => {
+			// console.log('controller type', type);
+			// console.log('controller url', url);
+			UserServices.putConnect(type,url)
+			.then(response => {
+				resolve(response);
 			})
 			.catch(error => {
 				reject(error);

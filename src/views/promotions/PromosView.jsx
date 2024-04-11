@@ -12,21 +12,23 @@ import React, {
 } from 'react';
 
 import { 
-    StyleSheet, 
-    Text, 
+    StyleSheet,
+    Dimensions,
+    RefreshControl,
     View, 
     ScrollView,
-    RefreshControl,
+    Text, 
     TouchableOpacity,
 } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
+const { width, height } = Dimensions.get('window');
+
 const PromosView = ( params ) => {
 
-    const { currentUser } = useContext(AuthContext);
-    
     const navigation = useNavigation();
+    const { currentUser } = useContext(AuthContext);
     var guid = currentUser.guid; 
 
     const [list, setList] = useState(null);
@@ -35,10 +37,7 @@ const PromosView = ( params ) => {
     const [refreshing, setRefreshing] = useState(false);
     const [bodyHeight, setBodyHeight] = useState(370); 
 
-    const handleEditItem = (item) => {
-        console.log('handleEditItem', item);
-    };
- 
+    
     const createItem = (guid) => {
         // console.log('create', guid);
         navigation.navigate('Crear Promo', {isCreate, setIsCreate, onRefresh });
@@ -48,14 +47,14 @@ const PromosView = ( params ) => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-
+            // setEditMode(false);
             getPromos();
 			// navigation.navigate('Servicios');
 		}, 2000);
 	}, [editMode,list]);
 
     const getPromos = async () => {
-        if (guid !== 'none') {     
+        if (guid !== 'none') {
             PromosController.getPromosForCompany(guid)
             .then(promosReturn => {
                 // console.log('promosReturn: ', promosReturn);

@@ -1,16 +1,12 @@
 import { Dimensions } from 'react-native';
 import * as FileSystem from "expo-file-system";
 
-
-
 export const getOrientation = () => {
     const { width, height } = Dimensions.get('window');
     var ori =  width > height ? 'landscape' : 'portrait';
     // console.log('ori: ', ori);
     return ori;
 };
-
-
 
 export const getBase64FromUri = async (uri) => {
     const fileContent = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
@@ -24,7 +20,6 @@ export const loadImageFromBase64 = (base64) => {
         return '';
     }
 };
-
 
 export function formatDate(date) {
     // console.log(date);
@@ -86,7 +81,6 @@ export function getDateFromString(dateString) {
     return newDate;
 }
 
-
 export function convertHour(valor, opcion) {
     if (opcion === "toHours") {
         // Conversión de decimal a horas
@@ -137,7 +131,6 @@ export function createDateTimeFromDecimalHour(decimalHour) {
     // console.log('formattedDate: ', formattedDate);
     return currentDate;
 }
-
 
 export function validarRUT(rut) {
     // Verificar que el RUT tenga un formato válido
@@ -208,3 +201,18 @@ export function validarCedula(ci) {
     return digitoVerificador === parseInt(ci[ci.length - 1]);
 }
 
+export function validarCorreo(correo) {
+    var expresionRegular1 = /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/;
+    var expresionRegular2 = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    console.log(expresionRegular2.test(correo));
+    if (expresionRegular2.test(correo) ) { //  && expresionRegular2.test(correo)) {
+        return true;
+    } else {
+        return false;
+    }
+    // return expresionRegular.test(correo);
+}
+
+export function controlarHorario(dias,turno) {
+    
+}

@@ -32,6 +32,14 @@ import {
 
 // import { geocodeAsync } from 'expo-location';
 
+import { 
+	faImage
+} from '@fortawesome/free-solid-svg-icons';
+
+import { 
+	FontAwesomeIcon 
+} from '@fortawesome/react-native-fontawesome';
+
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -41,141 +49,6 @@ const CompanyPanel = () => {
     const { currentUser, setCurrentUser, navigation } = useContext(AuthContext);
     // console.log(currentUser);
     var guid = currentUser.guid;
-
-    var sty = StyleSheet.create({});
-    sty = StyleSheet.create({
-        container: {
-            top:-2,
-            width:width,
-            height:height,
-            flexDirection:'column',
-        },
-        header: {
-            alignItems: 'center',
-            marginTop: 15,
-            marginHorizontal: 10,
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            borderTopWidth: 2,
-            // borderLeftWidth: 1,
-            // borderRightWidth: 1,
-            borderColor: '#fff',
-        },
-        textHeader: {
-            color: '#166e30',
-            fontWeight:'bold',
-            padding: 10,
-            fontSize: 20,
-        },
-        body: {
-            height: height-50,
-            // marginTop: 20,
-            marginHorizontal: 15,
-            // borderRadius: 12,
-        },
-        row: {
-            flexDirection: 'row',
-            justifyContent: 'space-between', // Distribuir en dos columnas
-            alignItems: 'center', // Alinear verticalmente al centro
-            paddingHorizontal: -10, // Espacio horizontal
-            borderBottomWidth: 1 ,
-            borderBottomColor: '#fff'
-        },
-        column: {
-            flex: 1, // Ocupar espacio igual en ambas columnas
-            paddingHorizontal: 5, // Espacio horizontal entre columnas
-        },
-        columnB: {
-            flex: 0.75, 
-            paddingHorizontal: 3, 
-        },
-        columnT: {
-            flex: 0.65, 
-            paddingHorizontal: 5, 
-        },
-        columnV: {
-            flex: 1, 
-            paddingHorizontal: 5,
-        },
-        space: {
-            width: 12
-        },
-        btnCaptureLocation: {
-            marginVertical: 10,
-            // marginHorizontal: 10,
-        },
-        txtbtnCapture: {
-            color: '#fff',
-        },
-        txtCoord: {
-            fontSize:15,
-            fontWeight: 'bold',
-        },
-        txtLat: {
-            fontSize:13,
-        },
-        txtLng: {
-            fontSize:13,
-        },
-        dataLabel: {
-            fontWeight:'bold',
-            paddingHorizontal:20,
-            marginVertical:3,
-            textAlign: 'right',
-            paddingVertical:5,
-        },
-        dataEdit: {
-            marginHorizontal:-18,
-            marginVertical:3,
-            marginRight:15,
-            backgroundColor:'#fff',
-            borderRadius: 12,
-            paddingHorizontal: 8,
-        },
-        dataEditDesc: {
-            width:width-55.1,
-            height:130,
-            marginVertical:3,
-            marginBottom:10,
-            marginHorizontal:15,
-            backgroundColor:'#fff',
-            textAlignVertical: 'top',
-            paddingHorizontal: 10,
-            borderRadius: 15,
-        },
-        imageContainer: {
-            height: 120,
-            width: 200,
-            margin: 10,
-            marginRight: -42,
-            alignSelf: 'center',
-            borderRadius: 10,
-            backgroundColor: '#fff',
-            alignItems: 'center', // Centrar horizontalmente
-            justifyContent: 'center', // Centrar verticalmente
-        },
-        imageButton: {
-            alignItems:'center'
-        },
-        imageText: {
-            marginHorizontal:20,
-        },
-        image: {
-            flex: 1,
-            height: 120,
-            width: 90,
-            borderRadius: 10,
-            resizeMode: 'cover',
-        },
-        buttonContent: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-    
-        saveButton: {
-            marginTop:-30
-        },
-    });
 
     const [rut, setRut] = useState(currentUser.rut);
     const [owner, setOwner] = useState(currentUser.owner);
@@ -201,8 +74,7 @@ const CompanyPanel = () => {
 		setTimeout(() => {
 			setRefreshing(false);
 
-            if (formData)
-            {
+            if (formData) {
                 setRut(formData.rut);
                 setOwner(formData.owner);
                 setBusinessName(formData.businessName);
@@ -212,9 +84,7 @@ const CompanyPanel = () => {
                 setDescription(formData.description);
                 setLogoBase(formData.logoBase);
                 setLocation({latitude:formData.location.latitude, longitude:formData.location.longitude});
-            }
-            else
-            {
+            } else {
                 setRut(currentUser.rut);
                 setOwner(currentUser.owner);
                 setBusinessName(currentUser.businessName);
@@ -250,7 +120,6 @@ const CompanyPanel = () => {
         }
     };
 
-
     const saveDataCompany = async () => {
 
         const formData = {
@@ -271,7 +140,6 @@ const CompanyPanel = () => {
 			if (dataReturn) {
 				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');  
                 onRefresh(formData);
-                
 			}
 		})
 		.catch(error => {
@@ -279,7 +147,6 @@ const CompanyPanel = () => {
 		});
     };
 
-    
     let openLogoPickerAsync = async () => {
 
 		let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -312,17 +179,14 @@ const CompanyPanel = () => {
         }
     }
 
-
     const handleImagePicker = () => {
 		openLogoPickerAsync();
 	};
 
 	useEffect(() => {
-
-        setSelectedPicture(logoUrl);
-        
-        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
-        
+        setSelectedPicture(logoUrl);  
+        // console.log('selectedPicture',selectedPicture);
+        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});    
         setShowModal(false);
         setShowSaveButtom(true);
 
@@ -333,14 +197,11 @@ const CompanyPanel = () => {
             }
         );     
         const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
+            'keyboardDidHide', () => {
                 // console.log('Teclado cerrado');
 				setShowSaveButtom(true);
             }
         );
-
-        // Dimensions.addEventListener('change', handleOrientationChange);
 
         setTimeout(() => {
             if ((location.latitude === '' || location.latitude === 0)
@@ -353,25 +214,23 @@ const CompanyPanel = () => {
 	}, [currentUser.latitude, currentUser.longitude]);
 
     return (
-        <View style={sty.container}>
+        <View style={styles.container}>
             <LinearGradient colors={['#dfe4ff', '#238162', '#2ECC71']} >
                 
-                <View style={sty.header}>
-                    <Text style={sty.textHeader}>
-                        Panel de Gestión
-                    </Text>
+                <View style={styles.header}>
+                    <Text style={styles.textHeader}> Panel de Gestión </Text>
                 </View>
 
-                <View style={sty.body}>
+                <View style={styles.body}>
                     <ScrollView refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
         
-                        <View style={sty.row}>
+                        <View style={styles.row}>
                             
-                            <View style={sty.space}>
+                            <View style={styles.space}>
                             </View> 
         
-                            <View style={sty.columnB}>
-                                <View style={sty.btnCaptureLocation}>
+                            <View style={styles.columnB}>
+                                <View style={styles.btnCaptureLocation}>
                                     <MenuButtonItem 
                                         icon = {null}
                                         type = {'capture'}
@@ -381,24 +240,22 @@ const CompanyPanel = () => {
                                 </View>
                             </View> 
         
-                            <View style={sty.columnV}>
-                                <View style={{
-                                    marginHorizontal:20,
-                                    marginBottom:10
-                                }}>    
-                                    <Text style={sty.txtCoord}>Coordenadas:</Text>
-            
-                                    {(location !== null) ? (
-                                        <View>
-                                            <Text style={sty.txtLat}> Lat:{location.latitude}</Text>
-                                            <Text style={sty.txtLng}> Lng:{location.longitude}</Text>
-                                        </View>
-                                    ) : 
-                                        <View>
-                                            <Text style={sty.txtLat}> Lat:</Text>
-                                            <Text style={sty.txtLng}> Lng:</Text>
-                                        </View>
-                                    }
+                            <View style={styles.columnV}>
+                                <View style={{ marginHorizontal:5, marginBottom:12 }}>    
+                                    <Text style={styles.txtCoord}>Coordenadas:</Text>
+                                    <View style={{ flexDirection:'row' }}>
+                                        {(location !== null) ? (
+                                            <>
+                                                <Text style={styles.txtLat}> Lat:{location.latitude}</Text>
+                                                <Text style={styles.txtLng}> Lng:{location.longitude}</Text>
+                                            </>
+                                        ) : 
+                                            <>
+                                                <Text style={styles.txtLat}> Lat:</Text>
+                                                <Text style={styles.txtLng}> Lng:</Text>
+                                            </>
+                                        }
+                                    </View>
                                 </View>
                             </View>
 
@@ -413,57 +270,57 @@ const CompanyPanel = () => {
                             </View> */}
                         </View> 
         
-                        <View style={sty.row}>
-                            <View style={sty.columnT}>
-                                <Text style={sty.dataLabel}>RUT:</Text>
-                                <Text style={sty.dataLabel}>Propietario:</Text>
-                                <Text style={sty.dataLabel}>Razón Social:</Text>
-                                <Text style={sty.dataLabel}>Rubro:</Text>
-                                <Text style={sty.dataLabel}>Ciudad:</Text>
-                                <Text style={sty.dataLabel}>Dirección:</Text>
+                        <View style={styles.row}>
+                            <View style={styles.columnT}>
+                                <Text style={styles.dataLabel}>RUT:</Text>
+                                <Text style={styles.dataLabel}>Razón Social:</Text>
+                                <Text style={styles.dataLabel}>Propietario:</Text>
+                                <Text style={styles.dataLabel}>Rubro:</Text>
+                                <Text style={styles.dataLabel}>Ciudad:</Text>
+                                <Text style={styles.dataLabel}>Dirección:</Text>
                             </View> 
-                            <View style={sty.columnV}>
+                            <View style={styles.columnV}>
                                 <TextInput 
                                     editable={false}
                                     keyboardType="numeric"
-                                    style={sty.dataEdit} 
+                                    style={styles.dataEdit} 
                                     value={rut}
                                     onChangeText={setRut}
                                     />
                                 <TextInput 
-                                    style={sty.dataEdit} 
-                                    value={owner}
-                                    onChangeText={setOwner}
-                                    />
-                                <TextInput 
-                                    style={sty.dataEdit} 
+                                    style={styles.dataEdit} 
                                     value={businessName}
                                     onChangeText={setBusinessName}
                                     />
                                 <TextInput 
-                                    style={sty.dataEdit} 
+                                    style={styles.dataEdit} 
+                                    value={owner}
+                                    onChangeText={setOwner}
+                                    />
+                                <TextInput 
+                                    style={styles.dataEdit} 
                                     value={category}
                                     onChangeText={setCategory}
                                     />
                                 <TextInput 
-                                    style={sty.dataEdit} 
+                                    style={styles.dataEdit} 
                                     value={city}
                                     onChangeText={setCity}
                                     />
                                 <TextInput 
-                                    style={sty.dataEdit} 
+                                    style={styles.dataEdit} 
                                     value={address}
                                     onChangeText={setAddress}
                                     />
                             </View>
                         </View> 
                         
-                        <View style={sty.row}>
+                        <View style={styles.row}>
                             <SafeAreaView>
-                                <Text style={{fontWeight:'bold',paddingHorizontal:20,marginVertical:3,marginTop:15,paddingVertical:5,}}
-                                    > Descripción de la empresa:</Text>
+                                <Text style={{fontWeight:'bold',paddingHorizontal:23, marginVertical:3, marginTop:10, paddingVertical:5, }} > 
+                                    Descripción de la empresa:</Text>
                                 <TextInput 
-                                    style={sty.dataEditDesc} 
+                                    style={styles.dataEditDesc} 
                                     value={description}
                                     multiline={true}
                                     onChangeText={setDescription}
@@ -471,48 +328,64 @@ const CompanyPanel = () => {
                             </SafeAreaView>
                         </View> 
         
-                        <View style={sty.row}>
-                        <SafeAreaView>
-                        <Text style={{fontWeight:'bold',paddingHorizontal:20,marginVertical:-20,marginTop:7,paddingVertical:5,}}
-                                    > Logo:</Text>
-                            <View>
-                                <View style={sty.imageContainer}>
-                                    <TouchableOpacity 
-                                        style={sty.imageButton}
-                                        onPress={ () => handleImagePicker() } > 	
-                                        <View style={sty.buttonContent}>
-                                            { (!selectedPicture) ? (
-                                                <Text style={sty.imageText}>Logo</Text>
-                                            ) : 
+                        <View style={styles.row}>
+                            <Text style={{ fontWeight:'bold', paddingHorizontal:23, marginVertical:3, marginTop:1, paddingVertical:5, }} > 
+                                Logo:</Text>
+                        </View>
+                
+                        <View>
+                            <View style={styles.imageContainer}>
+                                <TouchableOpacity 
+                                    style={styles.buttonImage}
+                                    onPress={ () => handleImagePicker() } > 	
+                                    <View>
+                                        { (selectedPicture === 'data:image/png;base64,none' || selectedPicture === 'data:image/png;base64,undefined' ) ? (
+                                            <>
                                                 <Image 
-                                                    style={sty.image} 
-                                                    source={{ uri: selectedPicture }} 
+                                                    style={{ width: 160, height: 120, }} 
+                                                    source={require('../../../assets/emptyImage.png')}
                                                     />
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                            
-                            <View style={sty.column}>
-                                    <Text style={{marginVertical:5,
-                                    marginBottom:40,
-                                    marginLeft:50,
-                                    }}
-                                    >Pulse en el recuadro para cargar su logo</Text>
+                                            
+                                                {/* <FontAwesomeIcon 
+                                                    size={120} 
+                                                    icon={faImage} 
+                                                    color={'#0a7a75'}
+                                                    /> */}
+                                            </>
+                                        ) : 
+                                            <Image 
+                                                style={styles.image} 
+                                                source={{ uri: selectedPicture }} 
+                                                />
+                                        }
+                                    </View>
+                                </TouchableOpacity>
                             </View>
-                            </View>
-                            </SafeAreaView>
+                        </View>
+                   
+                           
+                        <View style={{
+                            flexDirection:'row',
+                            justifyContent:'center'
+                        }}>
+                            <Text style={{ 
+                                top:-5,
+                                fontWeight:'bold',
+                                color: '#f35f44',
+                                }} >* Pulse en el recuadro para cargar su logo</Text>
                         </View>
 
-                                <View style={sty.saveButton}>
-                                    <MenuButtonItem 
-                                        icon = {null}
-                                        type = {'capture'}
-                                        text = {'Guardar'}
-                                        onPress={() => saveDataCompany()}
-                                    />
-                                </View>
                     </ScrollView>
+
+                    {showSaveButtom ? (
+                        <View style={styles.saveButton}>
+                            <MenuButtonItem 
+                                icon = {null}
+                                type = {'panel'}
+                                text = {'Guardar'}
+                                onPress={() => saveDataCompany()} />
+                        </View>
+                    ): null}
 
                     <>
                         <Modal
@@ -523,9 +396,14 @@ const CompanyPanel = () => {
                             // animationType="fade" 
                             >
                             <View style={{
+                                flexDirection:'row',
+                                justifyContent:'center',
+                                textAlign:'center',
                                 backgroundColor:'#fff',
                                 marginHorizontal:50, 
-                                marginVertical:40 
+                                marginVertical:40,
+                                padding: 5,
+                                borderRadius:10
                                 }}>	
                                 <Text>Se estableció su posición actual como ubicación para su Empresa.</Text>
                             </View>
@@ -534,12 +412,142 @@ const CompanyPanel = () => {
 
                 </View>
 
-
-                
-        
             </LinearGradient>
         </View>
     );
 }
+
+var styles = StyleSheet.create({
+    container: {
+        top:-8,
+        width:width,
+        height:height,
+        flexDirection:'column',
+    },
+    header: {
+        alignItems: 'center',
+        marginTop: 15,
+        marginHorizontal: 10,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        // borderTopWidth: 2,
+        // borderLeftWidth: 1,
+        // borderRightWidth: 1,
+        // borderColor: '#fff',
+    },
+    textHeader: {
+        color: '#f35f44',
+        fontWeight:'bold',
+        padding: 10,
+        fontSize: 20,
+    },
+    body: {
+        height: height-50,
+        // marginTop: 20,
+        marginHorizontal: 15,
+        // borderRadius: 12,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between', // Distribuir en dos columnas
+        alignItems: 'center', // Alinear verticalmente al centro
+        paddingHorizontal: -10, // Espacio horizontal
+        // borderBottomWidth: 1 ,
+        // borderBottomColor: '#fff'
+    },
+    column: {
+        flex: 1, // Ocupar espacio igual en ambas columnas
+        paddingHorizontal: 5, // Espacio horizontal entre columnas
+    },
+    columnB: {
+        flex: 0.75, 
+        paddingHorizontal: 2, 
+    },
+    columnT: {
+        flex: 0.65, 
+        paddingHorizontal: 3, 
+    },
+    columnV: {
+        flex: 1, 
+        paddingHorizontal: 3,
+    },
+    space: {
+        width: 12
+    },
+    btnCaptureLocation: {
+        marginVertical: 6,
+        // marginHorizontal: 10,
+    },
+    txtbtnCapture: {
+        color: '#fff',
+    },
+    txtCoord: {
+        fontSize:15,
+        fontWeight: 'bold',
+    },
+    txtLat: {
+        left: -5,
+        fontSize:13,
+        color:'#05f'
+    },
+    txtLng: {
+        left: -3,
+        fontSize:13,
+        color:'#05f'
+    },
+    dataLabel: {
+        fontWeight:'bold',
+        paddingHorizontal:20,
+        marginVertical:3,
+        // textAlign: 'right',
+        paddingVertical:5,
+    },
+    dataEdit: {
+        marginHorizontal:-10,
+        marginVertical:3,
+        marginRight:8,
+        backgroundColor:'#fff',
+        borderRadius: 10,
+        paddingHorizontal: 5,
+    },
+    dataEditDesc: {
+        width:width-55,
+        height:130,
+        marginVertical:3,
+        marginBottom:10,
+        marginHorizontal:15,
+        backgroundColor:'#fff',
+        textAlignVertical: 'top',
+        paddingHorizontal: 10,
+        borderRadius: 10,
+    },
+    imageContainer: {
+        top:-10,
+        marginHorizontal:15,
+        flexDirection:'row',
+        justifyContent:'center',
+        alignContent:'center',
+    },
+    buttonImage: {
+        // ...
+    },
+    image: {
+        flex: 1,
+        height: 120,
+        width: 160,
+        padding: 5,
+        borderRadius: 10,
+        resizeMode: 'cover',
+    },
+    buttonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    saveButton: {
+        marginTop:-30,
+        marginHorizontal: 10
+    },
+});
 
 export default CompanyPanel;

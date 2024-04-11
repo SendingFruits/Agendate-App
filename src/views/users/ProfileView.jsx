@@ -2,12 +2,17 @@ import {
     AuthContext 
 } from '../../context/AuthContext';
 
-import { getBase64FromUri, loadImageFromBase64 } from '../utils/Functions'
+import {
+    validarCedula,
+    getBase64FromUri, 
+    loadImageFromBase64 
+} from '../utils/Functions'
 
 import UsersController from '../../controllers/UsersController';
 import AlertModal from '../utils/AlertModal';
 import MenuButtonItem from '../home/MenuButtonItem';
 import CheckBox from '../utils/CheckBox';
+import EditMovil from '../utils/EditMovil';
 
 import React, { 
     useState, useEffect, useContext 
@@ -31,7 +36,7 @@ import {
 } from 'react-native';
 
 import { 
-	faCircleUser
+	faCircleUser, faBan
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -45,16 +50,12 @@ const { width, height } = Dimensions.get('window');
 const ProfileView = () => {
 
     const { currentUser, setCurrentUser } = useContext(AuthContext);
-
-    // console.log('ProfileView currentUser: ', currentUser);
-    const [widthMax, setWidthMax] = useState(width);
-    const [heightMax, setHeightMax] = useState(height);
-
+    // console.log('currentUser',currentUser);
     const navigation = useNavigation();
 
     const [user, setUser] = useState(currentUser);
-    const [guid, setGuid] = useState(currentUser.guid);
 
+    const [guid, setGuid] = useState(currentUser.guid);
     const [type, setType] = useState(currentUser.type);
     const [docu, setDocu] = useState(currentUser.docu);
     const [username, setUsername] = useState(currentUser.user);
@@ -62,21 +63,37 @@ const ProfileView = () => {
     const [lastname, setLastname] = useState(currentUser.last);
     const [movil, setMovil] = useState(currentUser.celu);
     const [email, setEmail] = useState(currentUser.mail);
+    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
 
     const [logoBase, setLogoBase] = useState(currentUser.logo);
     const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(currentUser.logo));
     const [selectedPicture, setSelectedPicture] = useState(null);
     
+    const [isValidDocu, setIsValidDocu] = useState(false);
 	const [isValidEmail, setIsValidEmail] = useState(true);
+    
     const [refreshing, setRefreshing] = useState(false);
-    // console.log(currentUser.noti);
-    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
-    // console.log(isChecked);
-
-    const [oldpass, setOldPass] = useState('');
-    const [newpass, setNewPass] = useState('');
-
     const [showButtons, setShowButtons] = useState(true);
+
+
+    const setMovilFormat = (movil) => {
+		// console.log(movil);
+		var intMovil = parseInt(movil,10);
+		// console.log(intMovil);
+		if (!isNaN(intMovil)) {
+			setMovil(intMovil.toString());
+		} else {
+			setMovil(movil);
+		}
+	}
+
+    const handlerCedula = (ci) => {
+        setDocu(ci);
+        if (ci !== '') {
+            // console.log(validarCedula(ci));
+            setIsValidDocu(validarCedula(ci));
+        }
+	};
 
 	const validateEmail = (email) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,6 +103,10 @@ const ProfileView = () => {
 	const handleEmailChange = (text) => {
 		setEmail(text);
 		setIsValidEmail(validateEmail(text));
+	};
+
+    const handleImagePicker = () => {
+		openLogoPickerAsync();
 	};
 
 
@@ -129,52 +150,72 @@ const ProfileView = () => {
     }
 
 
-    const handleImagePicker = () => {
-		openLogoPickerAsync();
-	};
-
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
+            // console.log('currentUser.noti',currentUser.noti);
+            setGuid(currentUser.guid);
+            setType(currentUser.type);
+            setDocu(currentUser.docu);
+            setUsername(currentUser.user);
+            setFirstname(currentUser.name);
+            setLastname(currentUser.last);
+            setMovil(currentUser.celu);
+            setEmail(currentUser.mail);
+            setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
+            setLogoBase(currentUser.logo);
+            setLogoUrl(loadImageFromBase64(currentUser.logo));
+            setSelectedPicture(logoUrl); 
+
+            navigation.navigate('Perfil de Usuario');
 		}, 2000);
-	}, []);
+	}, [currentUser]);
 
 
     const updateData = () => {
         
+        // var check = 'False';
+        // if (isChecked) {
+        //     check = 'True';
+        // }
+        // console.log('isChecked',isChecked);
+
         const formData = {
             guid,
             docu,
 			firstname,
 			lastname,
+            pass: user.pass,
+            user: user.user,
 			movil,
             email,
             foto:logoBase,
             recibe:isChecked,
+            type: type
 		};
 
-        // console.log('formData: ', formData);
+        // console.log('formData', formData.recibe);
         UsersController.handleUpdate(formData,currentUser.type)
         .then(userReturn => {
-			// console.log('ProfileView userReturn: ', userReturn);
-			if (userReturn) {
+            var user = (userReturn === '') ? true : false; 
+			if (user) {
                 AlertModal.showAlert('', 'Los datos del usuario se han actualizado.');
                 setCurrentUser({
                     guid: formData.guid,
                     docu: formData.docu,
                     name: formData.firstname,
                     last: formData.lastname,
-                    pass: user.pass,
-                    user: user.user,
+                    pass: formData.pass,
+                    user: formData.user,
                     celu: formData.movil,
                     mail: formData.email,
                     logo: formData.foto,
                     noti: formData.recibe,
-                    type: user.type,
+                    type: formData.type,
                 });
-                // setUser(userReturn);
-                onRefresh();
+                // console.log('currentUser', currentUser);
+                // onRefresh(formData);
 			}
 		})
 		.catch(error => {
@@ -209,50 +250,40 @@ const ProfileView = () => {
                             'logo':'none', 
                             'noti':'none', 
                         });
-                        onRefresh();
-                        navigation.navigate('Inicio');
+                        
                         AlertModal.showAlert('La cuenta fue eliminada');
+                        // onRefresh();
+                        navigation.navigate('Inicio');
                     }
                 })
                 .catch(error => {
-                    alert(error);
+                    AlertModal.showAlert(error);
                 });
             }
 		})
 		.catch(error => {
-			alert(error);
+			AlertModal.showAlert('ERROR', error);
 		});
 	};
 
-    const handleOrientationChange = () => {
-        const { width, height } = Dimensions.get('window');
-        setWidthMax(width);
-        setHeightMax(height);
-    };
-    
-
 	useEffect(() => {
+        
+        setUser(currentUser);
 
-        setType(currentUser.type);
+        setGuid(currentUser.guid);
         setDocu(currentUser.docu);
+        setType(currentUser.type);
         setUsername(currentUser.user);
         setFirstname(currentUser.name);
         setLastname(currentUser.last);
         setMovil(currentUser.celu);
         setEmail(currentUser.mail);
+        setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
 
         setLogoBase(currentUser.logo);
         setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
 
-        setUser(currentUser);
-        setGuid(currentUser.guid);
-
-        setOldPass('');
-        setNewPass('');
-
-        Dimensions.addEventListener('change', handleOrientationChange);
-        // openImageSavedAsync();
 
         /**
          * esto sirve para controlar el teclado:
@@ -276,16 +307,11 @@ const ProfileView = () => {
         <View style={styles.container}>
 
             <ScrollView 
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                } >
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> } >
 
                 { (user.type === 'customer') ? (
                     <View style={styles.header}>
-                        <TouchableOpacity 
-                            // style={{ backgroundColor:'#e12' }}
-                            onPress={ () => handleImagePicker(0) } > 	                      
-                            {console.log(logoUrl)}
+                        <TouchableOpacity onPress={ () => handleImagePicker(0) } >
                             { ((logoUrl === 'data:image/png;base64,none') || (logoUrl === 'data:image/png;base64,undefined')) ? (
                                 <FontAwesomeIcon 
                                     style={styles.image} icon={faCircleUser} color={'#0a7a75'}/>
@@ -304,7 +330,14 @@ const ProfileView = () => {
                     </View>
                 }
 
-                <View style={styles.inputContainer}>
+                <View style={styles.textViewUser}>
+                    <Text style={styles.textUser}> {username}</Text> 
+                    { (user.type === 'customer') ? (
+                        <Text style={styles.textUser}> CI: {docu}</Text> 
+                    ) : null }
+                </View>
+
+                {/* <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={username}
@@ -312,24 +345,26 @@ const ProfileView = () => {
                         // onChangeText={setUsername}
                         // onChangeText={(text) => handleFieldChange(text, 'username')}
                     />
-                </View>
+                </View> */}
  
-                { (user.type === 'customer') ? (
+                {/* { (user.type === 'customer') ? (
                     <View style={styles.inputContainer}>
                         <TextInput
+                            editable={false}
                             style={styles.input}
-                            value={docu}
-                            onChangeText={setDocu}
-                            // onChangeText={(text) => handleFieldChange(text, 'firstname')}
-                        />
-                    </View>
-                ) : null}
+                            value={docu} */}
+                        {/* /> */}
+                        {/* {isValidDocu ? (
+                            <Text style={{ color:'red' }}> # Documento Incorrecto</Text>
+                        ) : null } */}
+                    {/* </View>
+                ) : null} */}
                 
-
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={firstname}
+                        placeholder="Nombre"
                         onChangeText={setFirstname}
                         // onChangeText={(text) => handleFieldChange(text, 'firstname')}
                     />
@@ -339,35 +374,40 @@ const ProfileView = () => {
                     <TextInput
                         style={styles.input}
                         value={lastname}
+                        placeholder="Apellido"
                         onChangeText={setLastname}
                         // onChangeText={(text) => handleFieldChange(text, 'lastname')}
                     />
                 </View>
-
-                <View style={styles.inputContainer}>
+ 
+                {/* <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={movil}
                         onChangeText={setMovil}
                         // onChangeText={(text) => handleFieldChange(text, 'movil')}
                     />
-                </View>
+                </View> */}
+
+                <View style={styles.inputContainer}>
+					<EditMovil movil={movil} handleFieldChange={setMovilFormat} />
+				</View>
 
                 <View style={[styles.inputContainer, !isValidEmail && styles.invalidInput]} >
                     <TextInput
                         keyboardType="email-address"
-                        style={styles.input}
-                        value={email}
-                        autoCapitalize="none"
-                        onChangeText={(text) => handleEmailChange(text)} />
+						style={styles.input}
+						placeholder="Correo"
+						value={email}
+						// onChangeText={setEmail}
+                        onChangeText={(text) => handleEmailChange(text)} 
+						autoCapitalize="none" 
+                    />
                     {
                         !isValidEmail &&
-                        <Text style={styles.errorText}>
-                            Correo electrónico inválido
-                        </Text>
+                        <Text style={{ color:'red' }}> # Correo electrónico inválido </Text>
                     }
                 </View>
-
 
                 { (user.type === 'customer') ? (
                     <View style={styles.checkContainer}>
@@ -391,25 +431,32 @@ const ProfileView = () => {
                 <View style={styles.footer}>
 
                     <View style={styles.buttons}>
-                        <MenuButtonItem 
-                            icon = {null}
-                            text = {'Cambiar Contraseña'}
-                            onPress={() => updatePass()}
-                        /> 
 
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Actualizar Datos'}
-                            onPress={() => updateData()}
-                        />
+                        <View style={{ marginBottom:10 }}>
+                            <MenuButtonItem
+                                icon = {null}
+                                type = {'panel'}
+                                text = {'Actualizar Datos'}
+                                onPress={() => updateData()}
+                            />
+                        </View>
+                        <View style={{ marginBottom:10 }}>
+                            <MenuButtonItem 
+                                icon = {null}
+                                text = {'Cambiar Contraseña'}
+                                onPress={() => updatePass()}
+                            /> 
+                        </View>
 
-                        <MenuButtonItem
-                            style={{marginHorizontal:20}}
-                            icon = {null}
-                            text = {'Eliminar Cuenta'}
+                        <TouchableOpacity
                             onPress={() => deleteAccount()}
-                        />
+                            style={{
+                                flexDirection:'row',
+                                justifyContent:'center',
+                            }}>
+                            <FontAwesomeIcon icon={faBan} color={'red'}/>
+                            <Text style={{ marginLeft:5, color:'red' }}>Eliminar Cuenta</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             ) : null}
@@ -430,10 +477,24 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderRadius: 5,
 		marginHorizontal:45,
-		marginBottom: 5,
+		marginBottom: 10,
 		paddingHorizontal: 15,
 		paddingVertical: 3,
 	},
+
+    textViewUser: {
+        flexDirection:'column',
+        alignItems:'center',
+        marginBottom: 20,
+        marginTop:-13,
+    },
+    textUser: {
+        fontWeight: 'normal',
+        fontSize: 17,
+        borderColor: 10,
+        fontWeight: 'bold'
+    },
+
     input: {
 		color: 'black',
 		fontWeight: 'bold',
@@ -481,6 +542,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttons: { 
+        flexDirection:'column',
+        alignItems:'center',
         marginHorizontal:45, 
         marginBottom:15, 
         textAlign:'center' 

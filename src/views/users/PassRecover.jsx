@@ -11,6 +11,7 @@ import React, {
 import MenuButtonItem from '../home/MenuButtonItem';
 import UsersController from '../../controllers/UsersController';
 import AlertModal from '../utils/AlertModal';
+import EditMovil from '../utils/EditMovil';
 
 import { 
     Text, 
@@ -33,6 +34,17 @@ const PassRecover = () => {
     const [movil, setMovil] = useState('');
 
 
+    const setMovilFormat = (movil) => {
+		// console.log(movil);
+		var intMovil = parseInt(movil,10);
+		// console.log(intMovil);
+		if (!isNaN(intMovil)) {
+			setMovil(intMovil.toString());
+		} else {
+			setMovil(movil);
+		}
+	}
+
     const recoveryPassword = () => {
 
         var valuesChange = {
@@ -43,8 +55,8 @@ const PassRecover = () => {
         // console.log(valuesChange);
         UsersController.handleRecoveryPass(JSON.stringify(valuesChange))
 		.then(msgReturn => {
-            console.log('msgReturn: ', msgReturn);
-			AlertModal.showAlert('Envio Exitoso', msgReturn.mensaje);
+            // console.log('msgReturn: ', msgReturn);
+			AlertModal.showAlert('', msgReturn.mensaje);
 		})
 		.catch(error => {
 			AlertModal.showAlert('Error: ', JSON.stringify(error));
@@ -85,13 +97,17 @@ const PassRecover = () => {
                 </View>
 
                 <Text style={styles.txtUpdate}>Celular: </Text>
-                <View style={styles.inputContainer}>
+                {/* <View style={styles.inputContainer}>
                     <TextInput style={styles.input} 
                         value={movil}
                         keyboardType="numeric"
                         onChangeText={(text) => setMovil(text)}
                     />
-                </View>
+                </View> */}
+
+                <View style={styles.inputContainer}>
+					<EditMovil movil={movil} handleFieldChange={setMovilFormat} />
+				</View>
 
                 <View style={styles.btnChangePassword}>
                     <MenuButtonItem 

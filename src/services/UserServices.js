@@ -89,7 +89,6 @@ class UserServices {
         });
     };
 
-
     postUserRegister = async (json) => {
         return new Promise((resolve, reject) => {
   
@@ -139,7 +138,6 @@ class UserServices {
         });
     };
     
-
     putUserDataCompany = async (json) => {
         return new Promise((resolve, reject) => {
   
@@ -158,8 +156,7 @@ class UserServices {
             .then(function (response) {
                 // console.log(response.status);
                 if (response.status == 200) {
-                    // deberia devolver el objeto con los datos nuevos, pero no devuelve nada
-                    resolve(JSON.stringify(response.data));
+                    resolve(response.data);
                 } else {
                     resolve(response.errors);
                 }
@@ -190,7 +187,7 @@ class UserServices {
                 // console.log(response.status);
                 if (response.status == 200) {
                     // deberia devolver el objeto con los datos nuevos, pero no devuelve nada
-                    resolve(JSON.stringify(response.data));
+                    resolve(response.data);
                 } else {
                     resolve(response.errors);
                 }
@@ -201,7 +198,6 @@ class UserServices {
             });
         });
     };
-
 
     putPassword = async (json) => {
         return new Promise((resolve, reject) => {
@@ -265,7 +261,6 @@ class UserServices {
         });
     }
 
-
     putDelete = async (id) => {
         return new Promise((resolve, reject) => {
   
@@ -289,6 +284,29 @@ class UserServices {
             .catch(error => {
                 reject(error.response.data);
             });
+        });
+    }
+
+    putConnect = async (type,url) => {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log('services type',type);
+                console.log('services url', url);
+
+                if (type === 'Ngrok') {
+                    ApiConfig.setNgrok(url);    
+                }    
+                ApiConfig.setHost(type);
+                console.log('setting url', ApiConfig.API_BASE_URL);
+
+                if (ApiConfig.API_BASE_URL) {
+                    resolve(ApiConfig.API_BASE_URL);
+                } else {
+                    resolve('No se adjunto el valor');
+                }
+            } catch (error) {
+                reject('Error Token: ', error);
+            }
         });
     }
 }

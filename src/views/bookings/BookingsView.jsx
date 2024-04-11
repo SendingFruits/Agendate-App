@@ -114,7 +114,8 @@ const BookingsView = ( params ) => {
         if (dateSelected === null) {
             setDateSelected(getFormattedDate());
         }
-        loadBookings();
+        loadBookings(guid,type);
+        
     }, [guid, type, dateSelected]);
 
     // console.log('list: ', list);
@@ -136,11 +137,12 @@ const BookingsView = ( params ) => {
             ) : null }
 
             {/* {(list !== null || (Array.isArray(list) && list.length !== 0)) ? ( */}
-            {(list.length !== 0) ? (
-                <ScrollView 
+            <ScrollView 
                     contentContainerStyle={styles.scrollContainer}
                     refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
-                    {list.map((item, index) => (
+                        
+                        
+                    {(list.length ==! 0) ? (
                         <View key={index}>
                             <BookingItem 
                                 index={index}
@@ -149,15 +151,19 @@ const BookingsView = ( params ) => {
                                 onRefresh={onRefresh}
                             />
                         </View>
-                    ))}
-                </ScrollView>
-            ) : (
-                <View>
+                    ) : null}
+
+                    {(list.length === 0) ? (
+                
+                <View >
                     {type === 'company' ? 
-                       <Text>No hay Reservas para el {formatDate(dateSelected)}</Text> 
-                    : <Text>No realizó Reservas aún</Text> }
+                       <Text style={styles.mesaggeLabel}>No hay Reservas para el {formatDate(dateSelected)}</Text> 
+                    : <Text style={styles.mesaggeLabel}>No realizó Reservas aún</Text> }
                 </View>
-            )}
+                ) : null}
+                </ScrollView>
+            
+            
           
         </View>
     );
@@ -169,6 +175,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#e9e9f8',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    mesaggeLabel: {
+        marginTop: 331,
+        fontSize: 18
     },
     scrollContainer: {
         flex: 1,

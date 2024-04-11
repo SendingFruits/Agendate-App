@@ -184,7 +184,6 @@ class PromoServices {
         });
     }
 
-
     putNotifications = async (json) => {
         return new Promise((resolve, reject) => {
   
@@ -213,7 +212,6 @@ class PromoServices {
             });
         });   
     }
-
 }
 
 export default new PromoServices();

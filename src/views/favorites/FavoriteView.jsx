@@ -3,7 +3,6 @@ import {
 } from '../../context/AuthContext';
 
 import { useNavigation } from '@react-navigation/native';
-import { getOrientation } from '../utils/Functions'; 
 
 import FavoriteItem from './FavoriteItem';
 import FavoriteController from '../../controllers/FavoritesController';
@@ -15,9 +14,9 @@ import React, {
 import { 
     StyleSheet,
     Dimensions,
+    RefreshControl,
     View, 
     ScrollView,
-    RefreshControl,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -25,42 +24,29 @@ const { width, height } = Dimensions.get('window');
 const FavoriteView = ( params ) => {
 
     const navigation = useNavigation();
-    const { currentUser } = useContext(AuthContext);
+    const { currentUser, favoriteSelected, setFavoriteSelected } = useContext(AuthContext);
     var guid = currentUser.guid; 
 
     const [list, setList] = useState(null);
-    const [editing, setEditing] = useState(false);
+    const [editMode, setEditMode] = useState({});
     const [isCreate, setIsCreate] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [orientation, setOrientation] = useState(getOrientation());
+    const [bodyHeight, setBodyHeight] = useState(370); 
 
-    const handleEditItem = (item) => {
-        console.log('handleEditItem', item);
-    };
  
     const createItem = (guid) => {
         // console.log('create', guid);
-        navigation.navigate('Crear Servicio');
-    };
-
-    const premiumUpdate = () => {
-        console.log('premiumUpdate');
     };
 
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-            setEditing(false);
+            setEditMode(false);
             getFavorites();
-			// navigation.navigate('Servicios');
+			// navigation.navigate('Favoritos');
 		}, 2000);
-	}, [list]);
-
-    const handleOrientationChange = () => {
-		const newOrientation = getOrientation();
-		setOrientation(newOrientation);
-	};
+	}, [editMode,list]);
 
     const getFavorites = async () => {
         if (guid !== 'none') {
@@ -80,7 +66,7 @@ const FavoriteView = ( params ) => {
     }
 
     const listFavorites = () => {
-        // console.log('list: ', list); 
+        // console.log(list);
 		if (list) {
 			return list.map((item, index) => {
 				return item && (
@@ -92,6 +78,8 @@ const FavoriteView = ( params ) => {
                         onRefresh={onRefresh}
                         onPress={() => handleEditItem(item)}
                         navigation={navigation}
+                        favoriteSelected={favoriteSelected}
+                        setFavoriteSelected={setFavoriteSelected}
                     />
 				)
 			});
@@ -99,6 +87,12 @@ const FavoriteView = ( params ) => {
 		
 	};
     
+    const toggleEditMode = (index) => {
+        // setEditMode((prevEditMode) => ({
+        //     ...prevEditMode,
+        //     [index]: !prevEditMode[index],
+        // }));
+    };
 
     useEffect(() => {
         getFavorites();
@@ -108,20 +102,15 @@ const FavoriteView = ( params ) => {
 
     return (
         <View style={styles.container}>
-
-            {(list !== null && Array.isArray(list) && list.length > 0) ? (
-                <ScrollView 
-                    contentContainerStyle={styles.scrollContainer}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }>
-
-                    {listFavorites()}
-
-                </ScrollView>
-            ) : null }
-
-
+            <ScrollView 
+                contentContainerStyle={styles.scrollContainer}
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
+                {(list !== null && Array.isArray(list) && list.length > 0) ? (
+                    <>
+                        {listFavorites()}
+                    </>
+                ) : null }
+            </ScrollView>
         </View>
     );
 };
