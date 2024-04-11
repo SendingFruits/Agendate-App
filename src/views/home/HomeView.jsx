@@ -64,6 +64,8 @@ const HomeView = ( params ) => {
 	// console.log('navigation.goBack', navigation.goBack());
 
 	const [location, setLocation] = useState(null);
+	const [myLocation, setMyLocation] = useState(null);
+
 	const [companies, setCompanies] = useState([]);
 	const [selectedMarker, setSelectedMarker] = useState(null);
 	const [orientation, setOrientation] = useState(getOrientation());
@@ -78,6 +80,7 @@ const HomeView = ( params ) => {
 			if (await MapController.requestLocationPermission() === 'granted') {
 				const region = await MapController.getLocation();
 				setLocation(region);
+				setMyLocation(region);
 				// const organizedCompanies = await MapController.companyLocations(region,1);
 				
 				MapController.companyLocations(region, ratio)
@@ -118,7 +121,7 @@ const HomeView = ( params ) => {
 		setFavoriteSelected(null);
 		console.log('favoriteSelected handleRatio 2',favoriteSelected);
 		var rango = 0.0200;
-		if (location !== null) {
+		if (myLocation !== null) {
 			setRatio(value);
 			setRatioSelected(value);
 			if (value >= 0 && value < 2)
@@ -129,9 +132,9 @@ const HomeView = ( params ) => {
 				rango = 0.2200; 
 				
 			var myLoc = {
-				latitude: location.latitude,
+				latitude: myLocation.latitude,
 				latitudeDelta: rango,
-				longitude: location.longitude,
+				longitude: myLocation.longitude,
 				longitudeDelta: rango
 			};
 			mapRef.current.animateToRegion(myLoc); 
@@ -389,8 +392,8 @@ const HomeView = ( params ) => {
 									<Callout style={styles.openCallout} 
 										onPress={() => handleReservation(null, null)} 
 										>
-										<Text style={styles.title}>{item.title}</Text>  
-										<Text style={styles.description}>{item.description}</Text>
+										<Text style={styles.title}>{favoriteSelected.title}</Text>  
+										<Text style={styles.description}>{favoriteSelected.description}</Text>
 										{/* <Text style={{ color:'#f00', fontSize:16, alignSelf:'center' }}>
 											Debe ingresar como Cliente
 										</Text> */}
@@ -405,11 +408,11 @@ const HomeView = ( params ) => {
 		}
 	}
 	
-	const myLocation = async () => {
+	const geoMyLocation = async () => {
 		try {
 			const newRegion = {
-				latitude: location.latitude,
-				longitude: location.longitude,
+				latitude: myLocation.latitude,
+				longitude: myLocation.longitude,
 				latitudeDelta: 0.0200,
 				longitudeDelta: 0.0200,
 			};
@@ -471,16 +474,14 @@ const HomeView = ( params ) => {
 							// padding: 5
 						}}>
 						<TouchableOpacity style={{ flex:1,padding:6.2,borderRadius:15, backgroundColor:'#fff' }} 
-							onPress={() => myLocation()}>
+							onPress={() => geoMyLocation()}>
 							<FontAwesomeIcon icon={faLocationCrosshairs} color={'#442'} size={24} />
 						</TouchableOpacity>
 					</View>
 
 					<MapView
 						ref={mapRef}
-						style={ orientation === 'portrait' 
-							? styles.mapPortrait : styles.mapLandscape 
-						}
+						style={ orientation === 'portrait' ? styles.mapPortrait : styles.mapLandscape }
 						tintColor={'#150'}
 						onRegionChange={onRegionChange}
 						initialRegion={location}

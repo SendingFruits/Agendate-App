@@ -45,7 +45,7 @@ const Menu = ( params ) => {
 
 	const { navigation } = params;
     const { 
-		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation , setRatioSelected
+		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation , setRatioSelected, setFavoriteSelected
 	} = useContext(AuthContext);
 	// console.log('currentUser Menu: ', currentUser);
 
@@ -74,6 +74,7 @@ const Menu = ( params ) => {
 			'noti':'none', 
         });
 		setRatioSelected(1);
+		setFavoriteSelected({});
 		clearCache();
 
 		/**
