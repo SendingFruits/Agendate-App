@@ -50,38 +50,42 @@ const { width, height } = Dimensions.get('window');
 const ProfileView = () => {
 
     const { currentUser, setCurrentUser } = useContext(AuthContext);
-
+    // console.log(currentUser);
     const navigation = useNavigation();
 
     const [user, setUser] = useState(currentUser);
+
     const [guid, setGuid] = useState(currentUser.guid);
-
     const [type, setType] = useState(currentUser.type);
-
-    const [isValidDocu, setIsValidDocu] = useState(false);
     const [docu, setDocu] = useState(currentUser.docu);
-
     const [username, setUsername] = useState(currentUser.user);
     const [firstname, setFirstname] = useState(currentUser.name);
     const [lastname, setLastname] = useState(currentUser.last);
     const [movil, setMovil] = useState(currentUser.celu);
     const [email, setEmail] = useState(currentUser.mail);
+    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
 
     const [logoBase, setLogoBase] = useState(currentUser.logo);
     const [logoUrl, setLogoUrl] = useState(loadImageFromBase64(currentUser.logo));
     const [selectedPicture, setSelectedPicture] = useState(null);
     
+    const [isValidDocu, setIsValidDocu] = useState(false);
 	const [isValidEmail, setIsValidEmail] = useState(true);
+    
     const [refreshing, setRefreshing] = useState(false);
-    // console.log(currentUser.noti);
-    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
-    // console.log(isChecked);
-
-    const [oldpass, setOldPass] = useState('');
-    const [newpass, setNewPass] = useState('');
-
     const [showButtons, setShowButtons] = useState(true);
 
+
+    const setMovilFormat = (movil) => {
+		// console.log(movil);
+		var intMovil = parseInt(movil,10);
+		// console.log(intMovil);
+		if (!isNaN(intMovil)) {
+			setMovil(intMovil.toString());
+		} else {
+			setMovil(movil);
+		}
+	}
 
     const handlerCedula = (ci) => {
         setDocu(ci);
@@ -146,71 +150,72 @@ const ProfileView = () => {
     }
 
 
-    const onRefresh = React.useCallback((formData) => {
+    const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);
-
-            if (formData) {
-                setType(formData.type);
-                setDocu(formData.docu);
-                setUsername(formData.user);
-                setFirstname(formData.name);
-                setLastname(formData.last);
-                setMovil(formData.celu);
-                setEmail(formData.mail);
-            } else {
-                setType(currentUser.type);
-                setDocu(currentUser.docu);
-                setUsername(currentUser.user);
-                setFirstname(currentUser.name);
-                setLastname(currentUser.last);
-                setMovil(currentUser.celu);
-                setEmail(currentUser.mail);
-            }
+            // console.log('currentUser.noti',currentUser.noti);
+            setGuid(currentUser.guid);
+            setType(currentUser.type);
+            setDocu(currentUser.docu);
+            setUsername(currentUser.user);
+            setFirstname(currentUser.name);
+            setLastname(currentUser.last);
+            setMovil(currentUser.celu);
+            setEmail(currentUser.mail);
+            setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
             setLogoBase(currentUser.logo);
             setLogoUrl(loadImageFromBase64(currentUser.logo));
             setSelectedPicture(logoUrl); 
 
             navigation.navigate('Perfil de Usuario');
 		}, 2000);
-	}, []);
+	}, [currentUser]);
 
 
     const updateData = () => {
         
+        // var check = 'False';
+        // if (isChecked) {
+        //     check = 'True';
+        // }
+        // console.log('isChecked',isChecked);
+
         const formData = {
             guid,
             docu,
 			firstname,
 			lastname,
+            pass: user.pass,
+            user: user.user,
 			movil,
             email,
             foto:logoBase,
             recibe:isChecked,
+            type: type
 		};
 
-        // console.log('formData: ', formData);
+        // console.log('formData', formData.recibe);
         UsersController.handleUpdate(formData,currentUser.type)
         .then(userReturn => {
-			// console.log('ProfileView userReturn: ', userReturn);
-			if (userReturn) {
+            var user = (userReturn === '') ? true : false; 
+			if (user) {
                 AlertModal.showAlert('', 'Los datos del usuario se han actualizado.');
                 setCurrentUser({
                     guid: formData.guid,
                     docu: formData.docu,
                     name: formData.firstname,
                     last: formData.lastname,
-                    pass: user.pass,
-                    user: user.user,
+                    pass: formData.pass,
+                    user: formData.user,
                     celu: formData.movil,
                     mail: formData.email,
                     logo: formData.foto,
                     noti: formData.recibe,
-                    type: user.type,
+                    type: formData.type,
                 });
-                // setUser(userReturn);
-                onRefresh(formData);
+                // console.log('currentUser', currentUser);
+                // onRefresh(formData);
 			}
 		})
 		.catch(error => {
@@ -261,24 +266,23 @@ const ProfileView = () => {
 	};
 
 	useEffect(() => {
+        
+        setUser(currentUser);
 
-        setType(currentUser.type);
+        setGuid(currentUser.guid);
         setDocu(currentUser.docu);
+        setType(currentUser.type);
         setUsername(currentUser.user);
         setFirstname(currentUser.name);
         setLastname(currentUser.last);
         setMovil(currentUser.celu);
         setEmail(currentUser.mail);
+        setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
 
         setLogoBase(currentUser.logo);
         setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
 
-        setUser(currentUser);
-        setGuid(currentUser.guid);
-
-        setOldPass('');
-        setNewPass('');
 
         /**
          * esto sirve para controlar el teclado:
@@ -296,7 +300,7 @@ const ProfileView = () => {
                 setShowButtons(true);
             }
         );
-	}, [currentUser]);
+	}, []);
 
     return (
         <View style={styles.container}>
@@ -327,6 +331,9 @@ const ProfileView = () => {
 
                 <View style={styles.textViewUser}>
                     <Text style={styles.textUser}> {username}</Text> 
+                    { (user.type === 'customer') ? (
+                        <Text style={styles.textUser}> CI: {docu}</Text> 
+                    ) : null }
                 </View>
 
                 {/* <View style={styles.inputContainer}>
@@ -339,24 +346,24 @@ const ProfileView = () => {
                     />
                 </View> */}
  
-                { (user.type === 'customer') ? (
+                {/* { (user.type === 'customer') ? (
                     <View style={styles.inputContainer}>
                         <TextInput
+                            editable={false}
                             style={styles.input}
-                            value={docu}
-                            onChangeText={ (ci) => handlerCedula(ci) }
-                            // onChangeText={(text) => handleFieldChange(text, 'firstname')}
-                        />
-                        {isValidDocu ? (
+                            value={docu} */}
+                        {/* /> */}
+                        {/* {isValidDocu ? (
                             <Text style={{ color:'red' }}> # Documento Incorrecto</Text>
-                        ) : null }
-                    </View>
-                ) : null}
+                        ) : null } */}
+                    {/* </View>
+                ) : null} */}
                 
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={firstname}
+                        placeholder="Nombre"
                         onChangeText={setFirstname}
                         // onChangeText={(text) => handleFieldChange(text, 'firstname')}
                     />
@@ -366,6 +373,7 @@ const ProfileView = () => {
                     <TextInput
                         style={styles.input}
                         value={lastname}
+                        placeholder="Apellido"
                         onChangeText={setLastname}
                         // onChangeText={(text) => handleFieldChange(text, 'lastname')}
                     />
@@ -381,7 +389,7 @@ const ProfileView = () => {
                 </View> */}
 
                 <View style={styles.inputContainer}>
-					<EditMovil movil={movil} handleFieldChange={setMovil} />
+					<EditMovil movil={movil} handleFieldChange={setMovilFormat} />
 				</View>
 
                 <View style={[styles.inputContainer, !isValidEmail && styles.invalidInput]} >
@@ -467,7 +475,8 @@ const styles = StyleSheet.create({
 	},
 
     textViewUser: {
-        alignSelf: 'center',
+        flexDirection:'column',
+        alignItems:'center',
         marginBottom: 20,
         marginTop:-13,
     },

@@ -52,6 +52,18 @@ const ServiceCreate = ( params ) => {
     const [dias, setDias] = useState(JSON.parse(jsonString));
     const [viewDays, setViewDays] = useState(true);
 
+    const [interval, setInterval] = useState(30);
+
+    const setDuracionTurno = (item) => {
+        // console.log(item);
+        if (item === 30) {
+            setInterval(30);
+        } else {
+            setInterval(60);
+        }
+        setTurno(item);
+    };
+
     // JSON.parse(item.jsonDiasHorariosDisponibilidadServicio)
 
     const [marginStatusTop, setMarginStatusTop] = useState(0);
@@ -186,16 +198,33 @@ const ServiceCreate = ( params ) => {
                                         <Text style={styles.label}>Duración de Turnos:</Text>
                                     </View>
                                     <View style={styles.columnV}>
-                                        <Picker
-                                            // style={styles.picker}
-                                            // placeholder="Tipo"
-                                            selectedValue={turno}
-                                            onValueChange={(itemValue) => setTurno(itemValue)}
-                                            // onValueChange={(itemValue) => handleFieldChange(itemValue, 'userType')}
-                                            >
-                                            <Picker.Item label="30 min" value={30} />
-                                            <Picker.Item label="1 hora" value={1} />
-                                        </Picker>
+
+                                        <View
+                                            style={{ 
+                                                height: 30,
+                                                width: 260,
+                                                // marginLeft: 30,
+                                                marginVertical: 5,
+                                                borderRadius: 10,
+                                                backgroundColor:'#0f8c8aee'
+                                            }}>
+
+                                            <Picker
+                                                style={{ 
+                                                    top:-10,
+                                                    alignSelf: 'center', // Alinear horizontalmente
+                                                    height: '8%', // Ajustar al contenedor
+                                                    width: '90%', // Ajustar al contenedor
+                                                }}
+                                                // placeholder="Tipo"
+                                                selectedValue={turno}
+                                                onValueChange={(itemValue) => setDuracionTurno(itemValue)}
+                                                // onValueChange={(itemValue) => handleFieldChange(itemValue, 'userType')}
+                                                >
+                                                <Picker.Item label="30 min" value={30} />
+                                                <Picker.Item label="1 hora" value={1} />
+                                            </Picker>
+                                        </View>
                                     </View>
                             </View>
                             <View style={styles.row}>
@@ -206,7 +235,7 @@ const ServiceCreate = ( params ) => {
 
                             {viewDays ? (
                                 <View style={styles.row}>
-                                    <DaysSelector dias={dias} setDias={setDias} create={true} />
+                                    <DaysSelector dias={dias} setDias={setDias} create={true} interval={interval} />
                                 </View>
                             ) : null }
                         </ScrollView>

@@ -80,57 +80,65 @@ class UsersController {
 			var dataConvert = {};
 			var ctica = '+598';
 
-			if (validarCorreo(data.email)) {
+			if (data.password === data.password2) {
+				if (validarCorreo(data.email)) {
 				
-				if (data.userType === 'company') {
-					dataConvert = {
-						rutDocumento: data.document,
-						razonSocial: "",
-						nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
-						rubro: "",
-						direccion: "",
-						ciudad: "",
-						descripcion: "",
-						latitude: 0.00,
-						longitude: 0.00,
-	
-						nombre: data.firstName.trim(),
-						apellido: data.lastName.trim(),
-						nombreUsuario: data.username.trim(),
-						contrasenia: data.password.trim(),
-	
-						celular: ctica+data.movil.trim(),
-						
-						correo: data.email.trim(),
-						tipoUsuario: data.userType,
-						logo: '',
+					if (data.userType === 'company') {
+						dataConvert = {
+							rutDocumento: data.document,
+							razonSocial: "",
+							nombrePropietario: data.firstName.trim() + ' ' + data.lastName.trim(),
+							rubro: "",
+							direccion: "",
+							ciudad: "",
+							descripcion: "",
+							latitude: 0.00,
+							longitude: 0.00,
+		
+							nombre: data.firstName.trim(),
+							apellido: data.lastName.trim(),
+							nombreUsuario: data.username.trim(),
+							contrasenia: data.password.trim(),
+		
+							celular: ctica+data.movil.trim(),
+							
+							correo: data.email.trim(),
+							tipoUsuario: data.userType,
+							logo: '',
+						}
+					} else {
+						dataConvert = {
+							documento: data.document.trim(),
+		
+							nombre: data.firstName.trim(),
+							apellido: data.lastName.trim(),
+							nombreUsuario: data.username.trim(),
+							contrasenia: data.password.trim(),
+							celular: ctica+data.movil.trim(),
+							correo: data.email.trim(),
+							tipoUsuario: data.userType,
+		
+							// tieneNotificaciones: data.recibe
+						}
 					}
+		
+					UserServices.postUserRegister(dataConvert)
+					.then(userReturn => {
+						resolve(userReturn);
+					})
+					.catch(error => {
+						reject(error);
+					});
 				} else {
-					dataConvert = {
-						documento: data.document.trim(),
-	
-						nombre: data.firstName.trim(),
-						apellido: data.lastName.trim(),
-						nombreUsuario: data.username.trim(),
-						contrasenia: data.password.trim(),
-						celular: ctica+data.movil.trim(),
-						correo: data.email.trim(),
-						tipoUsuario: data.userType,
-	
-						// tieneNotificaciones: data.recibe
-					}
+					reject('El correo es incorrecto.');
 				}
-	
-				UserServices.postUserRegister(dataConvert)
-				.then(userReturn => {
-					resolve(userReturn);
-				})
-				.catch(error => {
-					reject(error);
-				});
 			} else {
-				reject('El correo es incorrecto.');
+				reject('Debe confirmar la contraseña correctamente.');
+				return;
 			}
+
+
+			
 		});
 	}
 
@@ -167,7 +175,7 @@ class UsersController {
 
 			if (validarCorreo(data.email)) {
 				if (type === 'customer') {
-	
+					// console.log('data.recibe',data.recibe);
 					const dataConvert = {
 						id: data.guid,
 						documento: data.docu.trim(),
@@ -178,7 +186,7 @@ class UsersController {
 						foto: data.foto,
 						tieneNotificaciones: data.recibe,
 					}
-	
+					// console.log('dataConvert',dataConvert);
 					UserServices.putUserDataCustomer(dataConvert)
 					.then(userReturn => {
 						resolve(userReturn);
@@ -265,6 +273,9 @@ class UsersController {
 				reject('Debe ingresar su número de teléfono.');
 				return;
 			}
+
+			// var movil = parseInt(data.movil).toString();
+			// console.log(movil);
 
 			var json = {
                 'user':data.user,
@@ -363,8 +374,8 @@ class UsersController {
 
 	handleConnection(type,url) {
 		return new Promise((resolve, reject) => {
-			console.log('controller type', type);
-			console.log('controller url', url);
+			// console.log('controller type', type);
+			// console.log('controller url', url);
 			UserServices.putConnect(type,url)
 			.then(response => {
 				resolve(response);

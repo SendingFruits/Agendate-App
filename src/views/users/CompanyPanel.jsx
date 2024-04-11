@@ -185,7 +185,7 @@ const CompanyPanel = () => {
 
 	useEffect(() => {
         setSelectedPicture(logoUrl);  
-        console.log('selectedPicture',selectedPicture);
+        // console.log('selectedPicture',selectedPicture);
         setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});    
         setShowModal(false);
         setShowSaveButtom(true);
@@ -197,8 +197,7 @@ const CompanyPanel = () => {
             }
         );     
         const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
+            'keyboardDidHide', () => {
                 // console.log('Teclado cerrado');
 				setShowSaveButtom(true);
             }
@@ -274,8 +273,8 @@ const CompanyPanel = () => {
                         <View style={styles.row}>
                             <View style={styles.columnT}>
                                 <Text style={styles.dataLabel}>RUT:</Text>
-                                <Text style={styles.dataLabel}>Propietario:</Text>
                                 <Text style={styles.dataLabel}>Razón Social:</Text>
+                                <Text style={styles.dataLabel}>Propietario:</Text>
                                 <Text style={styles.dataLabel}>Rubro:</Text>
                                 <Text style={styles.dataLabel}>Ciudad:</Text>
                                 <Text style={styles.dataLabel}>Dirección:</Text>
@@ -290,13 +289,13 @@ const CompanyPanel = () => {
                                     />
                                 <TextInput 
                                     style={styles.dataEdit} 
-                                    value={owner}
-                                    onChangeText={setOwner}
+                                    value={businessName}
+                                    onChangeText={setBusinessName}
                                     />
                                 <TextInput 
                                     style={styles.dataEdit} 
-                                    value={businessName}
-                                    onChangeText={setBusinessName}
+                                    value={owner}
+                                    onChangeText={setOwner}
                                     />
                                 <TextInput 
                                     style={styles.dataEdit} 

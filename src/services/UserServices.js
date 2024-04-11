@@ -156,8 +156,7 @@ class UserServices {
             .then(function (response) {
                 // console.log(response.status);
                 if (response.status == 200) {
-                    // deberia devolver el objeto con los datos nuevos, pero no devuelve nada
-                    resolve(JSON.stringify(response.data));
+                    resolve(response.data);
                 } else {
                     resolve(response.errors);
                 }
@@ -188,7 +187,7 @@ class UserServices {
                 // console.log(response.status);
                 if (response.status == 200) {
                     // deberia devolver el objeto con los datos nuevos, pero no devuelve nada
-                    resolve(JSON.stringify(response.data));
+                    resolve(response.data);
                 } else {
                     resolve(response.errors);
                 }
