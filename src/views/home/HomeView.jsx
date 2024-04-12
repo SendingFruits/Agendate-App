@@ -1,5 +1,9 @@
 import { 
-    AuthContext 
+	CnnContext
+} from '../../context/CnnContext';
+
+import { 
+    AuthContext
 } from '../../context/AuthContext';
 
 import SearchPanel from './SearchPanel';
@@ -8,6 +12,7 @@ import CompanyPanel from '../users/CompanyPanel';
 
 import MapController from '../../controllers/MapController';
 import AlertModal from '../utils/AlertModal';
+import BaseError from '../utils/BaseError';
 
 import React, { 
 	useContext, useRef, useState, useEffect
@@ -37,12 +42,15 @@ import {
 	FontAwesomeIcon 
 } from '@fortawesome/react-native-fontawesome';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const { width, height } = Dimensions.get('window');
 
 const HomeView = ( params ) => {
-	
+
+	const { 
+		isConnected, 
+		setIsConnected, 
+	} = useContext(CnnContext);
+
 	const { 
 		currentUser, 
 		setIdSelected, 
@@ -51,8 +59,6 @@ const HomeView = ( params ) => {
 		favoriteSelected, 
        	setFavoriteSelected
 	} = useContext(AuthContext);
-
-	var { setIsConnected } = params.route.params || {};
 
 	var countMap = 0;
 
@@ -91,7 +97,7 @@ const HomeView = ( params ) => {
 					countMap++;
 				})
 				.catch(error => {
-					console.log(error);
+					// console.log(error);
 					AlertModal.showAlert('API','Problemas de Conexión...');
 					// alert('Problemas de Conexión...'); 
 					setCompanies([]);
@@ -117,9 +123,7 @@ const HomeView = ( params ) => {
 	};
 
 	const handleRatioChange = (value) => {
-		console.log('favoriteSelected handleRatio 1',favoriteSelected);
 		setFavoriteSelected(null);
-		console.log('favoriteSelected handleRatio 2',favoriteSelected);
 		var rango = 0.0200;
 		if (myLocation !== null) {
 			setRatio(value);
@@ -139,6 +143,7 @@ const HomeView = ( params ) => {
 			};
 			mapRef.current.animateToRegion(myLoc); 
 		}
+		
     };
 
 	const onRegionChange = (region, gesture) => {
@@ -332,7 +337,7 @@ const HomeView = ( params ) => {
 		}
 	}
 
-	const favoriteTarget = () => {
+	const favoriteTarget = (favoriteSelected) => {
 		console.log('favoriteSelected',favoriteSelected);
 
 		if (favoriteSelected !== undefined && 
@@ -430,6 +435,10 @@ const HomeView = ( params ) => {
 			setRatio(ratioSelected);
 		}
   
+		// if (!isConnected) {
+		// 	navigation.navigate('BaseError');
+		// }
+
 		fetchData();
 		setShowModal(false);
 

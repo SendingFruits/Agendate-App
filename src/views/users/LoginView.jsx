@@ -1,4 +1,8 @@
 import { 
+	CnnContext
+} from '../../context/CnnContext';
+
+import { 
     AuthContext 
 } from '../../context/AuthContext';
 
@@ -33,7 +37,12 @@ const LoginView = ( params ) => {
 
 	const navigation = useNavigation();
 	const { setIsLogin, setUser, setCurrentUser } = useContext(AuthContext);
-	// console.log('isLogin: ', isLogin);
+	
+	const { 
+		isConnected, 
+		setIsConnected, 
+	} = useContext(CnnContext);
+
 
     const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -95,6 +104,7 @@ const LoginView = ( params ) => {
 				setCurrentUser(currentUser);
 				setUser(currentUser);
 				setIsLogin(true);
+				setIsConnected(true);
 
 				navigation.navigate('Inicio');
 				// alert('Bienvenido '+ (userReturn.firstname !== undefined ? userReturn.firstname : user.nombre ));
@@ -163,7 +173,10 @@ const LoginView = ( params ) => {
 					<Text>¿Olvidaste tu contraseña?</Text>
 					<View style={{ flexDirection:'row' }}>
 						<TouchableOpacity
-							onPress = { () => navigation.navigate('Recuperar')} >
+							onPress = { () => {
+								navigation.navigate('Recuperar')
+								}
+							} >
 							<Text style={{ color:"#f35f44", fontWeight:'bold' }}> Recuperar </Text>
 						</TouchableOpacity>
 					</View>
@@ -173,7 +186,10 @@ const LoginView = ( params ) => {
 					<View style={{ flexDirection:'row' }}>
 						<Text> Registrate </Text>
 						<TouchableOpacity
-							onPress = { () => navigation.navigate('Registro de Usuario')} >
+							onPress = { () => {
+								navigation.navigate('Registro de Usuario')
+								}
+							} >
 							<Text style={{ color:"#f35f44", fontWeight:'bold' }}>Aquí</Text>
 						</TouchableOpacity>
 					</View>
