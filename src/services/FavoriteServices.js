@@ -29,22 +29,11 @@ class FavoriteServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
     };
-
 
     getFavorite = async (idCliente,idServicio) => {
         return new Promise((resolve, reject) => {
@@ -72,22 +61,11 @@ class FavoriteServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
     };
-
 
     postFavorite = async (json) => {
         return new Promise((resolve, reject) => {
@@ -97,10 +75,7 @@ class FavoriteServices {
             const headers = {
                 // Agrega aquí las cabeceras requeridas por la API
             };
-            
-            // console.log('json: ', json);
-            // console.log('urlCompleta: ', urlCompleta);
-            
+
             axios.post(urlCompleta, json, { headers })
             .then(function (response) {
                 console.log('response', response.data);
@@ -111,21 +86,10 @@ class FavoriteServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
-
 
     putNotifications = async (json) => {
         return new Promise((resolve, reject) => {
@@ -150,12 +114,10 @@ class FavoriteServices {
                 }
             })
             .catch(function (error) {
-                // console.log('error.response.data: ', error.response.data);
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });   
     }
-
 
     deleteFavorite = async (guid) => {
         return new Promise((resolve, reject) => {
@@ -178,7 +140,7 @@ class FavoriteServices {
                 }
             })
             .catch(function (error) {
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     }

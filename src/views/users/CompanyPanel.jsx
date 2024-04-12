@@ -371,7 +371,7 @@ const CompanyPanel = () => {
                             <Text style={{ 
                                 top:-5,
                                 fontWeight:'bold',
-                                color: '#f35f44',
+                                color: '#000',
                                 }} >* Pulse en el recuadro para cargar su logo</Text>
                         </View>
 
@@ -436,8 +436,9 @@ var styles = StyleSheet.create({
         // borderColor: '#fff',
     },
     textHeader: {
-        color: '#f35f44',
+        color: '#000',
         fontWeight:'bold',
+        // fontStyle:'',
         padding: 10,
         fontSize: 20,
     },
