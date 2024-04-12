@@ -42,8 +42,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Menu = ( params ) => {	
 	
 	[showModalInfo, setShowModalInfo] = useState(false);
-
+	
 	const { navigation } = params;
+	const { isConnected } = params.params;
     const { 
 		isLogin, setIsLogin, currentUser, setCurrentUser, setNavigation , setRatioSelected, setFavoriteSelected
 	} = useContext(AuthContext);
@@ -102,12 +103,18 @@ const Menu = ( params ) => {
 	};
 
 	useEffect(() => {
+		console.log('isConnected menu',isConnected);
 		setShowModalInfo(false);
         setNavigation(navigation);
 		if (!isLogin) {
 			navigation.navigate('Inicio');
 		}
-	}, [isLogin]);
+		setTimeout(() => {
+			if (!isConnected) {
+				navigation.navigate('BaseError', { errorType:'api', navigation });
+			}
+		}, 1000);
+	}, [isLogin, isConnected]);
 	
 	return (
 		<LinearGradient
@@ -248,7 +255,7 @@ const Menu = ( params ) => {
 					</TouchableOpacity>
 				</View>
 			) : null }
-		</LinearGradient>	
+		</LinearGradient>
 	);
 }
 

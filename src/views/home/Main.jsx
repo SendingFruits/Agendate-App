@@ -1,4 +1,8 @@
 import { 
+	CnnContext
+} from '../../context/CnnContext';
+
+import { 
 	AuthProvider
 } from '../../context/AuthContext';
 
@@ -22,8 +26,8 @@ import PromoCreate from '../promotions/PromoCreate';
 import Testing from '../utils/Testing';
 import BaseError from '../utils/BaseError';
 
-import React, { 
-	useEffect 
+import React, {
+	useEffect, useContext
 } from 'react';
 
 import { Keyboard } from 'react-native';
@@ -34,40 +38,20 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-
 const Main = ( params ) => {
 
-	// const { currentUser } = useContext(AuthContext);
-
 	const Drawer = createDrawerNavigator();
-	// console.log(params);
-	var {
-		isLogin,
-		setIsLogin,
-		isConnected,
-		setIsConnected,
-		// setNavigation,
-	} = params;
 
-	var menuParams = {
-		isLogin:isLogin,
-		setIsLogin:setIsLogin,
-		main:params,
-	}
-
-	var homeParams = {
-		isConnected:isConnected,
-		setIsConnected:setIsConnected,
-	}
+	const { isConnected, setIsConnected } = useContext(CnnContext);
 
 	useEffect(() => {
-		// console.log(currentUser);
-		// setCurrentUser(current_User);
-		// setNavigation(navigation);
-	}, []);
+		console.log('isConnected Main',isConnected);
+	}, [isConnected]);
+
+	var menuParams = { isConnected, setIsConnected }
 
 	return (
-		<AuthProvider>	
+		<AuthProvider>
 			<NavigationContainer
 				onStateChange={(state) => {
 					if ((state.history.length > 1)) {
@@ -99,7 +83,7 @@ const Main = ( params ) => {
 									/>, 
 						}}
 						name="Inicio" 
-						initialParams={homeParams} 
+						// initialParams={{isConnected, setIsConnected}} 
 						component={HomeView}
 						/>
 					<Drawer.Screen 

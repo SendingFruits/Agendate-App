@@ -1,5 +1,9 @@
+import { 
+	CnnContext
+} from '../../context/CnnContext';
+
 import React, {
-    useState, useEffect
+    useState, useEffect, useContext
 } from 'react';
 
 import { 
@@ -7,28 +11,23 @@ import {
     RefreshControl,
     View,
     ScrollView,
-    Text 
+    Text,
+    Image
 } from 'react-native';
 
 // import { useNavigation } from '@react-navigation/native';
 
 const BaseError = ( params, debug=null ) => {
     
-    // console.log('params error: ', params);
-    var params = {
-        errorType,
-        setIsConnected
-    } = params;
-
-    // const navigation = useNavigation();
-
+    var params = { errorType, navigation } = params;
     const [refreshing, setRefreshing] = useState(false);
+    const { isConnected, setIsConnected } = useContext(CnnContext);
 
     const onRefresh = React.useCallback(() => {
 		setRefreshing(true);
 		setTimeout(() => {
 			setRefreshing(false);   
-            setIsConnected(true);
+            navigation.navigate('Inicio');
 		}, 2000);
 	}, []);
 
@@ -51,8 +50,8 @@ const BaseError = ( params, debug=null ) => {
     }
 
     useEffect(() => {
-		// console.log('Error');
-	}, []); 
+		setIsConnected(isConnected);
+	}, [isConnected]); 
 
     return (
         <View style={styles.container}>
@@ -64,7 +63,11 @@ const BaseError = ( params, debug=null ) => {
                     }
                 >
                 <View style={styles.contentContainer}>
-                    {errorView(errorType)}
+                    <Image source={require('../../../assets/errorApiLogo.png')}
+                        style={{ 
+                            width: 50, height: 50, margin: 10
+                        }} />
+                    <Text style={styles.message} >Error de Conexión con la API</Text>
                     <Text>Arrastra hacia abajo para recargar</Text>
                 </View>
             </ScrollView>
@@ -76,7 +79,7 @@ export default BaseError;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 0.9,
         backgroundColor: '#ee',
     },
     scrollView: {
