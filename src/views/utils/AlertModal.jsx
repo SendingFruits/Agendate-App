@@ -4,28 +4,42 @@ import { Alert } from 'react-native';
 class AlertModal {
     
     showAlert = (titile,text) => {
-
-		if (typeof(text) === 'string') {
-			Alert.alert(
-				titile, text,
-				[
-					// { text: 'Cancelar', style: 'cancel' },
-					{ text: 'Aceptar' }
-					// { text: 'Aceptar', onPress: () => console.log('Aceptar presionado') }
-				],
-				// { cancelable: false }
-			);
-		} else {
-			var newSTR = text._j;
-			Alert.alert(
-				'', JSON.stringify(newSTR),
-				[
-					// { text: 'Cancelar', style: 'cancel' },
-					{ text: 'Aceptar' }
-					// { text: 'Aceptar', onPress: () => console.log('Aceptar presionado') }
-				],
-				// { cancelable: false }
-			);
+		console.log('text',text);
+		if (text !== undefined) {
+			if (typeof(text) === 'string') {
+				Alert.alert(
+					titile, text,
+					[
+						// { text: 'Cancelar', style: 'cancel' },
+						{ text: 'Aceptar' }
+						// { text: 'Aceptar', onPress: () => console.log('Aceptar presionado') }
+					],
+					// { cancelable: false }
+				);
+			} else {
+				if (text._j !== undefined) {
+					var newSTR = text._j;
+					Alert.alert(
+						'', newSTR,
+						[
+							// { text: 'Cancelar', style: 'cancel' },
+							{ text: 'Aceptar' }
+							// { text: 'Aceptar', onPress: () => console.log('Aceptar presionado') }
+						],
+						// { cancelable: false }
+					);
+				} else {
+					Alert.alert(
+						'', 'Error al comunicarse con el Servidor',
+						[
+							// { text: 'Cancelar', style: 'cancel' },
+							{ text: 'Aceptar' }
+							// { text: 'Aceptar', onPress: () => console.log('Aceptar presionado') }
+						],
+						// { cancelable: false }
+					);
+				}
+			}
 		}
     };
 

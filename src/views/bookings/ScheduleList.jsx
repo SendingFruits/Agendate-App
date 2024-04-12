@@ -132,7 +132,7 @@ const ScheduleList = ( params ) => {
 			})
 			.catch(error => {
 				// console.log(error);
-				AlertModal.showAlert('Horarios ', JSON.stringify(error));
+				// AlertModal.showAlert('Horarios ', JSON.stringify(error));
 			})
 			.finally(() => {
 				setIsLoading(false);
