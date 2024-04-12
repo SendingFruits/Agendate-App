@@ -29,17 +29,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
@@ -71,22 +61,11 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
     };
-
 
     getDataCompany = async (guid) => {
         return new Promise((resolve, reject) => {
@@ -114,17 +93,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
@@ -153,8 +122,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                // console.log('error.response.data: ', error.response.data);
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });   
     }
@@ -181,18 +149,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                console.log(error);
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
@@ -221,20 +178,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                // console.log('error: ', error);
-                // reject(error.response.data);
-
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
@@ -259,7 +203,7 @@ class CompanyServices {
                 }
             })
             .catch(function (error) {
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     }

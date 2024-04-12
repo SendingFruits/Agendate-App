@@ -12,7 +12,7 @@ import CompanyPanel from '../users/CompanyPanel';
 
 import MapController from '../../controllers/MapController';
 import AlertModal from '../utils/AlertModal';
-import BaseError from '../utils/BaseError';
+// import BaseError from '../utils/BaseError';
 
 import React, { 
 	useContext, useRef, useState, useEffect
@@ -60,8 +60,6 @@ const HomeView = ( params ) => {
        	setFavoriteSelected
 	} = useContext(AuthContext);
 
-	var countMap = 0;
-
 	const mapRef = useRef(null);
 	var userLogin = currentUser;
 	const navigation = useNavigation();
@@ -79,7 +77,6 @@ const HomeView = ( params ) => {
 	const [ratio, setRatio] = useState((ratioSelected !== '' ? ratioSelected : 1));
 
 	const [showRatioPanel, setShowRatioPanel] = useState(true);
-	const [favoriteCallout, setFavoriteCallout] = useState(true);
 
 	const fetchData = async () => {
 		try {
@@ -93,16 +90,18 @@ const HomeView = ( params ) => {
 				.then(companiesReturn => {
 					// console.log('companiesReturn', companiesReturn);
 					setCompanies(companiesReturn);
-					setIsConnected(true);
-					countMap++;
+					setTimeout(() => {
+						setIsConnected(true);
+					}, 500);
 				})
 				.catch(error => {
 					// console.log(error);
 					AlertModal.showAlert('API','Problemas de Conexión...');
 					// alert('Problemas de Conexión...'); 
 					setCompanies([]);
-					setIsConnected(false);
-					countMap = 0;
+					setTimeout(() => {
+						setIsConnected(false);
+					}, 500);
 				});
 
 			} else {
@@ -337,14 +336,18 @@ const HomeView = ( params ) => {
 		}
 	}
 
-	const favoriteTarget = (favoriteSelected) => {
+	const favoriteTarget = () => {
 		console.log('favoriteSelected',favoriteSelected);
 
 		if (favoriteSelected !== undefined && 
 			favoriteSelected !== null && 
 			favoriteSelected !== {}
 		) {
-			var favoriteCoordinates = {latitude:favoriteSelected.latitude, longitude:favoriteSelected.longitude};
+			var favoriteCoordinates = {
+				latitude:favoriteSelected.latitude, 
+				longitude:favoriteSelected.longitude
+			};
+			
 			console.log('favoriteCoordinates',favoriteCoordinates);
 			
 			if (favoriteCoordinates.latitude !== null
@@ -358,7 +361,7 @@ const HomeView = ( params ) => {
 					latitudeDelta: 0.0200,
 					longitudeDelta: 0.0200,
 				};
-				// console.log('newCoord',newCoord);
+				console.log('newCoord',newCoord);
 				mapRef.current.animateToRegion(newCoord); 
 				const idEmpresaExistente = companies.some(company => company.id === favoriteSelected.idEmpresa);
 				// console.log(idEmpresaExistente);
@@ -410,11 +413,16 @@ const HomeView = ( params ) => {
 					</>
 				);
 			}
+
+			// setTimeout(() => {
+			// 	favoriteCoordinates 
+			// }, 3000);
 		}
 	}
 	
 	const geoMyLocation = async () => {
 		try {
+			setFavoriteSelected(null);
 			const newRegion = {
 				latitude: myLocation.latitude,
 				longitude: myLocation.longitude,
@@ -456,7 +464,7 @@ const HomeView = ( params ) => {
             }
         );
 		
-	}, [favoriteSelected, ratio, countMap]);
+	}, [favoriteSelected, ratio, isConnected]);
 
 	return (
 		<View style={styles.container}>

@@ -127,9 +127,9 @@ const Menu = ( params ) => {
 				{/* Header */}
 				<View style={styles.header}>
 					<Text style={styles.title}>Menú</Text>
-					<TouchableOpacity style={{ margin: 5 }} onPress={ () => viewInfo() }>
+					{/* <TouchableOpacity style={{ margin: 5 }} onPress={ () => viewInfo() }>
 						<FontAwesomeIcon icon={faCircleInfo} color={'#000'}/>
-					</TouchableOpacity>
+					</TouchableOpacity> */}
 
 					{/* <Modal
 						visible={showModalInfo} 

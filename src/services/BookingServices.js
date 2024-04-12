@@ -37,17 +37,7 @@ class BookingServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
@@ -79,23 +69,12 @@ class BookingServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject(-1);                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });  
     }
 
-    
     postBooking = async (json) => {
         return new Promise((resolve, reject) => {
             
@@ -135,7 +114,6 @@ class BookingServices {
         });
     };
 
-
     putBookingStatus = async (guid, status) => {
         return new Promise((resolve, reject) => {
   
@@ -170,8 +148,7 @@ class BookingServices {
                 }
             })
             .catch(function (error) {
-                console.log('error.response.data: ', error.response.data);
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     };

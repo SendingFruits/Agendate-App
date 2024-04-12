@@ -45,14 +45,14 @@ const FavoriteItem = (params) => {
   
     const goToMap = () => {
         // setFavoriteCoordinates({latitude:item.latitude, longitude:item.longitude});
-        console.log('favoriteSelected',favoriteSelected);
+        setFavoriteSelected(item);
+        // console.log('favoriteSelected',favoriteSelected);
         navigation.navigate('Inicio');
     }
    
 	useEffect(() => {
         setBodyHeight(130);
-		setFavoriteSelected(item);
-	}, [favoriteSelected,edit]);
+	}, [edit]);
     
     return (
         <View style={styles.container}>

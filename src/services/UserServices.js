@@ -30,17 +30,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
@@ -73,17 +63,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
             
         });
@@ -120,20 +100,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                // console.log('error: ', error.response);
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else if (error.message == 'Request failed with status code 400') {
-                    reject(error.response.data); 
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
         });
     };
@@ -162,8 +129,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                console.log('error.response.data: ', error.response.data);
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     };
@@ -193,8 +159,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                console.log('error.response.data: ', error.response.data);
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     };
@@ -223,7 +188,7 @@ class UserServices {
                 }
             })
             .catch(error => {
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
@@ -242,8 +207,8 @@ class UserServices {
                 'Accept': 'application/json'
             };
 
-            console.log('json: ', json);
-            console.log('urlCompleta: ', urlCompleta);
+            // console.log('json: ', json);
+            // console.log('urlCompleta: ', urlCompleta);
 
             axios.post(urlCompleta, {})
             .then(response => {
@@ -255,17 +220,7 @@ class UserServices {
                 }
             })
             .catch(function (error) {
-                if (error.message == 'Network Error') {
-                    reject('Error de Conexión. Verifique su conexión a Internet o consulte el proveedor.');  
-                } else {
-                    if (error.response.status >= 500) {
-                        reject('Error de Servidor. Verifique su conexión a Internet o consulte el proveedor.');                
-                    } else if ((error.response.status >= 400) && (error.response.status < 500)) {
-                        reject(error.response.data); 
-                    } else {
-                        reject('Error Desconocido.');    
-                    }
-                }
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
@@ -291,7 +246,7 @@ class UserServices {
                 }
             })
             .catch(error => {
-                reject(error.response.data);
+                reject(ApiConfig.cnnError(error));
             });
         });
     }
@@ -314,7 +269,7 @@ class UserServices {
                     resolve('No se adjunto el valor');
                 }
             } catch (error) {
-                reject('Error Token: ', error);
+                reject(ApiConfig.cnnError(error));
             }
         });
     }

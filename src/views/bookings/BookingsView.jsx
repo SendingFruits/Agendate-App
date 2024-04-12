@@ -59,7 +59,7 @@ const BookingsView = ( params ) => {
         setShowPanel(true);
         setShowModal(false);
     };
-
+ 
     const loadBookings = () => {
         if (type !== 'none' && guid !== 'none') {
             if (type === 'customer') {
@@ -100,6 +100,24 @@ const BookingsView = ( params ) => {
         }
     }
 
+    const listBookings = () => {
+        // console.log(list);
+		if (list) {
+			return list.map((item, index) => {
+				return item && (
+					<View key={index}>
+                        <BookingItem 
+                            index={index}
+                            type={type}
+                            item={item} 
+                            onRefresh={onRefresh}
+                        />
+                    </View>
+				)
+			});
+		}
+	};
+
     const showDatePicker= (panel,modal) => {
         setShowPanel(panel);
         setShowModal(modal);
@@ -118,8 +136,6 @@ const BookingsView = ( params ) => {
         
     }, [guid, type, dateSelected]);
 
-    // console.log('list: ', list);
-
     return (
         <View style={styles.container}>
             {showPanel && type === 'company' ? (
@@ -136,35 +152,22 @@ const BookingsView = ( params ) => {
                 </>
             ) : null }
 
-            {/* {(list !== null || (Array.isArray(list) && list.length !== 0)) ? ( */}
             <ScrollView 
-                    contentContainerStyle={styles.scrollContainer}
-                    refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
-                        
-                        
-                    {(list.length ==! 0) ? (
-                        <View key={index}>
-                            <BookingItem 
-                                index={index}
-                                type={type}
-                                item={item} 
-                                onRefresh={onRefresh}
-                            />
-                        </View>
-                    ) : null}
-
-                    {(list.length === 0) ? (
-                
-                <View >
-                    {type === 'company' ? 
-                       <Text style={styles.mesaggeLabel}>No hay Reservas para el {formatDate(dateSelected)}</Text> 
-                    : <Text style={styles.mesaggeLabel}>No realizó Reservas aún</Text> }
-                </View>
-                ) : null}
-                </ScrollView>
-            
-            
-          
+                contentContainerStyle={styles.scrollContainer}
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
+               
+                {(list.length > 0) ? (
+                    <>
+                        {listBookings()}
+                    </>
+                ) : <>
+                    <View style={styles.messagesBlock}>
+                        {type === 'company' ? 
+                            <Text>No hay Reservas para el {formatDate(dateSelected)}</Text> 
+                        : <Text>No realizó Reservas aún</Text> }
+                    </View>
+                </> }
+            </ScrollView>
         </View>
     );
 };
@@ -172,19 +175,22 @@ const BookingsView = ( params ) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#e9e9f8',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    mesaggeLabel: {
-        marginTop: 331,
-        fontSize: 18
+        // backgroundColor: '#e9e9f8',
+        // alignItems: 'center',
+        // justifyContent: 'center',
     },
     scrollContainer: {
         flex: 1,
         height: height,
 		minHeight: height,
         width: '100%',
+    },
+    messagesBlock: {
+        flexDirection: 'row',
+        justifyContent:'center',
+        alignItems:'center',
+        alignSelf:'center',
+        marginVertical:60
     },
     btnCreate: {
         width: 50,

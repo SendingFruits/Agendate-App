@@ -263,7 +263,7 @@ const BookingItem = ( params ) => {
                         { type === 'company' ? (
                             <View style={styles.rowInvi}>
 
-                                {item.estado === 'Solicitada' ? (
+                                {item.estado === 'Pendiente' ? (
                                     <>
                                         <LinearGradient
                                             style={styles.cancel}
@@ -280,7 +280,7 @@ const BookingItem = ( params ) => {
                                     </>
                                 ) : null }
 
-                                {item.estado === 'Solicitada' ? (
+                                {item.estado === 'Pendiente' ? (
                                     <>
                                         <LinearGradient
                                             style={styles.cancel}
@@ -300,7 +300,7 @@ const BookingItem = ( params ) => {
                             </View>
                         ) : ( 
                             <>
-                                {item.estado === 'Solicitada' ? (
+                                {item.estado === 'Pendiente' ? (
                                     <>
                                         <LinearGradient
                                             style={styles.cancel}
