@@ -81,7 +81,7 @@ const BookingItem = ( params ) => {
                 if (alertRes) {
                     BookingController.handleDoneBooking(id)
                     .then(resDone => {
-                        // console.log('userReturn: ', userReturn);
+                        console.log('userReturn: ', userReturn);
                         if (resDone) {
                             onRefresh();
                         }

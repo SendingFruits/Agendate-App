@@ -46,21 +46,10 @@ const { width, height } = Dimensions.get('window');
 
 const CompanyPanel = () => {
 
-    const { currentUser, setCurrentUser, navigation, setUser } = useContext(AuthContext);
-    console.log(currentUser);
-    // const navigation = useNavigation();
+    const { currentUser, setCurrentUser, navigation } = useContext(AuthContext);
+    // console.log(currentUser);
+    var guid = currentUser.guid;
 
-    // const [user, setUser] = useState(currentUser);
-
-    const [guid, setGuid] = useState(currentUser.guid);
-    const [type, setType] = useState(currentUser.type);
-    const [username, setUsername] = useState(currentUser.user);
-    const [firstname, setFirstname] = useState(currentUser.name);
-    const [lastname, setLastname] = useState(currentUser.last);
-    const [movil, setMovil] = useState(currentUser.celu);
-    const [email, setEmail] = useState(currentUser.mail);
-    const [isChecked, setChecked] = useState((currentUser.noti === 'True' ? true : false));
-    
     const [rut, setRut] = useState(currentUser.rut);
     const [owner, setOwner] = useState(currentUser.owner);
     const [businessName, setBusinessName] = useState(currentUser.businessName);
@@ -75,10 +64,44 @@ const CompanyPanel = () => {
 
     const [location, setLocation] = useState({latitude:currentUser.latitude, longitude:currentUser.longitude});
 
-    const [refreshing, setRefreshing] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showSaveButtom, setShowSaveButtom] = useState(true);
     
+    const [refreshing, setRefreshing] = useState(false);
+
+	const onRefresh = React.useCallback((formData) => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+
+            if (formData) {
+                setRut(formData.rut);
+                setOwner(formData.owner);
+                setBusinessName(formData.businessName);
+                setCategory(formData.category);
+                setAddress(formData.address);
+                setCity(formData.city);
+                setDescription(formData.description);
+                setLogoBase(formData.logoBase);
+                setLocation({latitude:formData.location.latitude, longitude:formData.location.longitude});
+            } else {
+                setRut(currentUser.rut);
+                setOwner(currentUser.owner);
+                setBusinessName(currentUser.businessName);
+                setCategory(currentUser.category);
+                setAddress(currentUser.address);
+                setCity(currentUser.city);
+                setDescription(currentUser.description);
+                setLogoBase(currentUser.logo);
+                setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
+            }
+            setLogoUrl(loadImageFromBase64(currentUser.logo));
+            setShowModal(false);
+            setShowSaveButtom(true);
+
+            navigation.navigate('Inicio');
+		}, 2000);
+	}, []);
 
     const captureLocation = async () => {
         try {
@@ -116,30 +139,7 @@ const CompanyPanel = () => {
 		.then(dataReturn => {
 			if (dataReturn) {
 				AlertModal.showAlert('Envio Exitoso', 'Datos de la empresa Actualizados.');  
-                setUser({
-                    guid: currentUser.guid,
-                
-                    name: currentUser.firstname,
-                    last: currentUser.lastname,
-                    pass: currentUser.pass,
-                    user: currentUser.user,
-                    celu: currentUser.movil,
-                    mail: currentUser.email,
-                   
-                    noti: true,
-                    type: currentUser.type,
-
-                    rut: formData.rut,
-                    businessName: formData.businessName,
-                    owner: formData.owner,
-                    category: formData.category,
-                    address: formData.address,
-					city: formData.city,
-                    description: formData.descripcion,
-                    latitude: formData.location.latitude,
-					longitude: formData.location.longitude,
-                    logo: (formData.logoBase === null || formData.logoBase === '') ? 'none' : formData.logoBase,
-                });
+                onRefresh(formData);
 			}
 		})
 		.catch(error => {
@@ -183,49 +183,10 @@ const CompanyPanel = () => {
 		openLogoPickerAsync();
 	};
 
-    const onRefresh = React.useCallback(() => {
-		setRefreshing(true);
-		setTimeout(() => {
-			setRefreshing(false);
-            // setUser(currentUser);
-
-            // setRut(currentUser.rut);
-            // setOwner(currentUser.owner);
-            // setBusinessName(currentUser.businessName);
-            // setCategory(currentUser.category);
-            // setAddress(currentUser.address);
-            // setCity(currentUser.city);
-            // setDescription(currentUser.description);
-            // setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});
-            
-            // setLogoBase(currentUser.logo);
-            // setLogoUrl(loadImageFromBase64(currentUser.logo));
-            // setSelectedPicture(logoUrl); 
-
-            setShowModal(false);
-            setShowSaveButtom(true);
-
-            navigation.navigate('Inicio');
-		}, 2000);
-	}, []);
-
 	useEffect(() => {
-
-        // setUser(currentUser);
-
-        setRut(currentUser.rut);
-        setOwner(currentUser.owner);
-        setBusinessName(currentUser.businessName);
-        setCategory(currentUser.category);
-        setAddress(currentUser.address);
-        setCity(currentUser.city);
-        setDescription(currentUser.description);
-        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});    
-        
-        setLogoBase(currentUser.logo);
-        setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);  
-        
+        // console.log('selectedPicture',selectedPicture);
+        setLocation({latitude:currentUser.latitude, longitude:currentUser.longitude});    
         setShowModal(false);
         setShowSaveButtom(true);
 
@@ -246,11 +207,11 @@ const CompanyPanel = () => {
             if ((location.latitude === '' || location.latitude === 0)
              && (location.longitude === '' || location.longitude === 0)
             ) {
-                AlertModal.showAlert('','Tu empresa no se verá en el mapa hasta que captures tu ubicación y la guardes.\nRequerde que al captar la ubicación de su empresa, debe estar fisicamente en la misma, dado que la ubicación se capta del dispositivo.');
+                AlertModal.showAlert('','Tu empresa no se verá en el mapa hasta que captures tu ubicación y la guardes.');
             }
         }, 3000);
 
-	}, [currentUser]);
+	}, [currentUser.latitude, currentUser.longitude]);
 
     return (
         <View style={styles.container}>
@@ -586,8 +547,7 @@ var styles = StyleSheet.create({
 
     saveButton: {
         marginTop:-30,
-        marginHorizontal: 10,
-        marginVertical: 5
+        marginHorizontal: 10
     },
 });
 
