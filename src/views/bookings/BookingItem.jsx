@@ -123,6 +123,31 @@ const BookingItem = ( params ) => {
 		});
     };
 
+    const decline = (id) => {
+        // console.log('cancellation of: ', id);
+        var text = '¿Seguro desea cancelar la Reserva?';
+
+        AlertModal.showConfirmationAlert(text)
+		.then(alertRes => {
+			// console.log('alertRes: ', alertRes);
+			if (alertRes) {
+                BookingController.handleDeclinelBooking(id)
+                .then(resDelete => {
+                    // console.log('userReturn: ', userReturn);
+                    if (resDelete) {
+                        onRefresh();
+                    }
+                })
+                .catch(error => {
+                    alert(error);
+                });
+            }
+		})
+		.catch(error => {
+			alert(error);
+		});
+    };
+
 	useEffect(() => {
 		setIsCollapsed(true);
 
@@ -290,8 +315,8 @@ const BookingItem = ( params ) => {
                                             end={{ x: 1.5, y: 0.5 }} 
                                             >       
                                             <TouchableOpacity
-                                                onPress={() => cancellation(item.id)} > 
-                                                <Text style={{color:'#000', textAlign:'center' }}>Cancelar</Text>
+                                                onPress={() => decline(item.id)} > 
+                                                <Text style={{color:'#000', textAlign:'center' }}>Rechazar</Text>
                                             </TouchableOpacity>    
                                         </LinearGradient>
                                     </>

@@ -423,12 +423,15 @@ const HomeView = ( params ) => {
 	const geoMyLocation = async () => {
 		try {
 			setFavoriteSelected(null);
-			const newRegion = {
-				latitude: myLocation.latitude,
-				longitude: myLocation.longitude,
-				latitudeDelta: 0.0200,
-				longitudeDelta: 0.0200,
-			};
+			const newRegion = await MapController.getLocation();
+			if (newRegion === null) {
+				newRegion = {
+					latitude: myLocation.latitude,
+					longitude: myLocation.longitude,
+					latitudeDelta: 0.0200,
+					longitudeDelta: 0.0200,
+				};
+			}
 			// Centra el mapa en la ubicación de la empresa encontrada
 			mapRef.current.animateToRegion(newRegion); 
 			Keyboard.dismiss();
@@ -636,7 +639,7 @@ const styles = StyleSheet.create({
 	},
 	ratioPanelPortrait: {
 		position: 'absolute',
-		top: '96%',
+		top: '93%',
 		left: '24%',
 		zIndex: 2,
 	},	

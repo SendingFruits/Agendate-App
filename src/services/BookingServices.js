@@ -121,6 +121,11 @@ class BookingServices {
             var urlCompleta = `${ApiConfig.API_BASE_URL}`;
 
             if (status === 'cancel') {
+                var sts = 'Cancelar';
+                method = 'Reservas/CancelarReserva';
+                urlCompleta += `${method}?idReserva=${guid}`;
+            }
+            if (status === 'decline') {
                 var sts = 'Rechazada';
                 method = 'Reservas/CambiarEstadoReserva';
                 urlCompleta += `${method}?idReserva=${guid}&estadoNuevo=${sts}`;

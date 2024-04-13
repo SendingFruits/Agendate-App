@@ -88,6 +88,19 @@ class BookingController {
 		});
 	}
 
+	handleDeclinelBooking(guid) {
+		console.log('handleCancelBooking',guid);
+		return new Promise((resolve, reject) => {	
+			BookingServices.putBookingStatus(guid, 'decline')
+			.then(bookReturn => {
+				resolve(bookReturn);
+			})
+			.catch(error => {
+				reject(error);
+			});
+		});
+	}
+
 	handleDoneBooking(guid) {
 		console.log('handleDoneBooking',guid);
 		return new Promise((resolve, reject) => {
