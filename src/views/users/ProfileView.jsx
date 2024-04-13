@@ -109,7 +109,6 @@ const ProfileView = () => {
 		openLogoPickerAsync();
 	};
 
-
     let openLogoPickerAsync = async () => {
         try {
             let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -148,30 +147,6 @@ const ProfileView = () => {
             AlertModal.showAlert('Error al cargar imagen. ', error);
         }
     }
-
-
-    const onRefresh = React.useCallback(() => {
-		setRefreshing(true);
-		setTimeout(() => {
-			setRefreshing(false);
-            // console.log('currentUser.noti',currentUser.noti);
-            setGuid(currentUser.guid);
-            setType(currentUser.type);
-            setDocu(currentUser.docu);
-            setUsername(currentUser.user);
-            setFirstname(currentUser.name);
-            setLastname(currentUser.last);
-            setMovil(currentUser.celu);
-            setEmail(currentUser.mail);
-            setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
-            setLogoBase(currentUser.logo);
-            setLogoUrl(loadImageFromBase64(currentUser.logo));
-            setSelectedPicture(logoUrl); 
-
-            navigation.navigate('Perfil de Usuario');
-		}, 2000);
-	}, [currentUser]);
-
 
     const updateData = () => {
         
@@ -266,6 +241,29 @@ const ProfileView = () => {
 		});
 	};
 
+    const onRefresh = React.useCallback(() => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+            
+            setGuid(currentUser.guid);
+            setType(currentUser.type);
+            setDocu(currentUser.docu);
+            setUsername(currentUser.user);
+            setFirstname(currentUser.name);
+            setLastname(currentUser.last);
+            setMovil(currentUser.celu);
+            setEmail(currentUser.mail);
+            setChecked((currentUser.noti === 'True' || currentUser.noti) ? true : false);
+            
+            setLogoBase(currentUser.logo);
+            setLogoUrl(loadImageFromBase64(currentUser.logo));
+            setSelectedPicture(logoUrl); 
+
+            navigation.navigate('Perfil de Usuario');
+		}, 2000);
+	}, [currentUser]);
+
 	useEffect(() => {
         
         setUser(currentUser);
@@ -284,10 +282,6 @@ const ProfileView = () => {
         setLogoUrl(loadImageFromBase64(currentUser.logo));
         setSelectedPicture(logoUrl);
 
-
-        /**
-         * esto sirve para controlar el teclado:
-         */
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow', () => {
                 // console.log('Teclado abierto');
@@ -301,6 +295,7 @@ const ProfileView = () => {
                 setShowButtons(true);
             }
         );
+        
 	}, [currentUser]);
 
     return (

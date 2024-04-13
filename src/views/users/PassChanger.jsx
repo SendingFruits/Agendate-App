@@ -94,7 +94,7 @@ const PassChanger = (params) => {
         setIconEye1(false);
         handleNewPassChange('');
         setIconEye2(false);
-	}, [currentUser.pass]);
+	}, [currentUser]);
 
     return (
         <LinearGradient 
@@ -104,7 +104,13 @@ const PassChanger = (params) => {
             end={{ x: 0.0, y: 0.00010 }}
             style={styles.container}
             >
-            <View>
+            <View style={{
+                padding:10,
+                borderRadius:10,
+                borderWidth:0.7,
+                backgroundColor:'#e9e6f8',
+                marginBottom:50
+            }}>
                 <Text style={styles.txtUpdate}>Contraseña Actual: </Text>
                 <View style={styles.inputContainer}>
                     <TextInput style={styles.input}
@@ -157,7 +163,19 @@ const PassChanger = (params) => {
 						onPress = { () => changePassword()}
 					/>
                 </View>
+            </View>
 
+            <View 
+                style={{
+                    flexDirection:'row',
+                    justifyContent: 'center', 
+                    alignItems: 'flex-end'
+                }} >
+                <TouchableOpacity onPress={() => {
+                        navigation.navigate('Perfil de Usuario') // {coordinates, item}
+                    }} >
+                    <Text style={{ fontWeight:'bold', color:'#000' }}>VOLVER</Text>
+                </TouchableOpacity>
             </View>
         </LinearGradient>
 

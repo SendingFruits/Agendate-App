@@ -182,7 +182,8 @@ const styles = StyleSheet.create({
     scrollContainer: {
         flex: 1,
         height: height,
-		minHeight: height,
+		minHeight: height+250,
+        maxHeight: height,
         width: '100%',
     },
     messagesBlock: {

@@ -319,17 +319,28 @@ class UsersController {
 		return new Promise((resolve, reject) => {
 		
 			if (data.rut == '') {
-				reject('Falta el RUT.');
+				reject('Debe ingresar el RUT.');
 				return;
 			}
 			if (data.businessName == '') {
-				reject('Falta la razón social.');
+				reject('Debe ingresar una razón social.');
 				return;
 			}
 			if (data.category == '') {
-				reject('Falta la categoría.');
+				reject('Debe ingresar el Rubro.');
 				return;
 			}
+
+			if (data.description == '') {
+				reject('Debe ingresar una descripción.');
+				return;
+			}
+			
+			if (data.logoBase == 'none' || data.logoBase === undefined) {
+				data.logoBase = '';
+			}
+
+
 
 			if (data.location.latitude === undefined) data.location.latitude = 0.0;
 			if (data.location.longitude === undefined) data.location.longitude = 0.0; 

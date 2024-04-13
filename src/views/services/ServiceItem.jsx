@@ -58,7 +58,8 @@ const ServiceItem = (params) => {
     const [descripcion, setDescription] = useState(item.descripcion);
     const [dias, setDias] = useState(JSON.parse(item.jsonDiasHorariosDisponibilidadServicio));
 
-
+    const [interval, setInterval] = useState(30);
+    
     const setDuracionTurno = (item) => {
         // console.log(item);
         if (item === 30) {
